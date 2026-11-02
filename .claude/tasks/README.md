@@ -7,8 +7,8 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 **Mốc an toàn:** hết tuần 4 phải có MVP chạy được (mua hàng + admin lõi). Nếu trễ, cắt bớt tuần 5 theo thứ tự (cắt cái đầu tiên trước): 32 Người dùng → 33 Banner → 34/35 NEWS → 31 Kho → 36/37 Dashboard (giữ lâu nhất vì demo ấn tượng nhất).
 
 ## Tuần 1 – Nền tảng
-- [ ] [01](01-git-init.md) Khởi tạo Git — phụ thuộc: —
-- [ ] [02](02-backend-mysql-config.md) Chuyển backend sang MySQL — 01
+- [x] [01](01-git-init.md) Khởi tạo Git — phụ thuộc: —
+- [x] [02](02-backend-mysql-config.md) Chuyển backend sang MySQL — 01
 - [ ] [03](03-laravel-boost-sanctum-cors.md) Laravel Boost, Sanctum, CORS — 02
 - [ ] [04](04-migrations-models.md) Migration & Model — 03
 - [ ] [05](05-factories-seeders.md) Factory & Seeder — 04
