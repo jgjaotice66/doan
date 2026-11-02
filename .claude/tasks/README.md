@@ -11,7 +11,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [02](02-backend-mysql-config.md) Chuyển backend sang MySQL — 01
 - [x] [03](03-laravel-boost-sanctum-cors.md) Laravel Boost, Sanctum, CORS — 02
 - [x] [04](04-migrations-models.md) Migration & Model — 03
-- [ ] [05](05-factories-seeders.md) Factory & Seeder — 04
+- [x] [05](05-factories-seeders.md) Factory & Seeder — 04
 - [ ] [06](06-auth-api.md) API xác thực (+test) — 04
 - [ ] [07](07-admin-middleware.md) Middleware admin (+test) — 06
 - [ ] [08](08-frontend-setup.md) Cài đặt frontend — 01
