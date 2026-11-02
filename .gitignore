@@ -1,0 +1,17 @@
+# Backend (Laravel) – bổ sung cho backend/.gitignore
+backend/vendor/
+backend/.env
+backend/database/database.sqlite
+
+# Frontend (React/Vite) – bổ sung cho frontend/.gitignore
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Chung
+*.log
+.DS_Store
+Thumbs.db
+
+# Claude Code: chỉ track spec và task, bỏ qua cấu hình cá nhân
+.claude/settings.local.json
