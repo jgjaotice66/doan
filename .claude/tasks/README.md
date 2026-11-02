@@ -13,7 +13,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [04](04-migrations-models.md) Migration & Model — 03
 - [x] [05](05-factories-seeders.md) Factory & Seeder — 04
 - [x] [06](06-auth-api.md) API xác thực (+test) — 04
-- [ ] [07](07-admin-middleware.md) Middleware admin (+test) — 06
+- [x] [07](07-admin-middleware.md) Middleware admin (+test) — 06
 - [ ] [08](08-frontend-setup.md) Cài đặt frontend — 01
 - [ ] [09](09-layouts-route-guard.md) Layout & bảo vệ route — 08
 - [ ] [10](10-login-register-pages.md) Trang đăng nhập/đăng ký — 06, 09

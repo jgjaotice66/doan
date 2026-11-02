@@ -13,12 +13,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/login', [AuthController::class, 'login']);
     });
 
-    // Đã đăng nhập.
-    Route::middleware('auth:sanctum')->group(function () {
+    // Đã đăng nhập (và tài khoản chưa bị khoá).
+    Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
 
         Route::get('/me', [ProfileController::class, 'show']);
         Route::put('/me', [ProfileController::class, 'update']);
         Route::put('/me/password', [ProfileController::class, 'updatePassword']);
+
+        // Quản trị viên.
+        Route::prefix('admin')->middleware('admin')->group(function () {
+            Route::get('/ping', fn () => ['status' => 'ok', 'scope' => 'admin']);
+        });
     });
 });
