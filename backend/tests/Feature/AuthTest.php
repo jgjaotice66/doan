@@ -54,7 +54,7 @@ class AuthTest extends TestCase
 
         $this->postJson('/api/v1/auth/register', $this->registerPayload())
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email' => 'Email này đã được đăng ký.']);
     }
 
     public function test_register_requires_password_confirmation(): void

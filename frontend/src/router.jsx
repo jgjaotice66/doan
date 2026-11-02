@@ -6,6 +6,8 @@ import RequireAuth from './components/RequireAuth'
 import StoreLayout from './layouts/StoreLayout'
 import NotFoundPage from './pages/NotFoundPage'
 import HomePage from './pages/store/HomePage'
+import LoginPage from './pages/store/LoginPage'
+import RegisterPage from './pages/store/RegisterPage'
 
 const placeholder = (title, task) => <PagePlaceholder title={title} task={task} />
 
@@ -31,8 +33,8 @@ export const router = createBrowserRouter([
           { path: 'products/:slug', element: placeholder('Chi tiết sản phẩm', '17') },
           { path: 'news', element: placeholder('Tin tức', '35') },
           { path: 'news/:slug', element: placeholder('Bài viết', '35') },
-          { path: 'login', element: placeholder('Đăng nhập', '10') },
-          { path: 'register', element: placeholder('Đăng ký', '10') },
+          { path: 'login', element: <LoginPage /> },
+          { path: 'register', element: <RegisterPage /> },
           {
             element: <RequireAuth />,
             children: [

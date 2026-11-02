@@ -15,8 +15,8 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [06](06-auth-api.md) API xác thực (+test) — 04
 - [x] [07](07-admin-middleware.md) Middleware admin (+test) — 06
 - [x] [08](08-frontend-setup.md) Cài đặt frontend — 01
-- [ ] [09](09-layouts-route-guard.md) Layout & bảo vệ route — 08
-- [ ] [10](10-login-register-pages.md) Trang đăng nhập/đăng ký — 06, 09
+- [x] [09](09-layouts-route-guard.md) Layout & bảo vệ route — 08
+- [x] [10](10-login-register-pages.md) Trang đăng nhập/đăng ký — 06, 09
 
 ## Tuần 2 – Catalog
 - [ ] [11](11-catalog-api.md) API danh mục/thương hiệu/banner — 05
