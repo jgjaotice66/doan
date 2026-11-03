@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\WishlistController;
@@ -42,6 +43,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'index']);
         Route::post('/wishlist', [WishlistController::class, 'store']);
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'destroy'])->whereNumber('productId');
+
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
+        Route::get('/orders/{code}', [OrderController::class, 'show']);
 
         // Quản trị viên.
         Route::prefix('admin')->middleware('admin')->group(function () {
