@@ -20,4 +20,25 @@ enum OrderStatus: string
             self::Cancelled => 'Đã huỷ',
         };
     }
+
+    /**
+     * Luồng trạng thái hợp lệ — quy tắc duy nhất cho cả khách và admin:
+     * pending → confirmed → shipping → completed; huỷ được khi pending hoặc confirmed.
+     *
+     * @return list<self>
+     */
+    public function allowedNext(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Confirmed, self::Cancelled],
+            self::Confirmed => [self::Shipping, self::Cancelled],
+            self::Shipping => [self::Completed],
+            self::Completed, self::Cancelled => [],
+        };
+    }
+
+    public function canTransitionTo(self $next): bool
+    {
+        return in_array($next, $this->allowedNext(), true);
+    }
 }

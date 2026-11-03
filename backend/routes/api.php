@@ -47,6 +47,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/orders', [OrderController::class, 'index']);
         Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
         Route::get('/orders/{code}', [OrderController::class, 'show']);
+        Route::post('/orders/{code}/cancel', [OrderController::class, 'cancel']);
 
         // Quản trị viên.
         Route::prefix('admin')->middleware('admin')->group(function () {

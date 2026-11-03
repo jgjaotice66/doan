@@ -85,6 +85,80 @@ class OrderService
     }
 
     /**
+     * Chuyển trạng thái đơn theo OrderStatus::allowedNext(). Dùng chung cho khách (huỷ) và admin (task 30).
+     *   - Huỷ → hoàn kho từng dòng (reason = cancel).
+     *   - Hoàn thành + COD → tự đánh dấu đã thanh toán (shipper đã thu tiền).
+     *
+     * @throws ValidationException chuyển sai luồng
+     */
+    public function changeStatus(Order $order, OrderStatus $to, User $actor): Order
+    {
+        return DB::transaction(function () use ($order, $to, $actor) {
+            // Khoá lại dòng đơn và đọc trạng thái mới nhất: bấm huỷ 2 lần (hoặc khách + admin cùng huỷ)
+            // thì lần sau thấy đơn đã huỷ và bị từ chối → kho không bị hoàn 2 lần.
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if (! $locked->status->canTransitionTo($to)) {
+                throw ValidationException::withMessages([
+                    'status' => "Không thể chuyển đơn từ “{$locked->status->label()}” sang “{$to->label()}”.",
+                ]);
+            }
+
+            if ($to === OrderStatus::Cancelled) {
+                $this->restock($locked, $actor);
+            }
+
+            $locked->status = $to;
+            if ($to === OrderStatus::Completed && $locked->payment_method === PaymentMethod::Cod) {
+                $locked->payment_status = PaymentStatus::Paid;
+            }
+            $locked->save();
+
+            $order->setRawAttributes($locked->getAttributes(), true);
+
+            return $order;
+        });
+    }
+
+    /**
+     * Khách tự huỷ: chỉ khi đơn còn chờ xác nhận (đã xác nhận thì phải liên hệ cửa hàng).
+     *
+     * @throws ValidationException đơn không còn ở trạng thái chờ xác nhận
+     */
+    public function cancelByCustomer(Order $order, User $customer): Order
+    {
+        if ($order->status !== OrderStatus::Pending) {
+            throw ValidationException::withMessages([
+                'status' => 'Chỉ huỷ được đơn đang chờ xác nhận. Vui lòng liên hệ cửa hàng để được hỗ trợ.',
+            ]);
+        }
+
+        return $this->changeStatus($order, OrderStatus::Cancelled, $customer);
+    }
+
+    /**
+     * Hoàn kho cho từng dòng của đơn. Sản phẩm đã xoá mềm vẫn hoàn;
+     * dòng mất liên kết sản phẩm (product_id = null) thì bỏ qua.
+     */
+    private function restock(Order $order, User $actor): void
+    {
+        $items = $order->items()->whereNotNull('product_id')->get();
+
+        $products = Product::withTrashed()
+            ->whereKey($items->pluck('product_id'))
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('id');
+
+        foreach ($items as $item) {
+            if ($product = $products->get($item->product_id)) {
+                $this->stock->increase($product, $item->quantity, StockReason::Cancel, $order, $actor);
+            }
+        }
+    }
+
+    /**
      * Kiểm tra lại từng dòng trên dữ liệu vừa khoá (giỏ có thể đã cũ).
      *
      * @param  Collection<int, CartItem>  $items

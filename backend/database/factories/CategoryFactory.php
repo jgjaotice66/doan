@@ -21,7 +21,7 @@ class CategoryFactory extends Factory
         return [
             'parent_id' => null,
             'name' => $name,
-            'slug' => Str::slug($name),
+            'slug' => Str::slug($name).'-'.Str::lower(Str::random(4)),
             'image' => null,
         ];
     }

@@ -38,6 +38,14 @@ class StockService
     }
 
     /**
+     * Cộng kho (hoàn kho khi huỷ đơn, nhập hàng).
+     */
+    public function increase(Product $product, int $quantity, StockReason $reason, ?Order $order = null, ?User $user = null): StockMovement
+    {
+        return $this->record($product, $quantity, $reason, $order, $user);
+    }
+
+    /**
      * Trừ kho khi bán.
      */
     public function decrease(Product $product, int $quantity, StockReason $reason, ?Order $order = null, ?User $user = null): StockMovement

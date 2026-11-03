@@ -39,14 +39,26 @@ class OrderController extends Controller
         return (new OrderResource($order->load(self::WITH)))->response()->setStatusCode(201);
     }
 
+    public function show(Request $request, string $code): OrderResource
+    {
+        return new OrderResource($this->findOwnOrder($request, $code)->load(self::WITH));
+    }
+
+    /**
+     * Khách tự huỷ đơn đang chờ xác nhận; kho được hoàn lại.
+     */
+    public function cancel(Request $request, string $code): OrderResource
+    {
+        $order = $this->orders->cancelByCustomer($this->findOwnOrder($request, $code), $request->user());
+
+        return new OrderResource($order->load(self::WITH));
+    }
+
     /**
      * Chỉ tìm trong đơn của chính mình → đơn người khác trả 404.
      */
-    public function show(Request $request, string $code): OrderResource
+    private function findOwnOrder(Request $request, string $code): Order
     {
-        /** @var Order $order */
-        $order = $request->user()->orders()->where('code', $code)->with(self::WITH)->firstOrFail();
-
-        return new OrderResource($order);
+        return $request->user()->orders()->where('code', $code)->firstOrFail();
     }
 }
