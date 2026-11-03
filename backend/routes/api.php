@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/brands', [BrandController::class, 'index']);
     Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{slug}', [ProductController::class, 'show']);
 
     // Khách vãng lai — giới hạn 10 lần/phút để chống dò mật khẩu.
     Route::middleware('throttle:10,1')->group(function () {
