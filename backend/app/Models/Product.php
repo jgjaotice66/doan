@@ -83,6 +83,14 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<OrderItem, $this>
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
      * @return HasMany<StockMovement, $this>
      */
     public function stockMovements(): HasMany
