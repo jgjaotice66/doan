@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
         element: <StoreLayout />,
         children: [
           { index: true, lazy: lazyPage(() => import('./pages/store/HomePage')) },
-          { path: 'products', element: placeholder('Sản phẩm', '16') },
+          { path: 'products', lazy: lazyPage(() => import('./pages/store/ProductListPage')) },
           { path: 'products/:slug', element: placeholder('Chi tiết sản phẩm', '17') },
           { path: 'news', element: placeholder('Tin tức', '35') },
           { path: 'news/:slug', element: placeholder('Bài viết', '35') },

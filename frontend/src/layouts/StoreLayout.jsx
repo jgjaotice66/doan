@@ -14,7 +14,15 @@ const navLinkClass = ({ isActive }) =>
 function SearchBox() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [q, setQ] = useState(searchParams.get('q') ?? '')
+  const urlQ = searchParams.get('q') ?? ''
+  const [q, setQ] = useState(urlQ)
+
+  // URL đổi từ khoá (gỡ chip, bấm Back…) → ô tìm kiếm cập nhật theo.
+  const [prevUrlQ, setPrevUrlQ] = useState(urlQ)
+  if (urlQ !== prevUrlQ) {
+    setPrevUrlQ(urlQ)
+    setQ(urlQ)
+  }
 
   const onSubmit = (e) => {
     e.preventDefault()

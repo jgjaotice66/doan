@@ -12,6 +12,7 @@ export default function ProductGrid({
   onRetry,
   skeletonCount = 8,
   empty = 'Chưa có sản phẩm nào.',
+  stale = false,
   className = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
 }) {
   if (error && !products?.length) return <ErrorState error={error} onRetry={onRetry} />
@@ -29,11 +30,12 @@ export default function ProductGrid({
   }
 
   if (!products?.length) {
-    return <p className="rounded-card border border-dashed border-line py-12 text-center text-muted">{empty}</p>
+    return <div className="rounded-card border border-dashed border-line px-4 py-12 text-center text-muted">{empty}</div>
   }
 
   return (
-    <ul className={gridClass}>
+    // stale: đang tải kết quả mới, tạm làm mờ kết quả cũ thay vì nháy trắng.
+    <ul className={cn(gridClass, 'transition-opacity', stale && 'opacity-50')} aria-busy={stale || undefined}>
       {products.map((product) => (
         <li key={product.id} className="flex">
           <ProductCard product={product} />
