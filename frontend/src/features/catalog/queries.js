@@ -31,5 +31,13 @@ export const useProducts = (params) =>
     placeholderData: keepPreviousData,
   })
 
+/** 404 là kết quả chắc chắn (sản phẩm không có/bị ẩn) → không thử lại. */
+const retryUnlessNotFound = (failureCount, error) => error?.response?.status !== 404 && failureCount < 1
+
 export const useProduct = (slug) =>
-  useQuery({ queryKey: catalogKeys.product(slug), queryFn: () => catalogApi.product(slug), enabled: Boolean(slug) })
+  useQuery({
+    queryKey: catalogKeys.product(slug),
+    queryFn: () => catalogApi.product(slug),
+    enabled: Boolean(slug),
+    retry: retryUnlessNotFound,
+  })

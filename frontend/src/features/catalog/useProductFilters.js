@@ -64,14 +64,18 @@ export function useProductFilters() {
     (patch) => {
       const next = { ...filters, ...patch }
       if (!('page' in patch)) next.page = 1
-      setSearchParams(serialize(next))
+      // Đổi bộ lọc không nhảy lên đầu trang (đổi trang thì ProductListPage tự cuộn).
+      setSearchParams(serialize(next), { preventScrollReset: true })
     },
     [filters, setSearchParams],
   )
 
   /** Xoá mọi bộ lọc, giữ từ khoá tìm kiếm và cách sắp xếp. */
   const clearFilters = useCallback(
-    () => setSearchParams(serialize({ ...parse(new URLSearchParams()), q: filters.q, sort: filters.sort })),
+    () =>
+      setSearchParams(serialize({ ...parse(new URLSearchParams()), q: filters.q, sort: filters.sort }), {
+        preventScrollReset: true,
+      }),
     [filters.q, filters.sort, setSearchParams],
   )
 

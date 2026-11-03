@@ -1,6 +1,6 @@
 import { Heart, MagnifyingGlass, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { Link, NavLink, Outlet, useNavigate, useSearchParams } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../stores/authStore'
 import { cn } from '../utils/cn'
@@ -144,6 +144,9 @@ export default function StoreLayout() {
       <main id="main" className="flex-1">
         <Outlet />
       </main>
+
+      {/* Trang mới → cuộn lên đầu; bấm Back → về đúng vị trí cũ */}
+      <ScrollRestoration />
 
       <footer className="border-t border-line py-8 text-center text-sm text-muted">
         © {new Date().getFullYear()} Toy Store – Đồ chơi sưu tầm

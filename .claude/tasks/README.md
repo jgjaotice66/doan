@@ -25,7 +25,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [14](14-design-system-storefront.md) Design system storefront — 08
 - [x] [15](15-home-page.md) Trang chủ — 11, 12, 14
 - [x] [16](16-product-list-page.md) Trang danh sách sản phẩm — 12, 14
-- [ ] [17](17-product-detail-page.md) Trang chi tiết sản phẩm — 13, 14
+- [x] [17](17-product-detail-page.md) Trang chi tiết sản phẩm — 13, 14
 
 ## Tuần 3 – Mua hàng
 - [ ] [18](18-cart-api.md) API giỏ hàng (+test) — 06, 12
