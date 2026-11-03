@@ -16,7 +16,7 @@ export default function ProductCard({ product, wishlisted = false, onToggleWishl
   const soldOut = !product.in_stock
 
   return (
-    <Card as="article" interactive className="group relative flex flex-col overflow-hidden">
+    <Card as="article" interactive className="group relative flex w-full flex-col overflow-hidden">
       <div className="relative aspect-square overflow-hidden bg-raised">
         {product.thumbnail ? (
           <img

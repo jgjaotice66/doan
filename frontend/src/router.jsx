@@ -5,14 +5,12 @@ import RequireAdmin from './components/RequireAdmin'
 import RequireAuth from './components/RequireAuth'
 import StoreLayout from './layouts/StoreLayout'
 import NotFoundPage from './pages/NotFoundPage'
-import HomePage from './pages/store/HomePage'
-import LoginPage from './pages/store/LoginPage'
-import RegisterPage from './pages/store/RegisterPage'
 
 const placeholder = (title, task) => <PagePlaceholder title={title} task={task} />
 
 /**
- * Tải trang theo kiểu lazy (bundle riêng): khu admin/antd và trang dev không nằm trong bundle chính.
+ * Mỗi trang là một bundle riêng, chỉ tải khi khách mở trang đó
+ * (bundle chính chỉ còn layout + thư viện dùng chung; admin/antd tách hẳn).
  */
 const lazyPage = (load) => async () => ({ Component: (await load()).default })
 
@@ -28,15 +26,15 @@ export const router = createBrowserRouter([
       {
         element: <StoreLayout />,
         children: [
-          { index: true, element: <HomePage /> },
+          { index: true, lazy: lazyPage(() => import('./pages/store/HomePage')) },
           { path: 'products', element: placeholder('Sản phẩm', '16') },
           { path: 'products/:slug', element: placeholder('Chi tiết sản phẩm', '17') },
           { path: 'news', element: placeholder('Tin tức', '35') },
           { path: 'news/:slug', element: placeholder('Bài viết', '35') },
           // Trang xem design system: chỉ có khi chạy `npm run dev`, bị loại khỏi bản build.
           ...(import.meta.env.DEV ? [{ path: 'dev/ui', lazy: lazyPage(() => import('./pages/dev/UiShowcasePage')) }] : []),
-          { path: 'login', element: <LoginPage /> },
-          { path: 'register', element: <RegisterPage /> },
+          { path: 'login', lazy: lazyPage(() => import('./pages/store/LoginPage')) },
+          { path: 'register', lazy: lazyPage(() => import('./pages/store/RegisterPage')) },
           {
             element: <RequireAuth />,
             children: [

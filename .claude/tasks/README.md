@@ -23,7 +23,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [12](12-product-list-api-filter.md) API danh sách sản phẩm + lọc (+test) — 05
 - [x] [13](13-product-detail-api.md) API chi tiết sản phẩm — 12
 - [x] [14](14-design-system-storefront.md) Design system storefront — 08
-- [ ] [15](15-home-page.md) Trang chủ — 11, 12, 14
+- [x] [15](15-home-page.md) Trang chủ — 11, 12, 14
 - [ ] [16](16-product-list-page.md) Trang danh sách sản phẩm — 12, 14
 - [ ] [17](17-product-detail-page.md) Trang chi tiết sản phẩm — 13, 14
 
