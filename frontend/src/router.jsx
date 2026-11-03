@@ -12,9 +12,9 @@ import RegisterPage from './pages/store/RegisterPage'
 const placeholder = (title, task) => <PagePlaceholder title={title} task={task} />
 
 /**
- * Khu admin được tách bundle riêng (lazy) để khách mua hàng không phải tải code admin/antd.
+ * Tải trang theo kiểu lazy (bundle riêng): khu admin/antd và trang dev không nằm trong bundle chính.
  */
-const lazyAdmin = (load) => async () => ({ Component: (await load()).default })
+const lazyPage = (load) => async () => ({ Component: (await load()).default })
 
 const adminPage = (path, title, task) => ({
   path,
@@ -33,6 +33,8 @@ export const router = createBrowserRouter([
           { path: 'products/:slug', element: placeholder('Chi tiết sản phẩm', '17') },
           { path: 'news', element: placeholder('Tin tức', '35') },
           { path: 'news/:slug', element: placeholder('Bài viết', '35') },
+          // Trang xem design system: chỉ có khi chạy `npm run dev`, bị loại khỏi bản build.
+          ...(import.meta.env.DEV ? [{ path: 'dev/ui', lazy: lazyPage(() => import('./pages/dev/UiShowcasePage')) }] : []),
           { path: 'login', element: <LoginPage /> },
           { path: 'register', element: <RegisterPage /> },
           {
@@ -54,7 +56,7 @@ export const router = createBrowserRouter([
         element: <RequireAdmin />,
         children: [
           {
-            lazy: lazyAdmin(() => import('./layouts/AdminLayout')),
+            lazy: lazyPage(() => import('./layouts/AdminLayout')),
             children: [
               { index: true, element: placeholder('Dashboard', '37') },
               adminPage('products', 'Sản phẩm', '29'),

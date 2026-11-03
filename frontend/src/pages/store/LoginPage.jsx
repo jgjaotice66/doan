@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form'
 import { Link, Navigate, useSearchParams } from 'react-router'
 import { authApi } from '../../api/auth'
 import AuthCard from '../../components/AuthCard'
-import FormField from '../../components/FormField'
-import SubmitButton from '../../components/SubmitButton'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
 import { useAuthForm } from '../../features/auth/useAuthForm'
 import { useAuthStore } from '../../stores/authStore'
 import { afterLoginPath } from '../../utils/redirect'
@@ -34,14 +34,14 @@ export default function LoginPage() {
       footer={
         <>
           Chưa có tài khoản?{' '}
-          <Link to={registerLink} className="font-semibold text-slate-100 hover:underline">
+          <Link to={registerLink} className="font-semibold text-primary hover:underline">
             Đăng ký
           </Link>
         </>
       }
     >
       <form onSubmit={handleSubmit((values) => submit(values))} noValidate className="space-y-4">
-        <FormField
+        <Input
           label="Email"
           type="email"
           autoComplete="email"
@@ -51,16 +51,16 @@ export default function LoginPage() {
             pattern: { value: /^\S+@\S+\.\S+$/, message: 'Email không hợp lệ' },
           })}
         />
-        <FormField
+        <Input
           label="Mật khẩu"
           type="password"
           autoComplete="current-password"
           error={errors.password?.message}
           {...register('password', { required: 'Vui lòng nhập mật khẩu' })}
         />
-        <SubmitButton loading={isPending} loadingText="Đang đăng nhập…">
-          Đăng nhập
-        </SubmitButton>
+        <Button type="submit" size="lg" fullWidth loading={isPending}>
+          {isPending ? 'Đang đăng nhập…' : 'Đăng nhập'}
+        </Button>
       </form>
     </AuthCard>
   )

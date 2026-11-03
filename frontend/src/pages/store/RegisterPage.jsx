@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form'
 import { Link, Navigate, useSearchParams } from 'react-router'
 import { authApi } from '../../api/auth'
 import AuthCard from '../../components/AuthCard'
-import FormField from '../../components/FormField'
-import SubmitButton from '../../components/SubmitButton'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
 import { useAuthForm } from '../../features/auth/useAuthForm'
 import { useAuthStore } from '../../stores/authStore'
 import { afterLoginPath } from '../../utils/redirect'
@@ -39,20 +39,20 @@ export default function RegisterPage() {
       footer={
         <>
           Đã có tài khoản?{' '}
-          <Link to={loginLink} className="font-semibold text-slate-100 hover:underline">
+          <Link to={loginLink} className="font-semibold text-primary hover:underline">
             Đăng nhập
           </Link>
         </>
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        <FormField
+        <Input
           label="Họ tên"
           autoComplete="name"
           error={errors.name?.message}
           {...register('name', { required: 'Vui lòng nhập họ tên' })}
         />
-        <FormField
+        <Input
           label="Email"
           type="email"
           autoComplete="email"
@@ -62,7 +62,7 @@ export default function RegisterPage() {
             pattern: { value: /^\S+@\S+\.\S+$/, message: 'Email không hợp lệ' },
           })}
         />
-        <FormField
+        <Input
           label="Số điện thoại (không bắt buộc)"
           type="tel"
           autoComplete="tel"
@@ -72,7 +72,7 @@ export default function RegisterPage() {
             validate: (v) => !v.trim() || /^0\d{9,10}$/.test(v.trim()) || 'Số điện thoại không hợp lệ',
           })}
         />
-        <FormField
+        <Input
           label="Mật khẩu"
           type="password"
           autoComplete="new-password"
@@ -82,7 +82,7 @@ export default function RegisterPage() {
             minLength: { value: 8, message: 'Mật khẩu tối thiểu 8 ký tự' },
           })}
         />
-        <FormField
+        <Input
           label="Nhập lại mật khẩu"
           type="password"
           autoComplete="new-password"
@@ -91,9 +91,9 @@ export default function RegisterPage() {
             validate: (v) => v === getValues('password') || 'Mật khẩu nhập lại không khớp',
           })}
         />
-        <SubmitButton loading={isPending} loadingText="Đang tạo tài khoản…">
-          Đăng ký
-        </SubmitButton>
+        <Button type="submit" size="lg" fullWidth loading={isPending}>
+          {isPending ? 'Đang tạo tài khoản…' : 'Đăng ký'}
+        </Button>
       </form>
     </AuthCard>
   )

@@ -52,7 +52,22 @@ class ProductListTest extends TestCase
         ])
             ->assertJsonPath('data.0.final_price', 400000)
             ->assertJsonPath('data.0.thumbnail', 'https://img.test/1.png')
-            ->assertJsonPath('data.0.in_stock', false);
+            ->assertJsonPath('data.0.in_stock', false)
+            ->assertJsonPath('data.0.low_stock', false);
+    }
+
+    public function test_low_stock_flag_uses_configured_threshold(): void
+    {
+        config(['shop.low_stock_threshold' => 5]);
+        Product::factory()->create(['slug' => 'sap-het', 'stock' => 5]);
+        Product::factory()->create(['slug' => 'con-nhieu', 'stock' => 6]);
+        Product::factory()->create(['slug' => 'het-hang', 'stock' => 0]);
+
+        $flags = collect($this->list()->json('data'))->pluck('low_stock', 'slug');
+
+        $this->assertTrue($flags['sap-het']);
+        $this->assertFalse($flags['con-nhieu']);
+        $this->assertFalse($flags['het-hang'], 'Hết hàng thì hiện "Hết hàng", không phải "Sắp hết"');
     }
 
     public function test_search_matches_name_or_sku(): void

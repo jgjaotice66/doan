@@ -28,6 +28,7 @@ class ProductResource extends JsonResource
             'final_price' => $this->final_price,
             'thumbnail' => $this->whenLoaded('images', fn () => Media::url($this->images->first()?->path)),
             'in_stock' => $this->stock > 0,
+            'low_stock' => $this->stock > 0 && $this->stock <= config('shop.low_stock_threshold'),
             'min_age' => $this->min_age,
             'is_featured' => $this->is_featured,
             'brand' => new BrandResource($this->whenLoaded('brand')),

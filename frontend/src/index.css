@@ -1,3 +1,102 @@
 @import "tailwindcss";
 
-/* Design token storefront sẽ được chốt ở task 14. */
+/*
+ * Design system storefront – "Mecha Gold"
+ * Nền xám than, nhấn vàng ánh kim + xanh điện. Font hỗ trợ đầy đủ tiếng Việt.
+ *
+ * `--color-*: initial` tắt toàn bộ bảng màu mặc định của Tailwind,
+ * nên component chỉ dùng được các token dưới đây (không có màu hard-code).
+ * Độ tương phản đã kiểm tra (WCAG AA): fg/bg 17.4 · muted/surface 6.7 ·
+ * subtle/surface 4.5 · on-primary/primary 10.6 · accent/surface 5.3 · control-border/surface 3.8 (UI).
+ */
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Nền & bề mặt */
+  --color-bg: #0e0f12;
+  --color-surface: #1a1c22;
+  --color-raised: #23262e;
+  --color-overlay: rgb(5 6 8 / 0.75);
+
+  /* Chữ */
+  --color-fg: #f3f4f6;
+  --color-muted: #9ca3af;
+  --color-subtle: #7c8492;
+
+  /* Viền: line = trang trí, control = ô nhập/nút viền (≥ 3:1) */
+  --color-line: #2e323c;
+  --color-control: #707785;
+
+  /* Thương hiệu */
+  --color-primary: #f5b83d;
+  --color-primary-hover: #ffc95c;
+  --color-on-primary: #14110a;
+  --color-accent: #4f8cff;
+  --color-accent-soft: #7aa7ff;
+
+  /* Trạng thái */
+  --color-success: #34d399;
+  --color-warning: #fb923c;
+  --color-danger: #f87171;
+  --color-danger-strong: #dc2626;
+  --color-on-danger: #ffffff;
+
+  /* Font */
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Chakra Petch", "Be Vietnam Pro", ui-sans-serif, sans-serif;
+
+  /* Bo góc & bóng */
+  --radius-card: 0.875rem;
+  --radius-control: 0.625rem;
+  --shadow-glow: 0 0 0 1px rgb(245 184 61 / 0.35), 0 8px 32px -8px rgb(245 184 61 / 0.25);
+
+  /* Chuyển động */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-toast-in: toast-in 220ms var(--ease-out-soft);
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Giá tiền không nhảy chiều rộng khi đổi số */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

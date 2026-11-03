@@ -1,10 +1,15 @@
+import { Heart, MagnifyingGlass, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useSearchParams } from 'react-router'
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../stores/authStore'
+import { cn } from '../utils/cn'
 
 const navLinkClass = ({ isActive }) =>
-  `text-sm font-medium transition-colors hover:text-white ${isActive ? 'text-white' : 'text-slate-400'}`
+  cn(
+    'inline-flex min-h-11 items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary',
+    isActive ? 'text-primary' : 'text-muted',
+  )
 
 function SearchBox() {
   const navigate = useNavigate()
@@ -18,15 +23,18 @@ function SearchBox() {
   }
 
   return (
-    <form onSubmit={onSubmit} role="search" className="flex-1 max-w-md">
-      <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
+    <form onSubmit={onSubmit} role="search" className="relative order-last w-full md:order-none md:max-w-md md:flex-1">
+      <label htmlFor="site-search" className="sr-only">
+        Tìm sản phẩm
+      </label>
+      <MagnifyingGlass aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
       <input
         id="site-search"
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Tìm Gundam, LEGO, figure…"
-        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-400 focus:outline-none"
+        className="h-11 w-full rounded-control border border-control bg-surface pl-9 pr-3 text-base text-fg placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
     </form>
   )
@@ -40,9 +48,13 @@ function AccountMenu() {
 
   if (!token) {
     return (
-      <div className="flex items-center gap-3">
-        <NavLink to="/login" className={navLinkClass}>Đăng nhập</NavLink>
-        <NavLink to="/register" className={navLinkClass}>Đăng ký</NavLink>
+      <div className="flex items-center gap-4">
+        <NavLink to="/login" className={navLinkClass}>
+          Đăng nhập
+        </NavLink>
+        <NavLink to="/register" className={navLinkClass}>
+          Đăng ký
+        </NavLink>
       </div>
     )
   }
@@ -58,43 +70,74 @@ function AccountMenu() {
   }
 
   return (
-    <div className="flex items-center gap-3">
-      {user?.role === 'admin' && <NavLink to="/admin" className={navLinkClass}>Quản trị</NavLink>}
-      <NavLink to="/account" className={navLinkClass}>{user?.name ?? 'Tài khoản'}</NavLink>
-      <button type="button" onClick={onLogout} className="text-sm text-slate-400 hover:text-white">
-        Đăng xuất
+    <div className="flex items-center gap-4">
+      {user?.role === 'admin' && (
+        <NavLink to="/admin" className={navLinkClass}>
+          Quản trị
+        </NavLink>
+      )}
+      <NavLink to="/account" className={navLinkClass}>
+        <UserCircle aria-hidden className="size-5" />
+        <span className="max-w-32 truncate">{user?.name ?? 'Tài khoản'}</span>
+      </NavLink>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-sm text-muted transition-colors hover:text-danger"
+      >
+        <SignOut aria-hidden className="size-5" />
+        <span className="sr-only sm:not-sr-only">Đăng xuất</span>
       </button>
     </div>
   )
 }
 
 /**
- * Khung storefront: header, nội dung, footer. Giao diện chi tiết chốt ở task 14.
+ * Khung storefront: header, nội dung, footer.
  */
 export default function StoreLayout() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-          <Link to="/" className="text-xl font-extrabold tracking-tight">Toy Store</Link>
-          <nav className="flex items-center gap-4">
-            <NavLink to="/products" className={navLinkClass}>Sản phẩm</NavLink>
-            <NavLink to="/news" className={navLinkClass}>Tin tức</NavLink>
+    <div className="flex min-h-dvh flex-col">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
+      >
+        Bỏ qua đến nội dung chính
+      </a>
+
+      <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
+          <Link to="/" className="font-display text-xl font-bold tracking-wide text-primary">
+            TOY<span className="text-fg">STORE</span>
+          </Link>
+          <nav aria-label="Danh mục chính" className="flex items-center gap-4">
+            <NavLink to="/products" className={navLinkClass}>
+              Sản phẩm
+            </NavLink>
+            <NavLink to="/news" className={navLinkClass}>
+              Tin tức
+            </NavLink>
           </nav>
           <SearchBox />
-          <nav className="flex items-center gap-4">
-            <NavLink to="/wishlist" className={navLinkClass}>Yêu thích</NavLink>
-            <NavLink to="/cart" className={navLinkClass}>Giỏ hàng</NavLink>
-          </nav>
-          <AccountMenu />
+          <div className="ml-auto flex items-center gap-4">
+            <NavLink to="/wishlist" className={navLinkClass}>
+              <Heart aria-hidden className="size-5" />
+              <span className="sr-only lg:not-sr-only">Yêu thích</span>
+            </NavLink>
+            <NavLink to="/cart" className={navLinkClass}>
+              <ShoppingCartSimple aria-hidden className="size-5" />
+              <span className="sr-only lg:not-sr-only">Giỏ hàng</span>
+            </NavLink>
+            <AccountMenu />
+          </div>
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <Outlet />
       </main>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+      <footer className="border-t border-line py-8 text-center text-sm text-muted">
         © {new Date().getFullYear()} Toy Store – Đồ chơi sưu tầm
       </footer>
     </div>
