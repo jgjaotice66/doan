@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 #[Fillable([
     'category_id', 'brand_id', 'name', 'slug', 'sku', 'description',
@@ -39,6 +41,16 @@ class Product extends Model
             'is_featured' => 'boolean',
             'status' => ProductStatus::class,
         ];
+    }
+
+    /**
+     * Rule validate: product_id phải là sản phẩm đang bán (không ẩn, không bị xoá).
+     */
+    public static function activeExistsRule(): Exists
+    {
+        return Rule::exists('products', 'id')
+            ->where('status', ProductStatus::Active->value)
+            ->whereNull('deleted_at');
     }
 
     /**

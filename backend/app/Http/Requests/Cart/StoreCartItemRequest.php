@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Cart;
 
-use App\Enums\ProductStatus;
+use App\Models\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreCartItemRequest extends FormRequest
 {
@@ -21,13 +20,7 @@ class StoreCartItemRequest extends FormRequest
     {
         return [
             // Chỉ thêm được sản phẩm đang bán (không ẩn, không bị xoá).
-            'product_id' => [
-                'required',
-                'integer',
-                Rule::exists('products', 'id')
-                    ->where('status', ProductStatus::Active->value)
-                    ->whereNull('deleted_at'),
-            ],
+            'product_id' => ['required', 'integer', Product::activeExistsRule()],
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ];
     }

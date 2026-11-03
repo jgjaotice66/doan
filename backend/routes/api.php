@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -37,6 +38,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/cart', [CartController::class, 'store']);
         Route::patch('/cart/{id}', [CartController::class, 'update'])->whereNumber('id');
         Route::delete('/cart/{id}', [CartController::class, 'destroy'])->whereNumber('id');
+
+        Route::get('/wishlist', [WishlistController::class, 'index']);
+        Route::post('/wishlist', [WishlistController::class, 'store']);
+        Route::delete('/wishlist/{productId}', [WishlistController::class, 'destroy'])->whereNumber('productId');
 
         // Quản trị viên.
         Route::prefix('admin')->middleware('admin')->group(function () {
