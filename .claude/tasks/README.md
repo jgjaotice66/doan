@@ -28,7 +28,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [17](17-product-detail-page.md) Trang chi tiết sản phẩm — 13, 14
 
 ## Tuần 3 – Mua hàng
-- [ ] [18](18-cart-api.md) API giỏ hàng (+test) — 06, 12
+- [x] [18](18-cart-api.md) API giỏ hàng (+test) — 06, 12
 - [ ] [19](19-wishlist-api.md) API yêu thích — 06, 12
 - [ ] [20](20-order-service-place.md) Đặt hàng + trừ kho (+test) — 18
 - [ ] [21](21-order-cancel-status.md) Huỷ đơn & trạng thái (+test) — 20

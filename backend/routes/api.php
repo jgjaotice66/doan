@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
@@ -31,6 +32,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [ProfileController::class, 'show']);
         Route::put('/me', [ProfileController::class, 'update']);
         Route::put('/me/password', [ProfileController::class, 'updatePassword']);
+
+        Route::get('/cart', [CartController::class, 'index']);
+        Route::post('/cart', [CartController::class, 'store']);
+        Route::patch('/cart/{id}', [CartController::class, 'update'])->whereNumber('id');
+        Route::delete('/cart/{id}', [CartController::class, 'destroy'])->whereNumber('id');
 
         // Quản trị viên.
         Route::prefix('admin')->middleware('admin')->group(function () {
