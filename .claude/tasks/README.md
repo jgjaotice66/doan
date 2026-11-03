@@ -19,7 +19,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [10](10-login-register-pages.md) Trang đăng nhập/đăng ký — 06, 09
 
 ## Tuần 2 – Catalog
-- [ ] [11](11-catalog-api.md) API danh mục/thương hiệu/banner — 05
+- [x] [11](11-catalog-api.md) API danh mục/thương hiệu/banner — 05
 - [ ] [12](12-product-list-api-filter.md) API danh sách sản phẩm + lọc (+test) — 05
 - [ ] [13](13-product-detail-api.md) API chi tiết sản phẩm — 12
 - [ ] [14](14-design-system-storefront.md) Design system storefront — 08
