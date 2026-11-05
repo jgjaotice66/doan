@@ -14,12 +14,23 @@ const EMPTY_CART = { items: [], count: 0, subtotal: 0, shipping_fee: 0, total: 0
 /** 404 = không có đơn này (hoặc của người khác) → không thử lại. */
 const retryUnlessNotFound = (failureCount, error) => error?.response?.status !== 404 && failureCount < 1
 
+/** Đơn chuyển khoản còn chờ tiền (chưa trả, chưa huỷ). */
+export const isAwaitingTransfer = (order) =>
+  order?.payment_method.value === 'bank_qr' && order.payment_status.value === 'unpaid' && order.status.value !== 'cancelled'
+
+const AWAITING_POLL_MS = 15_000
+
+/**
+ * Chi tiết đơn. Đơn chuyển khoản đang chờ tiền thì tự hỏi lại server mỗi 15s:
+ * admin xác nhận "Đã nhận tiền" → trang tự đổi sang "Đã thanh toán", ẩn QR.
+ */
 export const useOrder = (code) =>
   useQuery({
     queryKey: orderKeys.detail(code),
     queryFn: () => ordersApi.get(code),
     enabled: Boolean(code),
     retry: retryUnlessNotFound,
+    refetchInterval: (query) => (isAwaitingTransfer(query.state.data) ? AWAITING_POLL_MS : false),
   })
 
 /**

@@ -1,12 +1,13 @@
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircle, HourglassMedium } from '@phosphor-icons/react'
 import { useEffect } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import BankQrBox from '../../components/BankQrBox'
 import ErrorState from '../../components/ErrorState'
+import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Skeleton from '../../components/ui/Skeleton'
-import { useClearCartCache, useOrder } from '../../features/orders/queries'
+import { isAwaitingTransfer, useClearCartCache, useOrder } from '../../features/orders/queries'
 import { formatVND } from '../../utils/format'
 import NotFoundPage from '../NotFoundPage'
 
@@ -24,6 +25,10 @@ export default function OrderSuccessPage() {
 
   if (error?.response?.status === 404) return <NotFoundPage />
 
+  // Chỉ báo "Thanh toán thành công" khi tiền đã về thật (payment_status = paid).
+  const awaiting = isAwaitingTransfer(order)
+  const paidByTransfer = order?.payment_method.value === 'bank_qr' && order.payment_status.value === 'paid'
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <title>Đặt hàng thành công – Toy Store</title>
@@ -38,8 +43,23 @@ export default function OrderSuccessPage() {
       ) : (
         <div className="space-y-6">
           <Card className="flex flex-col items-center gap-3 p-6 text-center sm:p-8">
-            <CheckCircle aria-hidden weight="fill" className="size-14 text-success" />
-            <h1 className="text-2xl font-bold sm:text-3xl">Đặt hàng thành công!</h1>
+            {awaiting ? (
+              <HourglassMedium aria-hidden weight="fill" className="size-14 text-warning" />
+            ) : (
+              <CheckCircle aria-hidden weight="fill" className="size-14 text-success" />
+            )}
+            <h1 className="text-2xl font-bold sm:text-3xl">
+              {paidByTransfer ? 'Thanh toán thành công!' : 'Đặt hàng thành công!'}
+            </h1>
+            {/* aria-live: khi admin xác nhận nhận tiền, trình đọc màn hình đọc thông báo mới */}
+            <p aria-live="polite" className="text-sm">
+              {awaiting && (
+                <span className="text-warning">
+                  Đơn đang chờ thanh toán – trang sẽ tự cập nhật khi cửa hàng nhận được tiền.
+                </span>
+              )}
+              {paidByTransfer && <span className="text-success">Cửa hàng đã nhận được tiền chuyển khoản của bạn.</span>}
+            </p>
             <p className="text-muted">
               Mã đơn hàng của bạn: <strong className="font-display text-xl text-primary tabular">{order.code}</strong>
             </p>
@@ -48,6 +68,10 @@ export default function OrderSuccessPage() {
               <dd className="text-right font-bold tabular">{formatVND(order.total)}</dd>
               <dt className="text-muted">Thanh toán</dt>
               <dd className="text-right font-medium">{order.payment_method.label}</dd>
+              <dt className="text-muted">Tình trạng thanh toán</dt>
+              <dd className="text-right">
+                <Badge variant={order.payment_status.value === 'paid' ? 'success' : 'warning'}>{order.payment_status.label}</Badge>
+              </dd>
               <dt className="text-muted">Trạng thái</dt>
               <dd className="text-right font-medium">{order.status.label}</dd>
               <dt className="text-muted">Giao tới</dt>
@@ -61,7 +85,7 @@ export default function OrderSuccessPage() {
             )}
           </Card>
 
-          {order.qr_url && order.bank && <BankQrBox order={order} />}
+          {awaiting && order.qr_url && order.bank && <BankQrBox order={order} />}
 
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Button as={Link} to={`/orders/${order.code}`} variant="outline">
