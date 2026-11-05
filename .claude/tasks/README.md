@@ -33,7 +33,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [20](20-order-service-place.md) Đặt hàng + trừ kho (+test) — 18
 - [x] [21](21-order-cancel-status.md) Huỷ đơn & trạng thái (+test) — 20
 - [x] [22](22-cart-page.md) Trang giỏ hàng — 17, 18
-- [ ] [23](23-checkout-page-qr.md) Checkout & QR — 20, 22
+- [x] [23](23-checkout-page-qr.md) Checkout & QR — 20, 22
 - [ ] [24](24-my-orders-pages.md) Đơn hàng của tôi — 21, 23
 - [ ] [25](25-wishlist-profile-pages.md) Yêu thích & hồ sơ — 19, 10
 
@@ -43,6 +43,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [ ] [28](28-admin-products-api-images.md) API sản phẩm + ảnh (+test) — 27
 - [ ] [29](29-admin-products-pages.md) Giao diện sản phẩm — 28
 - [ ] [30](30-admin-orders.md) Quản lý đơn hàng — 21, 26
+- [ ] [42](42-admin-shop-settings.md) *(task phụ)* Cài đặt cửa hàng: tài khoản nhận tiền (+test) — 26, 23
 
 ## Tuần 5 – Admin mở rộng
 - [ ] [31](31-inventory-api-page.md) Kho / tồn kho — 28

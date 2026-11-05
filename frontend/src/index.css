@@ -43,6 +43,9 @@
   --color-danger-strong: #dc2626;
   --color-on-danger: #ffffff;
 
+  /* Nền trắng quanh mã QR: app ngân hàng cần viền sáng (quiet zone) để quét */
+  --color-qr-paper: #ffffff;
+
   /* Font */
   --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Chakra Petch", "Be Vietnam Pro", ui-sans-serif, sans-serif;
