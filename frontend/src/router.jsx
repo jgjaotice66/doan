@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
           {
             element: <RequireAuth />,
             children: [
-              { path: 'cart', element: placeholder('Giỏ hàng', '22') },
+              { path: 'cart', lazy: lazyPage(() => import('./pages/store/CartPage')) },
               { path: 'checkout', element: placeholder('Thanh toán', '23') },
               { path: 'orders', element: placeholder('Đơn hàng của tôi', '24') },
               { path: 'orders/:code', element: placeholder('Chi tiết đơn hàng', '24') },

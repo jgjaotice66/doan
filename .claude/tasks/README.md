@@ -32,7 +32,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [19](19-wishlist-api.md) API yêu thích — 06, 12
 - [x] [20](20-order-service-place.md) Đặt hàng + trừ kho (+test) — 18
 - [x] [21](21-order-cancel-status.md) Huỷ đơn & trạng thái (+test) — 20
-- [ ] [22](22-cart-page.md) Trang giỏ hàng — 17, 18
+- [x] [22](22-cart-page.md) Trang giỏ hàng — 17, 18
 - [ ] [23](23-checkout-page-qr.md) Checkout & QR — 20, 22
 - [ ] [24](24-my-orders-pages.md) Đơn hàng của tôi — 21, 23
 - [ ] [25](25-wishlist-profile-pages.md) Yêu thích & hồ sơ — 19, 10

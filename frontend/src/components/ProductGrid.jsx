@@ -1,3 +1,4 @@
+import { useAddToCartAction } from '../features/cart/useAddToCartAction'
 import { cn } from '../utils/cn'
 import ErrorState from './ErrorState'
 import ProductCard, { ProductCardSkeleton } from './ProductCard'
@@ -15,6 +16,8 @@ export default function ProductGrid({
   stale = false,
   className = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
 }) {
+  const { addToCart, pendingProductId } = useAddToCartAction()
+
   if (error && !products?.length) return <ErrorState error={error} onRetry={onRetry} />
 
   const gridClass = cn('grid gap-3 sm:gap-4', className)
@@ -38,7 +41,11 @@ export default function ProductGrid({
     <ul className={cn(gridClass, 'transition-opacity', stale && 'opacity-50')} aria-busy={stale || undefined}>
       {products.map((product) => (
         <li key={product.id} className="flex">
-          <ProductCard product={product} />
+          <ProductCard
+            product={product}
+            onAddToCart={addToCart}
+            adding={pendingProductId === product.id}
+          />
         </li>
       ))}
     </ul>

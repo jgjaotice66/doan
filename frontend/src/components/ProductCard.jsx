@@ -1,4 +1,4 @@
-import { Heart, ImageBroken } from '@phosphor-icons/react'
+import { Heart, ImageBroken, ShoppingCartSimple, SpinnerGap } from '@phosphor-icons/react'
 import { Link } from 'react-router'
 import { cn } from '../utils/cn'
 import { discountPercent } from '../utils/product'
@@ -9,9 +9,9 @@ import Skeleton from './ui/Skeleton'
 
 /**
  * Thẻ sản phẩm cho lưới danh sách. Nhận đúng dạng ProductResource từ API.
- * Cả thẻ là một link; nút yêu thích nằm trên cùng và chặn click lan ra link.
+ * Cả thẻ là một link; nút yêu thích / thêm giỏ nằm trên cùng nên bấm không bị mở trang chi tiết.
  */
-export default function ProductCard({ product, wishlisted = false, onToggleWishlist }) {
+export default function ProductCard({ product, wishlisted = false, onToggleWishlist, onAddToCart, adding = false }) {
   const discount = discountPercent(product.price, product.sale_price)
   const soldOut = !product.in_stock
 
@@ -72,7 +72,29 @@ export default function ProductCard({ product, wishlisted = false, onToggleWishl
             {product.name}
           </Link>
         </h3>
-        <Price price={product.price} salePrice={product.sale_price} size="sm" className="mt-auto pt-2" />
+        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+          <Price price={product.price} salePrice={product.sale_price} size="sm" />
+          {onAddToCart && !soldOut && (
+            // z-10 + relative: nằm trên lớp link phủ cả thẻ nên bấm được riêng.
+            <button
+              type="button"
+              onClick={() => onAddToCart(product)}
+              disabled={adding}
+              aria-busy={adding || undefined}
+              aria-label={`Thêm ${product.name} vào giỏ`}
+              className={cn(
+                'relative z-10 inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control',
+                'bg-raised text-fg transition-colors hover:bg-primary hover:text-on-primary disabled:cursor-wait disabled:opacity-60',
+              )}
+            >
+              {adding ? (
+                <SpinnerGap aria-hidden className="size-5 animate-spin" />
+              ) : (
+                <ShoppingCartSimple aria-hidden className="size-5" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </Card>
   )

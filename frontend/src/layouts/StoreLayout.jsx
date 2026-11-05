@@ -2,6 +2,7 @@ import { Heart, MagnifyingGlass, ShoppingCartSimple, SignOut, UserCircle } from 
 import { useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { authApi } from '../api/auth'
+import { useCart } from '../features/cart/queries'
 import { useAuthStore } from '../stores/authStore'
 import { cn } from '../utils/cn'
 
@@ -45,6 +46,33 @@ function SearchBox() {
         className="h-11 w-full rounded-control border border-control bg-surface pl-9 pr-3 text-base text-fg placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
     </form>
+  )
+}
+
+/**
+ * Icon giỏ kèm số món (tổng số lượng). Số đọc cùng nhãn cho trình đọc màn hình.
+ */
+function CartLink() {
+  const token = useAuthStore((s) => s.token)
+  const { data: cart } = useCart()
+  const count = token ? (cart?.count ?? 0) : 0
+
+  return (
+    <NavLink to="/cart" className={navLinkClass}>
+      <span className="relative">
+        <ShoppingCartSimple aria-hidden className="size-5" />
+        {count > 0 && (
+          <span
+            aria-hidden
+            className="absolute -right-2.5 -top-2 inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold leading-none text-on-primary tabular"
+          >
+            {count > 99 ? '99+' : count}
+          </span>
+        )}
+      </span>
+      <span className="sr-only lg:not-sr-only">Giỏ hàng</span>
+      {count > 0 && <span className="sr-only">, {count} sản phẩm</span>}
+    </NavLink>
   )
 }
 
@@ -132,10 +160,7 @@ export default function StoreLayout() {
               <Heart aria-hidden className="size-5" />
               <span className="sr-only lg:not-sr-only">Yêu thích</span>
             </NavLink>
-            <NavLink to="/cart" className={navLinkClass}>
-              <ShoppingCartSimple aria-hidden className="size-5" />
-              <span className="sr-only lg:not-sr-only">Giỏ hàng</span>
-            </NavLink>
+            <CartLink />
             <AccountMenu />
           </div>
         </div>

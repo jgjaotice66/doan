@@ -10,6 +10,7 @@ import Button from '../../components/ui/Button'
 import QuantityInput from '../../components/ui/QuantityInput'
 import Skeleton from '../../components/ui/Skeleton'
 import { useRequireLogin } from '../../features/auth/useRequireLogin'
+import { useAddToCartAction } from '../../features/cart/useAddToCartAction'
 import { useProduct } from '../../features/catalog/queries'
 import { toast } from '../../stores/toastStore'
 import { cn } from '../../utils/cn'
@@ -68,18 +69,15 @@ function StockStatus({ product }) {
 }
 
 /**
- * Khu mua hàng: số lượng + Thêm vào giỏ + Yêu thích.
- * Nối API giỏ hàng ở task 22, yêu thích ở task 25; hiện tại chỉ kiểm tra đăng nhập.
+ * Khu mua hàng: số lượng + Thêm vào giỏ + Yêu thích (nối API yêu thích ở task 25).
  */
 function PurchasePanel({ product }) {
   const requireLogin = useRequireLogin()
+  const { addToCart, isPending } = useAddToCartAction()
   const [quantity, setQuantity] = useState(1)
   const soldOut = !product.in_stock
 
-  const onAddToCart = () => {
-    if (!requireLogin()) return
-    toast.info(`Giỏ hàng đang được hoàn thiện – đã ghi nhận ${quantity} × ${product.name}`)
-  }
+  const onAddToCart = () => addToCart(product, quantity)
 
   const onToggleWishlist = () => {
     if (!requireLogin()) return
@@ -90,7 +88,7 @@ function PurchasePanel({ product }) {
     <div className="space-y-4">
       <QuantityInput value={quantity} onChange={setQuantity} max={Math.max(1, product.stock)} disabled={soldOut} />
       <div className="flex gap-3">
-        <Button size="lg" className="flex-1" onClick={onAddToCart} disabled={soldOut}>
+        <Button size="lg" className="flex-1" onClick={onAddToCart} disabled={soldOut} loading={isPending}>
           <ShoppingCartSimple aria-hidden className="size-5" />
           {soldOut ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
         </Button>
