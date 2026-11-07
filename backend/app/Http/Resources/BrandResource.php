@@ -22,6 +22,7 @@ class BrandResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'logo' => Media::url($this->logo),
+            'products_count' => $this->whenCounted('products'),
         ];
     }
 }

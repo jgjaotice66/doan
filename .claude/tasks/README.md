@@ -39,7 +39,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 
 ## Tuần 4 – Admin lõi (hết tuần này = MVP)
 - [x] [26](26-admin-layout-antd.md) Layout admin Ant Design — 07, 09
-- [ ] [27](27-admin-categories-brands.md) Danh mục & thương hiệu — 26
+- [x] [27](27-admin-categories-brands.md) Danh mục & thương hiệu — 26
 - [ ] [28](28-admin-products-api-images.md) API sản phẩm + ảnh (+test) — 27
 - [ ] [29](29-admin-products-pages.md) Giao diện sản phẩm — 28
 - [ ] [30](30-admin-orders.md) Quản lý đơn hàng — 21, 26

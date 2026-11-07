@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BrandController;
@@ -50,8 +51,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/orders/{code}/cancel', [OrderController::class, 'cancel']);
 
         // Quản trị viên.
-        Route::prefix('admin')->middleware('admin')->group(function () {
+        Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
             Route::get('/ping', fn () => ['status' => 'ok', 'scope' => 'admin']);
+
+            Route::apiResource('categories', Admin\CategoryController::class)->except('show');
+            Route::apiResource('brands', Admin\BrandController::class)->except('show');
         });
     });
 });
