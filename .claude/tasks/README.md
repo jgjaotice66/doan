@@ -44,7 +44,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [29](29-admin-products-pages.md) Giao diện sản phẩm — 28
 - [x] [30](30-admin-orders.md) Quản lý đơn hàng — 21, 26
 - [x] [42](42-admin-shop-settings.md) *(task phụ)* Cài đặt cửa hàng: tài khoản nhận tiền (+test) — 26, 23
-- [ ] [43](43-refund-cancelled-orders.md) *(task phụ)* Hoàn tiền cho đơn huỷ đã thanh toán (+test) — 30
+- [x] [43](43-refund-cancelled-orders.md) *(task phụ)* Hoàn tiền cho đơn huỷ đã thanh toán (+test) — 30
 
 ## Tuần 5 – Admin mở rộng
 - [ ] [31](31-inventory-api-page.md) Kho / tồn kho — 28

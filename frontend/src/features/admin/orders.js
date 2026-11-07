@@ -32,7 +32,19 @@ export const PAYMENT_METHOD_OPTIONS = [
 export const PAYMENT_STATUS_OPTIONS = [
   { value: 'unpaid', label: 'Chưa thanh toán' },
   { value: 'paid', label: 'Đã thanh toán' },
+  { value: 'refunded', label: 'Đã hoàn tiền' },
 ]
+
+/**
+ * Tag thanh toán trên bảng + trang chi tiết; tình huống cần admin làm gì đó thì nói rõ việc cần làm.
+ * → { color, label }
+ */
+export function paymentTag(order) {
+  if (order.can_mark_refunded) return { color: 'red', label: 'Cần hoàn tiền' }
+  if (order.can_mark_paid) return { color: 'orange', label: 'Chờ nhận tiền' }
+  const color = { paid: 'green', refunded: 'purple' }[order.payment_status.value] ?? 'default'
+  return { color, label: order.payment_status.label }
+}
 
 export const useAdminOrder = (id) =>
   useQuery({
@@ -81,5 +93,11 @@ export function useOrderActions(orderId) {
     onError,
   })
 
-  return { changeStatus, markPaid }
+  const markRefunded = useMutation({
+    mutationFn: () => adminOrdersApi.markRefunded(orderId),
+    onSuccess,
+    onError,
+  })
+
+  return { changeStatus, markPaid, markRefunded }
 }

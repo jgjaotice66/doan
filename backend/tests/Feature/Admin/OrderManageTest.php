@@ -243,6 +243,64 @@ class OrderManageTest extends TestCase
         $this->assertSame(PaymentStatus::Unpaid, $cancelled->fresh()->payment_status);
     }
 
+    // ---------- Hoàn tiền đơn huỷ ----------
+
+    public function test_admin_can_still_cancel_a_paid_order_and_it_then_needs_refund(): void
+    {
+        $order = $this->order(['payment_method' => PaymentMethod::BankQr, 'payment_status' => PaymentStatus::Paid]);
+
+        $this->getJson("/api/v1/admin/orders/{$order->id}")->assertJsonPath('data.can_mark_refunded', false);
+
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'cancelled'])
+            ->assertOk()
+            ->assertJsonPath('data.payment_status.value', 'paid')
+            ->assertJsonPath('data.can_mark_refunded', true);
+    }
+
+    public function test_needs_refund_filter_lists_only_cancelled_paid_orders(): void
+    {
+        $target = $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Paid, 'payment_method' => PaymentMethod::BankQr]);
+        $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Unpaid]);
+        $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Refunded, 'payment_method' => PaymentMethod::BankQr]);
+        $this->order(['status' => OrderStatus::Confirmed, 'payment_status' => PaymentStatus::Paid, 'payment_method' => PaymentMethod::BankQr]);
+
+        $this->getJson('/api/v1/admin/orders?needs_refund=1')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $target->id);
+    }
+
+    public function test_marking_cancelled_paid_order_refunded_shows_up_for_the_customer(): void
+    {
+        $order = $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Paid, 'payment_method' => PaymentMethod::BankQr]);
+
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/refund")
+            ->assertOk()
+            ->assertJsonPath('data.payment_status', ['value' => 'refunded', 'label' => 'Đã hoàn tiền'])
+            ->assertJsonPath('data.can_mark_refunded', false);
+
+        Sanctum::actingAs($this->customer);
+        $this->getJson("/api/v1/orders/{$order->code}")
+            ->assertJsonPath('data.payment_status.value', 'refunded')
+            ->assertJsonPath('data.qr_url', null);
+    }
+
+    public function test_cannot_refund_order_that_is_not_cancelled_or_not_paid(): void
+    {
+        $active = $this->order(['status' => OrderStatus::Confirmed, 'payment_status' => PaymentStatus::Paid, 'payment_method' => PaymentMethod::BankQr]);
+        $unpaid = $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Unpaid]);
+        $refunded = $this->order(['status' => OrderStatus::Cancelled, 'payment_status' => PaymentStatus::Refunded]);
+
+        foreach ([$active, $unpaid, $refunded] as $order) {
+            $this->patchJson("/api/v1/admin/orders/{$order->id}/refund")
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors('payment');
+        }
+
+        $this->assertSame(PaymentStatus::Paid, $active->fresh()->payment_status);
+        $this->assertSame(PaymentStatus::Unpaid, $unpaid->fresh()->payment_status);
+    }
+
     // ---------- Phân quyền ----------
 
     public function test_customer_cannot_use_admin_order_endpoints(): void
@@ -254,6 +312,7 @@ class OrderManageTest extends TestCase
         $this->getJson("/api/v1/admin/orders/{$order->id}")->assertForbidden();
         $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'confirmed'])->assertForbidden();
         $this->patchJson("/api/v1/admin/orders/{$order->id}/payment")->assertForbidden();
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/refund")->assertForbidden();
 
         $this->assertSame(OrderStatus::Pending, $order->fresh()->status);
         $this->assertSame(PaymentStatus::Unpaid, $order->fresh()->payment_status);

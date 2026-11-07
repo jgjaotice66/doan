@@ -66,6 +66,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
             Route::patch('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
             Route::patch('/orders/{order}/payment', [Admin\OrderController::class, 'markPaid'])->name('orders.payment');
+            Route::patch('/orders/{order}/refund', [Admin\OrderController::class, 'markRefunded'])->name('orders.refund');
 
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');

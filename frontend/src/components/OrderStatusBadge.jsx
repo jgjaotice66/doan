@@ -17,10 +17,12 @@ export default function OrderStatusBadge({ status, className }) {
   )
 }
 
-/** Nhãn tình trạng thanh toán — paymentStatus = { value: 'unpaid' | 'paid', label }. */
+const PAYMENT_VARIANTS = { paid: 'success', refunded: 'accent' }
+
+/** Nhãn tình trạng thanh toán — paymentStatus = { value: 'unpaid' | 'paid' | 'refunded', label }. */
 export function PaymentStatusBadge({ paymentStatus, className }) {
   return (
-    <Badge variant={paymentStatus.value === 'paid' ? 'success' : 'neutral'} className={className}>
+    <Badge variant={PAYMENT_VARIANTS[paymentStatus.value] ?? 'neutral'} className={className}>
       {paymentStatus.label}
     </Badge>
   )

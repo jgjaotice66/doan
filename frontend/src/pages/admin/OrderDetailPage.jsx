@@ -1,8 +1,8 @@
-import { ArrowLeft, CheckCircle, Money, Package, Truck, XCircle } from '@phosphor-icons/react'
+import { ArrowCounterClockwise, ArrowLeft, CheckCircle, Money, Package, Truck, XCircle } from '@phosphor-icons/react'
 import { Alert, App, Avatar, Button, Card, Col, Descriptions, Flex, Popconfirm, Result, Row, Skeleton, Table, Tag, Typography } from 'antd'
 import { useNavigate, useParams } from 'react-router'
 import { getErrorMessage } from '../../api/client'
-import { ORDER_STATUS_COLORS, useAdminOrder, useOrderActions } from '../../features/admin/orders'
+import { ORDER_STATUS_COLORS, paymentTag, useAdminOrder, useOrderActions } from '../../features/admin/orders'
 import { formatDateTime, formatVND } from '../../utils/format'
 
 /** Nút cho từng trạng thái kế tiếp (server gửi danh sách hợp lệ trong allowed_next). */
@@ -84,9 +84,10 @@ function ItemsCard({ order }) {
   )
 }
 
-function PaymentCard({ order, onMarkPaid, loading }) {
+function PaymentCard({ order, onMarkPaid, onMarkRefunded, loading }) {
   const isTransfer = order.payment_method.value === 'bank_qr'
   const paid = order.payment_status.value === 'paid'
+  const tag = paymentTag(order)
 
   return (
     <Card title="Thanh toán">
@@ -97,7 +98,7 @@ function PaymentCard({ order, onMarkPaid, loading }) {
           { label: 'Hình thức', children: order.payment_method.label },
           {
             label: 'Tình trạng',
-            children: <Tag color={paid ? 'green' : order.can_mark_paid ? 'orange' : 'default'}>{order.payment_status.label}</Tag>,
+            children: <Tag color={tag.color}>{tag.label}</Tag>,
           },
           {
             label: 'Số tiền',
@@ -129,6 +130,20 @@ function PaymentCard({ order, onMarkPaid, loading }) {
           />
           <Button type="primary" block icon={<Money size={16} />} loading={loading} onClick={onMarkPaid}>
             Đã nhận tiền
+          </Button>
+        </>
+      )}
+      {order.can_mark_refunded && (
+        <>
+          <Alert
+            type="error"
+            showIcon
+            title="Đơn đã huỷ nhưng khách đã thanh toán"
+            description={`Chuyển trả ${formatVND(order.total)} cho khách (liên hệ ${order.phone} để lấy số tài khoản) rồi bấm xác nhận.`}
+            style={{ margin: '12px 0' }}
+          />
+          <Button danger type="primary" block icon={<ArrowCounterClockwise size={16} />} loading={loading} onClick={onMarkRefunded}>
+            Đã hoàn tiền
           </Button>
         </>
       )}
@@ -172,8 +187,8 @@ function RecipientCard({ order }) {
 function OrderView({ order }) {
   const { message, modal } = App.useApp()
   const navigate = useNavigate()
-  const { changeStatus, markPaid } = useOrderActions(order.id)
-  const busy = changeStatus.isPending || markPaid.isPending
+  const { changeStatus, markPaid, markRefunded } = useOrderActions(order.id)
+  const busy = changeStatus.isPending || markPaid.isPending || markRefunded.isPending
 
   const showError = (fallback) => (error) => message.error(getErrorMessage(error, fallback))
 
@@ -208,6 +223,15 @@ function OrderView({ order }) {
       okText: 'Đã nhận tiền',
       cancelText: 'Chưa',
       onOk: () => markPaid.mutateAsync().then(() => message.success('Đã xác nhận thanh toán'), showError('Không xác nhận được thanh toán')),
+    })
+
+  const onMarkRefunded = () =>
+    modal.confirm({
+      title: 'Xác nhận đã hoàn tiền?',
+      content: `Bạn đã chuyển trả ${formatVND(order.total)} cho khách của đơn ${order.code}. Khách sẽ thấy “Đã hoàn tiền”.`,
+      okText: 'Đã hoàn tiền',
+      cancelText: 'Chưa',
+      onOk: () => markRefunded.mutateAsync().then(() => message.success('Đã ghi nhận hoàn tiền'), showError('Không ghi nhận được hoàn tiền')),
     })
 
   const forward = order.allowed_next.filter((next) => STATUS_ACTIONS[next.value])
@@ -272,7 +296,12 @@ function OrderView({ order }) {
         </Col>
         <Col xs={24} lg={8}>
           <Flex vertical gap={16}>
-            <PaymentCard order={order} onMarkPaid={onMarkPaid} loading={markPaid.isPending} />
+            <PaymentCard
+              order={order}
+              onMarkPaid={onMarkPaid}
+              onMarkRefunded={onMarkRefunded}
+              loading={markPaid.isPending || markRefunded.isPending}
+            />
             <RecipientCard order={order} />
           </Flex>
         </Col>

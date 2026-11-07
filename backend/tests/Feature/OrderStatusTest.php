@@ -141,6 +141,20 @@ class OrderStatusTest extends TestCase
         $this->assertDatabaseCount('stock_movements', 0);
     }
 
+    public function test_customer_cannot_cancel_pending_order_that_is_already_paid(): void
+    {
+        [$order, $a] = $this->orderWithItems(OrderStatus::Pending, PaymentMethod::BankQr);
+        $order->update(['payment_status' => PaymentStatus::Paid]);
+
+        $this->actingAs($this->customer, 'sanctum')
+            ->postJson("/api/v1/orders/{$order->code}/cancel")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['status' => 'Đơn đã thanh toán, vui lòng liên hệ cửa hàng để huỷ.']);
+
+        $this->assertSame(OrderStatus::Pending, $order->refresh()->status);
+        $this->assertSame(8, $a->refresh()->stock);
+    }
+
     public function test_customer_cannot_cancel_other_users_order(): void
     {
         [$order] = $this->orderWithItems();

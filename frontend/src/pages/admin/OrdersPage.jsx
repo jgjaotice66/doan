@@ -1,4 +1,4 @@
-import { Eye, HourglassMedium } from '@phosphor-icons/react'
+import { ArrowCounterClockwise, Eye, HourglassMedium } from '@phosphor-icons/react'
 import { Button, DatePicker, Flex, Tag, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { Link, useNavigate } from 'react-router'
@@ -10,21 +10,22 @@ import {
   ORDER_STATUS_OPTIONS,
   PAYMENT_METHOD_OPTIONS,
   PAYMENT_STATUS_OPTIONS,
+  paymentTag,
 } from '../../features/admin/orders'
 import { useTableParams } from '../../features/admin/useTableParams'
 import { formatDateTime, formatVND } from '../../utils/format'
 
 const DATE_PARAM = 'YYYY-MM-DD'
 
-/** Đơn chuyển khoản chưa nhận tiền → Tag cam nổi bật để admin đi kiểm tra tài khoản. */
+/** Hình thức + tình trạng thanh toán; việc admin cần làm (nhận tiền / hoàn tiền) có màu nổi bật. */
 function PaymentCell({ order }) {
   const method = order.payment_method.value === 'bank_qr' ? 'Chuyển khoản' : 'COD'
-  const color = order.payment_status.value === 'paid' ? 'green' : order.can_mark_paid ? 'orange' : 'default'
+  const tag = paymentTag(order)
   return (
     <Flex vertical gap={4} align="flex-start">
       <span>{method}</span>
-      <Tag color={color} style={{ marginInlineEnd: 0 }}>
-        {order.can_mark_paid ? 'Chờ nhận tiền' : order.payment_status.label}
+      <Tag color={tag.color} style={{ marginInlineEnd: 0 }}>
+        {tag.label}
       </Tag>
     </Flex>
   )
@@ -52,20 +53,33 @@ function DateRangeFilter() {
   )
 }
 
-/** Nút bật/tắt nhanh: chỉ xem đơn chuyển khoản đang chờ admin xác nhận tiền. */
-function AwaitingPaymentToggle() {
+/** Lối tắt cho 2 việc admin phải xử lý tiền; bật cái này thì tắt cái kia (hai điều kiện không giao nhau). */
+const QUICK_FILTERS = [
+  { name: 'awaiting_payment', label: 'Chờ xác nhận tiền', icon: HourglassMedium },
+  { name: 'needs_refund', label: 'Cần hoàn tiền', icon: ArrowCounterClockwise },
+]
+
+function QuickFilters() {
   const { params, setParams } = useTableParams()
-  const active = params.awaiting_payment === '1'
 
   return (
-    <Button
-      type={active ? 'primary' : 'default'}
-      icon={<HourglassMedium size={16} />}
-      aria-pressed={active}
-      onClick={() => setParams({ awaiting_payment: active ? null : '1' })}
-    >
-      Chờ xác nhận tiền
-    </Button>
+    <Flex gap={8} wrap>
+      {QUICK_FILTERS.map(({ name, label, icon: Icon }) => {
+        const active = params[name] === '1'
+        const others = Object.fromEntries(QUICK_FILTERS.map((f) => [f.name, null]))
+        return (
+          <Button
+            key={name}
+            type={active ? 'primary' : 'default'}
+            icon={<Icon size={16} />}
+            aria-pressed={active}
+            onClick={() => setParams({ ...others, [name]: active ? null : '1' })}
+          >
+            {label}
+          </Button>
+        )
+      })}
+    </Flex>
   )
 }
 
@@ -163,7 +177,7 @@ export default function OrdersPage() {
           },
           { name: 'dates', render: () => <DateRangeFilter /> },
         ]}
-        toolbar={<AwaitingPaymentToggle />}
+        toolbar={<QuickFilters />}
       />
     </>
   )

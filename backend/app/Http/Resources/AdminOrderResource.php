@@ -35,6 +35,7 @@ class AdminOrderResource extends OrderResource
                 $this->status->allowedNext(),
             ),
             'can_mark_paid' => $this->awaitsTransfer(),
+            'can_mark_refunded' => $this->needsRefund(),
         ];
     }
 }

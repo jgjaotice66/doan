@@ -23,12 +23,22 @@ const STEPS = [
 ]
 
 /** Tiến trình đơn: bước đã qua có dấu ✓, bước hiện tại tô sáng. */
-function StatusTimeline({ status }) {
+/** Đơn huỷ sau khi khách đã trả tiền: cho khách biết tiền đang/đã được hoàn. */
+const REFUND_NOTES = {
+  paid: 'Bạn đã thanh toán đơn này — cửa hàng sẽ liên hệ để hoàn tiền.',
+  refunded: 'Cửa hàng đã hoàn tiền cho bạn.',
+}
+
+function StatusTimeline({ status, paymentStatus }) {
   if (status.value === 'cancelled') {
+    const refundNote = REFUND_NOTES[paymentStatus.value]
     return (
       <div className="flex items-center gap-3 rounded-control border border-danger/40 bg-danger/10 p-4 text-danger" role="status">
         <XCircle aria-hidden weight="fill" className="size-6 shrink-0" />
-        <p className="font-semibold">Đơn hàng đã bị huỷ. Số lượng sản phẩm đã được hoàn lại kho.</p>
+        <div>
+          <p className="font-semibold">Đơn hàng đã bị huỷ. Số lượng sản phẩm đã được hoàn lại kho.</p>
+          {refundNote && <p className="mt-1 text-sm text-fg">{refundNote}</p>}
+        </div>
       </div>
     )
   }
@@ -175,7 +185,15 @@ function SummaryCard({ order }) {
         <dd className="pt-2 text-right font-medium">{order.payment_method.label}</dd>
       </dl>
 
-      {order.status.value === 'pending' && <CancelOrder order={order} />}
+      {order.status.value === 'pending' &&
+        (order.payment_status.value === 'paid' ? (
+          // Tiền đã về → cửa hàng huỷ và hoàn tiền, khách không tự huỷ.
+          <p className="rounded-control border border-line p-3 text-sm text-muted">
+            Muốn huỷ đơn đã thanh toán? Vui lòng liên hệ cửa hàng để được huỷ và hoàn tiền.
+          </p>
+        ) : (
+          <CancelOrder order={order} />
+        ))}
     </Card>
   )
 }
@@ -217,7 +235,7 @@ export default function OrderDetailPage() {
                 <PaymentStatusBadge paymentStatus={order.payment_status} />
               </div>
             </div>
-            <StatusTimeline status={order.status} />
+            <StatusTimeline status={order.status} paymentStatus={order.payment_status} />
           </Card>
 
           {awaiting && order.qr_url && order.bank && <BankQrBox order={order} />}

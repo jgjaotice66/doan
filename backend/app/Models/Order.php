@@ -61,6 +61,25 @@ class Order extends Model
     }
 
     /**
+     * Đơn đã huỷ nhưng tiền khách trả vẫn nằm ở cửa hàng → cần chuyển trả lại.
+     */
+    public function needsRefund(): bool
+    {
+        return $this->status === OrderStatus::Cancelled && $this->payment_status === PaymentStatus::Paid;
+    }
+
+    /**
+     * Cùng điều kiện với needsRefund(), dạng truy vấn (bộ lọc "Cần hoàn tiền" của admin).
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function needingRefund(Builder $query): void
+    {
+        $query->where('status', OrderStatus::Cancelled)->where('payment_status', PaymentStatus::Paid);
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo

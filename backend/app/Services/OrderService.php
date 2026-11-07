@@ -149,6 +149,33 @@ class OrderService
     }
 
     /**
+     * Admin ghi nhận đã chuyển trả tiền cho đơn huỷ sau khi khách đã thanh toán (làm thủ công ngoài hệ thống).
+     *
+     * @throws ValidationException đơn không ở trạng thái cần hoàn tiền
+     */
+    public function markRefunded(Order $order): Order
+    {
+        return DB::transaction(function () use ($order) {
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if (! $locked->needsRefund()) {
+                throw ValidationException::withMessages(['payment' => match (true) {
+                    $locked->payment_status === PaymentStatus::Refunded => 'Đơn này đã được hoàn tiền.',
+                    $locked->payment_status === PaymentStatus::Unpaid => 'Khách chưa thanh toán đơn này, không có gì để hoàn.',
+                    default => 'Chỉ hoàn tiền cho đơn đã huỷ.',
+                }]);
+            }
+
+            $locked->payment_status = PaymentStatus::Refunded;
+            $locked->save();
+
+            $order->setRawAttributes($locked->getAttributes(), true);
+
+            return $order;
+        });
+    }
+
+    /**
      * Khách tự huỷ: chỉ khi đơn còn chờ xác nhận (đã xác nhận thì phải liên hệ cửa hàng).
      *
      * @throws ValidationException đơn không còn ở trạng thái chờ xác nhận
@@ -158,6 +185,13 @@ class OrderService
         if ($order->status !== OrderStatus::Pending) {
             throw ValidationException::withMessages([
                 'status' => 'Chỉ huỷ được đơn đang chờ xác nhận. Vui lòng liên hệ cửa hàng để được hỗ trợ.',
+            ]);
+        }
+
+        // Tiền đã về thì cửa hàng phải hoàn → để cửa hàng huỷ (và nhớ hoàn tiền), khách không tự huỷ.
+        if ($order->payment_status === PaymentStatus::Paid) {
+            throw ValidationException::withMessages([
+                'status' => 'Đơn đã thanh toán, vui lòng liên hệ cửa hàng để huỷ.',
             ]);
         }
 
