@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Http\Resources\OrderResource;
@@ -10,6 +11,7 @@ use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Validation\Rule;
 
 /**
  * Đơn hàng của khách đang đăng nhập.
@@ -21,9 +23,17 @@ class OrderController extends Controller
 
     public function __construct(private OrderService $orders) {}
 
+    /**
+     * Danh sách đơn của tôi, lọc tuỳ chọn theo ?status= (tab trên trang "Đơn hàng của tôi").
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
+        $validated = $request->validate([
+            'status' => ['nullable', Rule::enum(OrderStatus::class)],
+        ]);
+
         $orders = $request->user()->orders()
+            ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->with(self::WITH)
             ->latest()
             ->orderByDesc('id')

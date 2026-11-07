@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { ordersApi } from '../../api/orders'
 import { useAuthStore } from '../../stores/authStore'
@@ -6,6 +6,8 @@ import { cartKeys } from '../cart/queries'
 
 export const orderKeys = {
   all: ['orders'],
+  lists: ['orders', 'list'],
+  list: (params) => ['orders', 'list', params],
   detail: (code) => ['orders', 'detail', code],
 }
 
@@ -32,6 +34,39 @@ export const useOrder = (code) =>
     retry: retryUnlessNotFound,
     refetchInterval: (query) => (isAwaitingTransfer(query.state.data) ? AWAITING_POLL_MS : false),
   })
+
+/**
+ * Đơn của tôi theo tab trạng thái + trang. Giữ dữ liệu cũ khi đổi tab/trang để danh sách không nháy trắng.
+ * params: { status?: string, page?: number }
+ */
+export const useMyOrders = (params) =>
+  useQuery({
+    queryKey: orderKeys.list(params),
+    queryFn: () => ordersApi.list(params),
+    placeholderData: keepPreviousData,
+  })
+
+/**
+ * Khách huỷ đơn pending: server trả đơn mới → cập nhật chi tiết ngay (nút huỷ biến mất),
+ * danh sách đơn và tồn kho sản phẩm (đã hoàn kho) tải lại khi cần.
+ */
+export function useCancelOrder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ordersApi.cancel,
+    onSuccess: (order) => {
+      queryClient.setQueryData(orderKeys.detail(order.code), order)
+      queryClient.invalidateQueries({ queryKey: orderKeys.lists })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product'] })
+    },
+    onError: (error, code) => {
+      // 422 = đơn vừa được cửa hàng xác nhận → tải lại để hiện trạng thái thật.
+      if (error.response?.status === 422) queryClient.invalidateQueries({ queryKey: orderKeys.detail(code) })
+    },
+  })
+}
 
 /**
  * Đặt hàng thành công: server đã trừ kho → cache sẵn đơn cho trang thành công,

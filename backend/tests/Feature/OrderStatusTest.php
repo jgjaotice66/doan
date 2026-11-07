@@ -80,6 +80,33 @@ class OrderStatusTest extends TestCase
         $this->assertSame($allowed, $from->canTransitionTo($to));
     }
 
+    public function test_customer_can_filter_own_orders_by_status(): void
+    {
+        $pending = Order::factory()->for($this->customer)->create(['status' => OrderStatus::Pending]);
+        Order::factory()->for($this->customer)->create(['status' => OrderStatus::Completed]);
+        Order::factory()->for($this->admin)->create(['status' => OrderStatus::Pending]);
+
+        $this->actingAs($this->customer, 'sanctum')
+            ->getJson('/api/v1/orders?status=pending')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.code', $pending->code)
+            ->assertJsonPath('meta.total', 1);
+
+        $this->actingAs($this->customer, 'sanctum')
+            ->getJson('/api/v1/orders')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 2);
+    }
+
+    public function test_invalid_status_filter_is_rejected(): void
+    {
+        $this->actingAs($this->customer, 'sanctum')
+            ->getJson('/api/v1/orders?status=lost')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('status');
+    }
+
     public function test_customer_cancels_pending_order_and_stock_is_restored(): void
     {
         [$order, $a, $b] = $this->orderWithItems();

@@ -34,7 +34,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [21](21-order-cancel-status.md) Huỷ đơn & trạng thái (+test) — 20
 - [x] [22](22-cart-page.md) Trang giỏ hàng — 17, 18
 - [x] [23](23-checkout-page-qr.md) Checkout & QR — 20, 22
-- [ ] [24](24-my-orders-pages.md) Đơn hàng của tôi — 21, 23
+- [x] [24](24-my-orders-pages.md) Đơn hàng của tôi — 21, 23
 - [ ] [25](25-wishlist-profile-pages.md) Yêu thích & hồ sơ — 19, 10
 
 ## Tuần 4 – Admin lõi (hết tuần này = MVP)
