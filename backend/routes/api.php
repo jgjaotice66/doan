@@ -72,6 +72,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/inventory/movements', [Admin\InventoryController::class, 'movements'])->name('inventory.movements');
             Route::post('/inventory/{product}/adjust', [Admin\InventoryController::class, 'adjust'])->name('inventory.adjust');
 
+            Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
+            Route::patch('/users/{user}/toggle-active', [Admin\UserController::class, 'toggleActive'])->name('users.toggle-active');
+
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
         });

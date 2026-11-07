@@ -48,7 +48,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 
 ## Tuần 5 – Admin mở rộng
 - [x] [31](31-inventory-api-page.md) Kho / tồn kho — 28
-- [ ] [32](32-admin-users.md) Người dùng — 26
+- [x] [32](32-admin-users.md) Người dùng — 26
 - [ ] [33](33-admin-banners.md) Banner — 26, 11
 - [ ] [34](34-news-api-admin.md) NEWS API + quản trị — 26
 - [ ] [35](35-news-storefront.md) NEWS storefront — 34, 14

@@ -31,6 +31,18 @@ function PaymentCell({ order }) {
   )
 }
 
+/** Đến từ nút "Xem đơn" ở trang Người dùng → đang lọc theo 1 khách; × để bỏ lọc. */
+function CustomerFilterTag() {
+  const { params, setParams } = useTableParams()
+  if (!params.user) return null
+
+  return (
+    <Tag closable onClose={() => setParams({ user: null, user_name: null })} style={{ alignSelf: 'center', padding: '4px 8px' }}>
+      Khách: {params.user_name || `#${params.user}`}
+    </Tag>
+  )
+}
+
 function DateRangeFilter() {
   const { params, setParams } = useTableParams()
   const value = params.from && params.to ? [dayjs(params.from), dayjs(params.to)] : null
@@ -176,6 +188,7 @@ export default function OrdersPage() {
             width: 170,
           },
           { name: 'dates', render: () => <DateRangeFilter /> },
+          { name: 'user', render: () => <CustomerFilterTag /> },
         ]}
         toolbar={<QuickFilters />}
       />

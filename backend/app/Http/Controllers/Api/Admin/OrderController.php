@@ -25,7 +25,7 @@ class OrderController extends Controller
     public function __construct(private OrderService $orders) {}
 
     /**
-     * Lọc: status, payment_method, payment_status, awaiting_payment (chuyển khoản chưa trả, chưa huỷ), needs_refund (đã huỷ + đã trả), from/to (ngày đặt, tính cả 2 đầu), q = mã đơn / SĐT / tên người nhận.
+     * Lọc: status, payment_method, payment_status, awaiting_payment (chuyển khoản chưa trả, chưa huỷ), needs_refund (đã huỷ + đã trả), user (id khách), from/to (ngày đặt, tính cả 2 đầu), q = mã đơn / SĐT / tên người nhận.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -36,6 +36,7 @@ class OrderController extends Controller
             'payment_status' => ['nullable', Rule::enum(PaymentStatus::class)],
             'awaiting_payment' => ['nullable', 'boolean'],
             'needs_refund' => ['nullable', 'boolean'],
+            'user' => ['nullable', 'integer'],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
@@ -56,6 +57,7 @@ class OrderController extends Controller
             ->when($validated['payment_status'] ?? null, fn ($query, $value) => $query->where('payment_status', $value))
             ->when($request->boolean('awaiting_payment'), fn ($query) => $query->awaitingTransfer())
             ->when($request->boolean('needs_refund'), fn ($query) => $query->needingRefund())
+            ->when($validated['user'] ?? null, fn ($query, $id) => $query->where('user_id', $id))
             ->when($validated['from'] ?? null, fn ($query, $date) => $query->where('created_at', '>=', "{$date} 00:00:00"))
             ->when($validated['to'] ?? null, fn ($query, $date) => $query->where('created_at', '<=', "{$date} 23:59:59"))
             ->latest()
