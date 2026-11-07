@@ -56,6 +56,11 @@ Route::prefix('v1')->group(function () {
 
             Route::apiResource('categories', Admin\CategoryController::class)->except('show');
             Route::apiResource('brands', Admin\BrandController::class)->except('show');
+
+            Route::apiResource('products', Admin\ProductController::class);
+            Route::post('/products/{product}/images', [Admin\ProductImageController::class, 'store'])->name('products.images.store');
+            Route::put('/products/{product}/images/order', [Admin\ProductImageController::class, 'reorder'])->name('products.images.reorder');
+            Route::delete('/product-images/{productImage}', [Admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
         });
     });
 });
