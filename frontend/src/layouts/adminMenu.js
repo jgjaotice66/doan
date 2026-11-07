@@ -1,6 +1,7 @@
 import {
   ChartPieSlice,
   Cube,
+  GearSix,
   Image,
   Newspaper,
   Package,
@@ -24,6 +25,7 @@ export const ADMIN_MENU = [
   { path: '/admin/users', label: 'Người dùng', icon: Users, task: '32' },
   { path: '/admin/banners', label: 'Banner', icon: Image, task: '33' },
   { path: '/admin/posts', label: 'NEWS', icon: Newspaper, task: '34' },
+  { path: '/admin/settings', label: 'Cài đặt', icon: GearSix, task: '42' },
 ]
 
 /**

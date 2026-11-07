@@ -68,6 +68,7 @@ export const router = createBrowserRouter([
               adminPage('users'),
               adminPage('banners'),
               adminPage('posts'),
+              { path: 'settings', lazy: lazyPage(() => import('./pages/admin/SettingsPage')) },
               { path: '*', lazy: lazyPage(() => import('./pages/admin/AdminNotFoundPage')) },
             ],
           },

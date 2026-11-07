@@ -61,7 +61,7 @@ export default function BankQrBox({ order }) {
         <div className="mx-auto w-full max-w-72 overflow-hidden rounded-card bg-qr-paper p-2">
           <img
             src={order.qr_url}
-            alt={`Mã QR chuyển ${formatVND(order.total)} tới ${bank.bank} ${bank.account}, nội dung ${order.code}`}
+            alt={`Mã QR chuyển ${formatVND(order.total)} tới ${bank.bank_name ?? bank.bank} ${bank.account}, nội dung ${order.code}`}
             width="540"
             height="640"
             className="h-auto w-full"
@@ -70,7 +70,7 @@ export default function BankQrBox({ order }) {
 
         <div className="space-y-4">
           <dl>
-            <Row label="Ngân hàng" value={bank.bank} />
+            <Row label="Ngân hàng" value={bank.bank_name && bank.bank_name !== bank.bank ? `${bank.bank_name} (${bank.bank})` : bank.bank} />
             <Row label="Số tài khoản" value={bank.account} copyable />
             <Row label="Chủ tài khoản" value={bank.account_name} />
             <Row label="Số tiền" value={order.total} display={formatVND(order.total)} copyable highlight />

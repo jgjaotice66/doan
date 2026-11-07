@@ -27,4 +27,28 @@ return [
         'account_name' => env('VIETQR_ACCOUNT_NAME', ''),
     ],
 
+    /*
+    | Ngân hàng admin chọn được ở "Cài đặt cửa hàng": mã VietQR => tên hiển thị.
+    */
+    'banks' => [
+        'VCB' => 'Vietcombank',
+        'ICB' => 'VietinBank',
+        'BIDV' => 'BIDV',
+        'VBA' => 'Agribank',
+        'MB' => 'MB Bank',
+        'TCB' => 'Techcombank',
+        'ACB' => 'ACB',
+        'VPB' => 'VPBank',
+        'TPB' => 'TPBank',
+        'STB' => 'Sacombank',
+        'HDB' => 'HDBank',
+        'VIB' => 'VIB',
+        'SHB' => 'SHB',
+        'MSB' => 'MSB',
+        'OCB' => 'OCB',
+        'SEAB' => 'SeABank',
+        'LPB' => 'LPBank',
+        'EIB' => 'Eximbank',
+    ],
+
 ];
