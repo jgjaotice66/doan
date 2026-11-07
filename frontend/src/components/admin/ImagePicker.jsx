@@ -1,9 +1,10 @@
 import { ImageSquare, Trash, UploadSimple } from '@phosphor-icons/react'
 import { App, Button, Flex, Image, theme, Upload } from 'antd'
 import { useState } from 'react'
+import { checkImageFile, IMAGE_ACCEPT, IMAGE_MAX_MB, readAsDataUrl } from '../../features/admin/imageRules'
 
-const ACCEPT = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_MB = 2
+const ACCEPT = IMAGE_ACCEPT
+const MAX_MB = IMAGE_MAX_MB
 
 /**
  * Chọn 1 ảnh cho antd Form (dùng trong <Form.Item name="image">).
@@ -16,8 +17,8 @@ export default function ImagePicker({ value, onChange, size = 96, id }) {
   const { url: preview, read } = usePreview(value)
 
   const beforeUpload = (file) => {
-    if (!ACCEPT.includes(file.type)) message.error('Chỉ nhận ảnh jpg, png hoặc webp.')
-    else if (file.size > MAX_MB * 1024 * 1024) message.error(`Ảnh tối đa ${MAX_MB}MB.`)
+    const problem = checkImageFile(file)
+    if (problem) message.error(problem)
     else {
       read(file)
       onChange?.(file)
@@ -71,11 +72,7 @@ export default function ImagePicker({ value, onChange, size = 96, id }) {
 function usePreview(value) {
   const [local, setLocal] = useState(null) // { file, url }
 
-  const read = (file) => {
-    const reader = new FileReader()
-    reader.onload = () => setLocal({ file, url: reader.result })
-    reader.readAsDataURL(file)
-  }
+  const read = (file) => readAsDataUrl(file).then((url) => setLocal({ file, url }))
 
   const url = value instanceof File ? (local?.file === value ? local.url : null) : typeof value === 'string' ? value : null
 

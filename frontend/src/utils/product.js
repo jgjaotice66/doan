@@ -6,6 +6,9 @@ export function discountPercent(price, salePrice) {
   return Math.round((1 - salePrice / price) * 100)
 }
 
+/** Các mốc độ tuổi hợp lệ — khớp Product::AGE_GROUPS ở backend. */
+export const AGE_GROUPS = [0, 3, 6, 8, 14, 18]
+
 /**
  * Nhãn độ tuổi: 0 → 'Mọi lứa tuổi', 14 → '14+'
  */
