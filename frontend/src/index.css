@@ -90,6 +90,16 @@
     @apply outline-2 outline-offset-2 outline-primary;
   }
 
+  /* Khu admin (Ant Design, nền sáng): bỏ nền tối/font tiêu đề của storefront.
+     Nằm trong @layer nên style của antd (không layer) luôn thắng khi trùng. */
+  .admin-root {
+    color-scheme: light;
+  }
+
+  .admin-root :is(h1, h2, h3) {
+    font-family: inherit;
+  }
+
   /* Giá tiền không nhảy chiều rộng khi đổi số */
   .tabular {
     font-variant-numeric: tabular-nums;

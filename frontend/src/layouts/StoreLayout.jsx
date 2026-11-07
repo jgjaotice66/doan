@@ -1,7 +1,7 @@
 import { Heart, MagnifyingGlass, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
-import { authApi } from '../api/auth'
+import { useLogout } from '../features/auth/useLogout'
 import { useCart } from '../features/cart/queries'
 import { useAuthStore } from '../stores/authStore'
 import { cn } from '../utils/cn'
@@ -79,8 +79,7 @@ function CartLink() {
 function AccountMenu() {
   const user = useAuthStore((s) => s.user)
   const token = useAuthStore((s) => s.token)
-  const logout = useAuthStore((s) => s.logout)
-  const navigate = useNavigate()
+  const onLogout = useLogout()
 
   if (!token) {
     return (
@@ -93,16 +92,6 @@ function AccountMenu() {
         </NavLink>
       </div>
     )
-  }
-
-  const onLogout = async () => {
-    try {
-      await authApi.logout()
-    } catch {
-      // Token có thể đã hết hạn; vẫn xoá phía client.
-    }
-    logout()
-    navigate('/')
   }
 
   return (

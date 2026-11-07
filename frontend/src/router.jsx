@@ -14,10 +14,9 @@ const placeholder = (title, task) => <PagePlaceholder title={title} task={task} 
  */
 const lazyPage = (load) => async () => ({ Component: (await load()).default })
 
-const adminPage = (path, title, task) => ({
-  path,
-  element: placeholder(title, task),
-})
+/** Trang admin chưa làm: placeholder antd (tiêu đề + task lấy từ adminMenu theo URL). */
+const adminPlaceholder = lazyPage(() => import('./pages/admin/AdminPlaceholderPage'))
+const adminPage = (path) => ({ path, lazy: adminPlaceholder })
 
 export const router = createBrowserRouter([
   {
@@ -57,16 +56,16 @@ export const router = createBrowserRouter([
           {
             lazy: lazyPage(() => import('./layouts/AdminLayout')),
             children: [
-              { index: true, element: placeholder('Dashboard', '37') },
-              adminPage('products', 'Sản phẩm', '29'),
-              adminPage('categories', 'Danh mục', '27'),
-              adminPage('brands', 'Thương hiệu', '27'),
-              adminPage('orders', 'Đơn hàng', '30'),
-              adminPage('inventory', 'Kho', '31'),
-              adminPage('users', 'Người dùng', '32'),
-              adminPage('banners', 'Banner', '33'),
-              adminPage('posts', 'NEWS', '34'),
-              { path: '*', element: <NotFoundPage /> },
+              { index: true, lazy: adminPlaceholder },
+              adminPage('products'),
+              adminPage('categories'),
+              adminPage('brands'),
+              adminPage('orders'),
+              adminPage('inventory'),
+              adminPage('users'),
+              adminPage('banners'),
+              adminPage('posts'),
+              { path: '*', lazy: lazyPage(() => import('./pages/admin/AdminNotFoundPage')) },
             ],
           },
         ],
