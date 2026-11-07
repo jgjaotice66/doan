@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Alert, Button, Card, Flex, Input, Select, Table } from 'antd'
+import { Fragment } from 'react'
 import { getErrorMessage } from '../../api/client'
 import { useTableParams } from '../../features/admin/useTableParams'
 
@@ -64,18 +65,23 @@ export default function AdminTable({
                 style={{ width: 300, maxWidth: '100%' }}
               />
             )}
-            {filters.map((filter) => (
-              <Select
-                key={filter.name}
-                value={params[filter.name] ?? null}
-                placeholder={filter.placeholder}
-                aria-label={filter.placeholder}
-                options={filter.options}
-                allowClear
-                onChange={(value) => setParams({ [filter.name]: value })}
-                style={{ width: filter.width ?? 180 }}
-              />
-            ))}
+            {filters.map((filter) =>
+              // Bộ lọc tự dựng (VD: chọn khoảng ngày) — tự đọc/ghi URL bằng useTableParams.
+              filter.render ? (
+                <Fragment key={filter.name}>{filter.render()}</Fragment>
+              ) : (
+                <Select
+                  key={filter.name}
+                  value={params[filter.name] ?? null}
+                  placeholder={filter.placeholder}
+                  aria-label={filter.placeholder}
+                  options={filter.options}
+                  allowClear
+                  onChange={(value) => setParams({ [filter.name]: value })}
+                  style={{ width: filter.width ?? 180 }}
+                />
+              ),
+            )}
           </Flex>
           {toolbar}
         </Flex>

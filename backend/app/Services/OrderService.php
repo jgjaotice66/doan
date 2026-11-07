@@ -121,6 +121,34 @@ class OrderService
     }
 
     /**
+     * Admin xác nhận đã nhận tiền chuyển khoản. COD không dùng (tự paid khi hoàn thành),
+     * đơn đã huỷ hoặc đã trả rồi thì từ chối.
+     *
+     * @throws ValidationException đơn không còn chờ tiền chuyển khoản
+     */
+    public function markPaid(Order $order): Order
+    {
+        return DB::transaction(function () use ($order) {
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if (! $locked->awaitsTransfer()) {
+                throw ValidationException::withMessages(['payment' => match (true) {
+                    $locked->payment_method !== PaymentMethod::BankQr => 'Đơn COD được tự đánh dấu đã thanh toán khi hoàn thành.',
+                    $locked->payment_status === PaymentStatus::Paid => 'Đơn này đã được xác nhận thanh toán.',
+                    default => 'Đơn đã huỷ, không thể xác nhận thanh toán.',
+                }]);
+            }
+
+            $locked->payment_status = PaymentStatus::Paid;
+            $locked->save();
+
+            $order->setRawAttributes($locked->getAttributes(), true);
+
+            return $order;
+        });
+    }
+
+    /**
      * Khách tự huỷ: chỉ khi đơn còn chờ xác nhận (đã xác nhận thì phải liên hệ cửa hàng).
      *
      * @throws ValidationException đơn không còn ở trạng thái chờ xác nhận

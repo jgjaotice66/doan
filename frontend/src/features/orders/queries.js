@@ -21,10 +21,16 @@ export const isAwaitingTransfer = (order) =>
   order?.payment_method.value === 'bank_qr' && order.payment_status.value === 'unpaid' && order.status.value !== 'cancelled'
 
 const AWAITING_POLL_MS = 15_000
+const ACTIVE_POLL_MS = 30_000
+const FINAL_STATUSES = ['completed', 'cancelled']
+
+/** Đơn còn được cửa hàng xử lý tiếp (chưa hoàn thành / huỷ). */
+const isActive = (order) => order && !FINAL_STATUSES.includes(order.status.value)
 
 /**
- * Chi tiết đơn. Đơn chuyển khoản đang chờ tiền thì tự hỏi lại server mỗi 15s:
- * admin xác nhận "Đã nhận tiền" → trang tự đổi sang "Đã thanh toán", ẩn QR.
+ * Chi tiết đơn tự hỏi lại server để thấy thao tác của admin mà không cần F5:
+ *   - chuyển khoản chờ tiền: mỗi 15s (admin bấm "Đã nhận tiền" → "Đã thanh toán", ẩn QR);
+ *   - đơn đang xử lý khác: mỗi 30s; quay lại tab cũng tải lại. Đơn đã xong/huỷ thì thôi.
  */
 export const useOrder = (code) =>
   useQuery({
@@ -32,7 +38,8 @@ export const useOrder = (code) =>
     queryFn: () => ordersApi.get(code),
     enabled: Boolean(code),
     retry: retryUnlessNotFound,
-    refetchInterval: (query) => (isAwaitingTransfer(query.state.data) ? AWAITING_POLL_MS : false),
+    refetchOnWindowFocus: true,
+    refetchInterval: ({ state }) => (isAwaitingTransfer(state.data) ? AWAITING_POLL_MS : isActive(state.data) ? ACTIVE_POLL_MS : false),
   })
 
 /**
@@ -44,6 +51,9 @@ export const useMyOrders = (params) =>
     queryKey: orderKeys.list(params),
     queryFn: () => ordersApi.list(params),
     placeholderData: keepPreviousData,
+    // Trang này còn đơn đang xử lý → tự cập nhật trạng thái admin vừa đổi.
+    refetchOnWindowFocus: true,
+    refetchInterval: ({ state }) => (state.data?.data.some(isActive) ? ACTIVE_POLL_MS : false),
   })
 
 /**

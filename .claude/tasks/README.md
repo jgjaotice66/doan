@@ -4,7 +4,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 
 **Cách dùng:** làm theo thứ tự số (hoặc bất kỳ task nào đã xong hết phần *Phụ thuộc*). Mỗi file có Mục tiêu · Phụ thuộc · File tạo/sửa · Các bước · Tiêu chí hoàn thành. Chỉ đánh dấu `[x]` khi các lệnh kiểm tra trong *Tiêu chí hoàn thành* đã chạy đạt. Backend làm theo TDD (viết test trước).
 
-**Mốc an toàn:** hết tuần 4 phải có MVP chạy được (mua hàng + admin lõi). Nếu trễ, cắt bớt tuần 5 theo thứ tự (cắt cái đầu tiên trước): 32 Người dùng → 33 Banner → 34/35 NEWS → 31 Kho → 36/37 Dashboard (giữ lâu nhất vì demo ấn tượng nhất).
+**Mốc an toàn:** hết tuần 4 phải có MVP chạy được (mua hàng + admin lõi). Nếu trễ, cắt bớt tuần 5 theo thứ tự (cắt cái đầu tiên trước): 44 Trả hàng → 32 Người dùng → 33 Banner → 34/35 NEWS → 31 Kho → 36/37 Dashboard (giữ lâu nhất vì demo ấn tượng nhất).
 
 ## Tuần 1 – Nền tảng
 - [x] [01](01-git-init.md) Khởi tạo Git — phụ thuộc: —
@@ -42,8 +42,9 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [27](27-admin-categories-brands.md) Danh mục & thương hiệu — 26
 - [x] [28](28-admin-products-api-images.md) API sản phẩm + ảnh (+test) — 27
 - [x] [29](29-admin-products-pages.md) Giao diện sản phẩm — 28
-- [ ] [30](30-admin-orders.md) Quản lý đơn hàng — 21, 26
+- [x] [30](30-admin-orders.md) Quản lý đơn hàng — 21, 26
 - [ ] [42](42-admin-shop-settings.md) *(task phụ)* Cài đặt cửa hàng: tài khoản nhận tiền (+test) — 26, 23
+- [ ] [43](43-refund-cancelled-orders.md) *(task phụ)* Hoàn tiền cho đơn huỷ đã thanh toán (+test) — 30
 
 ## Tuần 5 – Admin mở rộng
 - [ ] [31](31-inventory-api-page.md) Kho / tồn kho — 28
@@ -53,6 +54,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [ ] [35](35-news-storefront.md) NEWS storefront — 34, 14
 - [ ] [36](36-dashboard-api.md) Dashboard API (+test) — 21
 - [ ] [37](37-dashboard-page.md) Dashboard giao diện — 36, 26
+- [ ] [44](44-returns-after-delivery.md) *(task phụ)* Trả hàng & hoàn tiền sau khi giao (+test) — 30, 43, 31
 
 ## Tuần 6 – Hoàn thiện
 - [ ] [38](38-ux-states-responsive.md) UX & responsive — 25, 35

@@ -61,6 +61,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/products/{product}/images', [Admin\ProductImageController::class, 'store'])->name('products.images.store');
             Route::put('/products/{product}/images/order', [Admin\ProductImageController::class, 'reorder'])->name('products.images.reorder');
             Route::delete('/product-images/{productImage}', [Admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
+
+            Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
+            Route::patch('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
+            Route::patch('/orders/{order}/payment', [Admin\OrderController::class, 'markPaid'])->name('orders.payment');
         });
     });
 });

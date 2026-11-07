@@ -1,11 +1,16 @@
 import { CaretDown, List, SignOut, Storefront, UserCircle } from '@phosphor-icons/react'
 import { App, Button, ConfigProvider, Drawer, Dropdown, Grid, Layout, Menu, Space, theme, Typography } from 'antd'
 import viVN from 'antd/locale/vi_VN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/vi'
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { useLogout } from '../features/auth/useLogout'
 import { useAuthStore } from '../stores/authStore'
 import { ADMIN_MENU, findAdminMenuItem } from './adminMenu'
+
+// Lịch (DatePicker) hiện tên tháng/thứ tiếng Việt, tuần bắt đầu từ thứ Hai.
+dayjs.locale('vi')
 
 const SIDER_WIDTH = 232
 const SIDER_DARK_BG = '#001529'

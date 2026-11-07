@@ -2,9 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\OrderStatus;
-use App\Enums\PaymentMethod;
-use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Support\VietQr;
 use Illuminate\Http\Request;
@@ -21,9 +18,7 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         // QR chỉ cần khi chọn chuyển khoản, chưa trả tiền và đơn chưa huỷ.
-        $needsQr = $this->payment_method === PaymentMethod::BankQr
-            && $this->payment_status === PaymentStatus::Unpaid
-            && $this->status !== OrderStatus::Cancelled;
+        $needsQr = $this->awaitsTransfer();
 
         return [
             'id' => $this->id,

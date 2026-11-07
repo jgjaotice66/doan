@@ -1,4 +1,4 @@
-import { Heart, MagnifyingGlass, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
+import { Heart, MagnifyingGlass, Receipt, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { useLogout } from '../features/auth/useLogout'
@@ -101,6 +101,10 @@ function AccountMenu() {
           Quản trị
         </NavLink>
       )}
+      <NavLink to="/orders" className={navLinkClass}>
+        <Receipt aria-hidden className="size-5" />
+        <span className="sr-only lg:not-sr-only">Đơn hàng</span>
+      </NavLink>
       <NavLink to="/account" className={navLinkClass}>
         <UserCircle aria-hidden className="size-5" />
         <span className="max-w-32 truncate">{user?.name ?? 'Tài khoản'}</span>
