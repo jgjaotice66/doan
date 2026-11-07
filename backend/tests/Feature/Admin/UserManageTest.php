@@ -54,10 +54,10 @@ class UserManageTest extends TestCase
     public function test_search_and_filters(): void
     {
         Sanctum::actingAs($this->admin);
-        $an = User::factory()->create(['name' => 'Nguyễn Văn An', 'email' => 'an@example.com', 'phone' => '0901111222']);
+        $an = User::factory()->create(['name' => 'Nguyễn Qwzy An', 'email' => 'an@example.com', 'phone' => '0901111222']);
         $locked = User::factory()->create(['name' => 'Bị Khoá', 'is_active' => false]);
 
-        $this->getJson('/api/v1/admin/users?q=văn an')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $an->id);
+        $this->getJson('/api/v1/admin/users?q=qwzy an')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $an->id);
         $this->getJson('/api/v1/admin/users?q=an@example')->assertJsonCount(1, 'data');
         $this->getJson('/api/v1/admin/users?q=1111222')->assertJsonCount(1, 'data');
         $this->getJson('/api/v1/admin/users?role=admin')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $this->admin->id);

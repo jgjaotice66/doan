@@ -66,7 +66,7 @@ export const router = createBrowserRouter([
               { path: 'orders/:id', lazy: lazyPage(() => import('./pages/admin/OrderDetailPage')) },
               { path: 'inventory', lazy: lazyPage(() => import('./pages/admin/InventoryPage')) },
               { path: 'users', lazy: lazyPage(() => import('./pages/admin/UsersPage')) },
-              adminPage('banners'),
+              { path: 'banners', lazy: lazyPage(() => import('./pages/admin/BannersPage')) },
               adminPage('posts'),
               { path: 'settings', lazy: lazyPage(() => import('./pages/admin/SettingsPage')) },
               { path: '*', lazy: lazyPage(() => import('./pages/admin/AdminNotFoundPage')) },

@@ -4,20 +4,21 @@ import { useState } from 'react'
 import { checkImageFile, IMAGE_ACCEPT, IMAGE_MAX_MB, readAsDataUrl } from '../../features/admin/imageRules'
 
 const ACCEPT = IMAGE_ACCEPT
-const MAX_MB = IMAGE_MAX_MB
 
 /**
  * Chọn 1 ảnh cho antd Form (dùng trong <Form.Item name="image">).
  * value: File (ảnh mới chọn) · string (URL ảnh hiện có) · null (không có / đã gỡ).
  * Kiểm tra định dạng + dung lượng ngay ở trình duyệt; server vẫn kiểm tra lại.
+ *
+ * Tuỳ chọn: width/height (khung xem trước, mặc định vuông = size) · maxMb · removable (ẩn "Gỡ ảnh" khi ảnh bắt buộc).
  */
-export default function ImagePicker({ value, onChange, size = 96, id }) {
+export default function ImagePicker({ value, onChange, size = 96, width = size, height = size, maxMb = IMAGE_MAX_MB, removable = true, id }) {
   const { message } = App.useApp()
   const { token } = theme.useToken()
   const { url: preview, read } = usePreview(value)
 
   const beforeUpload = (file) => {
-    const problem = checkImageFile(file)
+    const problem = checkImageFile(file, maxMb)
     if (problem) message.error(problem)
     else {
       read(file)
@@ -30,8 +31,8 @@ export default function ImagePicker({ value, onChange, size = 96, id }) {
     <Flex align="center" gap={16}>
       <div
         style={{
-          width: size,
-          height: size,
+          width,
+          height,
           borderRadius: token.borderRadius,
           border: `1px dashed ${token.colorBorder}`,
           background: token.colorFillQuaternary,
@@ -43,7 +44,7 @@ export default function ImagePicker({ value, onChange, size = 96, id }) {
         }}
       >
         {preview ? (
-          <Image src={preview} alt="Ảnh xem trước" width={size} height={size} style={{ objectFit: 'cover' }} />
+          <Image src={preview} alt="Ảnh xem trước" width={width} height={height} style={{ objectFit: 'cover' }} />
         ) : (
           <ImageSquare aria-hidden size={32} color={token.colorTextQuaternary} />
         )}
@@ -54,12 +55,12 @@ export default function ImagePicker({ value, onChange, size = 96, id }) {
             {preview ? 'Đổi ảnh' : 'Chọn ảnh'}
           </Button>
         </Upload>
-        {preview && (
+        {preview && removable && (
           <Button type="text" danger size="small" icon={<Trash aria-hidden size={14} />} onClick={() => onChange?.(null)}>
             Gỡ ảnh
           </Button>
         )}
-        <span style={{ color: token.colorTextDescription, fontSize: token.fontSizeSM }}>jpg, png, webp · tối đa {MAX_MB}MB</span>
+        <span style={{ color: token.colorTextDescription, fontSize: token.fontSizeSM }}>jpg, png, webp · tối đa {maxMb}MB</span>
       </Flex>
     </Flex>
   )

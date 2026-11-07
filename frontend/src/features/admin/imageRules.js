@@ -3,10 +3,10 @@ export const IMAGE_ACCEPT = ['image/jpeg', 'image/png', 'image/webp']
 export const IMAGE_MAX_MB = 2
 export const MAX_PRODUCT_IMAGES = 10
 
-/** Trả câu lỗi nếu file không hợp lệ, null nếu dùng được. */
-export function checkImageFile(file) {
+/** Trả câu lỗi nếu file không hợp lệ, null nếu dùng được. maxMb: mặc định 2MB (banner 10MB). */
+export function checkImageFile(file, maxMb = IMAGE_MAX_MB) {
   if (!IMAGE_ACCEPT.includes(file.type)) return `"${file.name}": chỉ nhận ảnh jpg, png hoặc webp.`
-  if (file.size > IMAGE_MAX_MB * 1024 * 1024) return `"${file.name}": ảnh tối đa ${IMAGE_MAX_MB}MB.`
+  if (file.size > maxMb * 1024 * 1024) return `"${file.name}": ảnh tối đa ${maxMb}MB.`
   return null
 }
 

@@ -75,6 +75,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
             Route::patch('/users/{user}/toggle-active', [Admin\UserController::class, 'toggleActive'])->name('users.toggle-active');
 
+            // /order phải khai báo trước apiResource, nếu không "order" bị hiểu là {banner}.
+            Route::put('/banners/order', [Admin\BannerController::class, 'reorder'])->name('banners.reorder');
+            Route::patch('/banners/{banner}/toggle-active', [Admin\BannerController::class, 'toggleActive'])->name('banners.toggle-active');
+            Route::apiResource('banners', Admin\BannerController::class)->except('show');
+
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
         });
