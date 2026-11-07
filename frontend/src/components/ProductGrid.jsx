@@ -1,4 +1,5 @@
 import { useAddToCartAction } from '../features/cart/useAddToCartAction'
+import { useWishlistAction } from '../features/wishlist/queries'
 import { cn } from '../utils/cn'
 import ErrorState from './ErrorState'
 import ProductCard, { ProductCardSkeleton } from './ProductCard'
@@ -17,6 +18,7 @@ export default function ProductGrid({
   className = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
 }) {
   const { addToCart, pendingProductId } = useAddToCartAction()
+  const { isWishlisted, toggleWishlist } = useWishlistAction()
 
   if (error && !products?.length) return <ErrorState error={error} onRetry={onRetry} />
 
@@ -43,6 +45,8 @@ export default function ProductGrid({
         <li key={product.id} className="flex">
           <ProductCard
             product={product}
+            wishlisted={isWishlisted(product.id)}
+            onToggleWishlist={toggleWishlist}
             onAddToCart={addToCart}
             adding={pendingProductId === product.id}
           />

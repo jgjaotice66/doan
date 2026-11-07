@@ -9,10 +9,9 @@ import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import QuantityInput from '../../components/ui/QuantityInput'
 import Skeleton from '../../components/ui/Skeleton'
-import { useRequireLogin } from '../../features/auth/useRequireLogin'
 import { useAddToCartAction } from '../../features/cart/useAddToCartAction'
 import { useProduct } from '../../features/catalog/queries'
-import { toast } from '../../stores/toastStore'
+import { useWishlistAction } from '../../features/wishlist/queries'
 import { cn } from '../../utils/cn'
 import { ageLabel, discountPercent } from '../../utils/product'
 import NotFoundPage from '../NotFoundPage'
@@ -69,20 +68,17 @@ function StockStatus({ product }) {
 }
 
 /**
- * Khu mua hàng: số lượng + Thêm vào giỏ + Yêu thích (nối API yêu thích ở task 25).
+ * Khu mua hàng: số lượng + Thêm vào giỏ + Yêu thích.
  */
 function PurchasePanel({ product }) {
-  const requireLogin = useRequireLogin()
   const { addToCart, isPending } = useAddToCartAction()
+  const { isWishlisted, toggleWishlist } = useWishlistAction()
   const [quantity, setQuantity] = useState(1)
   const soldOut = !product.in_stock
+  const liked = isWishlisted(product.id, product.is_wishlisted)
 
   const onAddToCart = () => addToCart(product, quantity)
-
-  const onToggleWishlist = () => {
-    if (!requireLogin()) return
-    toast.info('Danh sách yêu thích đang được hoàn thiện')
-  }
+  const onToggleWishlist = () => toggleWishlist(product)
 
   return (
     <div className="space-y-4">
@@ -95,12 +91,12 @@ function PurchasePanel({ product }) {
         <Button
           size="icon"
           variant="outline"
-          className={cn('size-12', product.is_wishlisted && 'border-primary text-primary')}
+          className={cn('size-12', liked && 'border-primary text-primary')}
           onClick={onToggleWishlist}
-          aria-pressed={product.is_wishlisted}
-          aria-label={product.is_wishlisted ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}
+          aria-pressed={liked}
+          aria-label={liked ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}
         >
-          <Heart aria-hidden weight={product.is_wishlisted ? 'fill' : 'regular'} className="size-5" />
+          <Heart aria-hidden weight={liked ? 'fill' : 'regular'} className="size-5" />
         </Button>
       </div>
     </div>

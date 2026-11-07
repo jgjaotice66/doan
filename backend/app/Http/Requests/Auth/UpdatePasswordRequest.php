@@ -34,4 +34,19 @@ class UpdatePasswordRequest extends FormRequest
             'password' => 'mật khẩu mới',
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'current_password.current_password' => 'Mật khẩu hiện tại không đúng.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.confirmed' => 'Mật khẩu nhập lại không khớp.',
+            'password.min' => 'Mật khẩu mới tối thiểu 8 ký tự.',
+            'password.different' => 'Mật khẩu mới phải khác mật khẩu hiện tại.',
+        ];
+    }
 }

@@ -155,8 +155,21 @@ class AuthTest extends TestCase
             'password' => 'matkhaumoi123',
             'password_confirmation' => 'matkhaumoi123',
         ])->assertUnprocessable()
-            ->assertJsonValidationErrors(['current_password']);
+            ->assertJsonValidationErrors(['current_password' => 'Mật khẩu hiện tại không đúng.']);
 
         $this->assertTrue(Hash::check('password', $user->refresh()->password));
+    }
+
+    public function test_change_password_rejects_same_password(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->putJson('/api/v1/me/password', [
+            'current_password' => 'password',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['password' => 'Mật khẩu mới phải khác mật khẩu hiện tại.']);
     }
 }

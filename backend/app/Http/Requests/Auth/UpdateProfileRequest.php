@@ -35,4 +35,16 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'số điện thoại',
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Vui lòng nhập họ tên.',
+            'name.max' => 'Họ tên tối đa 255 ký tự.',
+            'phone.regex' => 'Số điện thoại không hợp lệ (10–11 số, bắt đầu bằng 0).',
+        ];
+    }
 }
