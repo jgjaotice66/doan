@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { adminOrdersApi } from '../../api/admin/orders'
+import { inventoryKeys } from './inventory'
 import { adminProductKeys } from './products'
 
 export const adminOrderKeys = {
@@ -81,7 +82,7 @@ export function useOrderActions(orderId) {
     onSuccess: (order) => {
       onSuccess(order)
       if (order.status.value === 'cancelled') {
-        ;[adminProductKeys.all, ['products'], ['product']].forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
+        ;[adminProductKeys.all, inventoryKeys.all, ['products'], ['product']].forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
       }
     },
     onError,

@@ -47,7 +47,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [43](43-refund-cancelled-orders.md) *(task phụ)* Hoàn tiền cho đơn huỷ đã thanh toán (+test) — 30
 
 ## Tuần 5 – Admin mở rộng
-- [ ] [31](31-inventory-api-page.md) Kho / tồn kho — 28
+- [x] [31](31-inventory-api-page.md) Kho / tồn kho — 28
 - [ ] [32](32-admin-users.md) Người dùng — 26
 - [ ] [33](33-admin-banners.md) Banner — 26, 11
 - [ ] [34](34-news-api-admin.md) NEWS API + quản trị — 26

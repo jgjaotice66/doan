@@ -68,6 +68,10 @@ Route::prefix('v1')->group(function () {
             Route::patch('/orders/{order}/payment', [Admin\OrderController::class, 'markPaid'])->name('orders.payment');
             Route::patch('/orders/{order}/refund', [Admin\OrderController::class, 'markRefunded'])->name('orders.refund');
 
+            Route::get('/inventory', [Admin\InventoryController::class, 'index'])->name('inventory.index');
+            Route::get('/inventory/movements', [Admin\InventoryController::class, 'movements'])->name('inventory.movements');
+            Route::post('/inventory/{product}/adjust', [Admin\InventoryController::class, 'adjust'])->name('inventory.adjust');
+
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
         });

@@ -218,7 +218,7 @@ function ProductForm({ product }) {
                   <InputNumber style={{ width: '100%' }} min={0} step={1000} suffix="₫" formatter={moneyFormatter} parser={moneyParser} />
                 </Form.Item>
                 {isEdit ? (
-                  <Form.Item label="Tồn kho hiện tại" style={{ marginBottom: 0 }} extra={<Link to="/admin/inventory">Nhập / điều chỉnh ở màn Kho →</Link>}>
+                  <Form.Item label="Tồn kho hiện tại" style={{ marginBottom: 0 }} extra={<Link to={`/admin/inventory?q=${encodeURIComponent(product.sku)}`}>Nhập / điều chỉnh ở màn Kho →</Link>}>
                     <Typography.Text strong type={product.low_stock ? 'danger' : undefined} style={{ fontSize: 18 }}>
                       {product.stock}
                     </Typography.Text>
