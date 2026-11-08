@@ -133,6 +133,22 @@ class PostManageTest extends TestCase
         $this->create(['slug' => 'Có Dấu!'])->assertJsonValidationErrors('slug');
     }
 
+    public function test_admin_can_pin_and_unpin_a_post_as_featured(): void
+    {
+        $id = $this->create(['is_featured' => '1'])
+            ->assertCreated()
+            ->assertJsonPath('data.is_featured', true)
+            ->json('data.id');
+        $post = Post::findOrFail($id);
+
+        $this->getJson('/api/v1/admin/posts?featured=1')->assertJsonCount(1, 'data');
+
+        $this->putJson("/api/v1/admin/posts/{$id}", $this->payload(['slug' => $post->slug, 'is_featured' => false]))
+            ->assertOk()
+            ->assertJsonPath('data.is_featured', false);
+        $this->getJson('/api/v1/admin/posts?featured=1')->assertJsonCount(0, 'data');
+    }
+
     public function test_draft_is_not_visible_publicly(): void
     {
         $response = $this->create(['is_published' => '0'])

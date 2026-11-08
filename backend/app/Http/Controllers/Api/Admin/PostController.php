@@ -27,6 +27,7 @@ class PostController extends Controller
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', 'in:draft,scheduled,published'],
+            'featured' => ['nullable', 'boolean'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
@@ -35,6 +36,7 @@ class PostController extends Controller
             ->with('author:id,name')
             ->when($validated['q'] ?? null, fn ($query, $q) => $query->where('title', 'like', "%{$q}%"))
             ->when($validated['status'] ?? null, fn ($query, $status) => $query->{$status}())
+            ->when($request->boolean('featured'), fn ($query) => $query->where('is_featured', true))
             ->latest('updated_at')
             ->latest('id')
             ->paginate($validated['per_page'] ?? 10);
@@ -126,6 +128,7 @@ class PostController extends Controller
             'excerpt' => $request->validated('excerpt') ?: PostContent::excerpt($content),
             'content' => $content,
             'is_published' => $isPublished,
+            'is_featured' => $request->boolean('is_featured'),
             // Bật xuất bản mà chưa có ngày → đăng ngay.
             'published_at' => $isPublished ? ($publishedAt ?? now()) : $publishedAt,
         ];

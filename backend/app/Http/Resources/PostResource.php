@@ -26,6 +26,7 @@ class PostResource extends JsonResource
             'slug' => $this->slug,
             'thumbnail' => Media::url($this->thumbnail),
             'excerpt' => $this->excerpt,
+            'is_featured' => $this->is_featured,
             'content' => $this->whenHas('content'),
             'published_at' => $this->published_at,
             'author' => $this->whenLoaded('author', fn () => ['name' => $this->author->name]),

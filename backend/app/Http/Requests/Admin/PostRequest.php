@@ -32,6 +32,7 @@ class PostRequest extends FormRequest
             'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['required', 'string', 'max:500000'],
             'is_published' => ['sometimes', 'boolean'],
+            'is_featured' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'remove_thumbnail' => ['sometimes', 'boolean'],

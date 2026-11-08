@@ -1,4 +1,4 @@
-import { ArrowSquareOut, ImageSquare, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
+import { ArrowSquareOut, Fire, ImageSquare, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 import { App, Button, Flex, Image, Popconfirm, Space, Tag, theme, Tooltip, Typography } from 'antd'
 import { useNavigate } from 'react-router'
 import { getErrorMessage } from '../../api/client'
@@ -40,9 +40,16 @@ function StatusCell({ post }) {
 
   return (
     <Flex vertical gap={4} align="flex-start">
-      <Tag color={POST_STATUS_COLORS[value]} style={{ marginInlineEnd: 0 }}>
-        {label}
-      </Tag>
+      <Flex gap={4} wrap>
+        <Tag color={POST_STATUS_COLORS[value]} style={{ marginInlineEnd: 0 }}>
+          {label}
+        </Tag>
+        {post.is_featured && (
+          <Tag color="volcano" icon={<Fire size={12} weight="fill" style={{ marginInlineEnd: 4, verticalAlign: -1 }} />} style={{ marginInlineEnd: 0 }}>
+            Tin hot
+          </Tag>
+        )}
+      </Flex>
       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
         {note}
       </Typography.Text>
@@ -126,7 +133,10 @@ export default function PostsPage() {
         fetchFn={adminPostsApi.list}
         columns={columns}
         searchPlaceholder="Tìm theo tiêu đề…"
-        filters={[{ name: 'status', placeholder: 'Trạng thái', options: POST_STATUS_OPTIONS, width: 160 }]}
+        filters={[
+          { name: 'status', placeholder: 'Trạng thái', options: POST_STATUS_OPTIONS, width: 160 },
+          { name: 'featured', placeholder: 'Ghim', options: [{ value: '1', label: 'Chỉ tin hot' }], width: 150 },
+        ]}
         toolbar={
           <Button type="primary" icon={<Plus size={16} />} onClick={() => navigate('/admin/posts/new')}>
             Viết bài

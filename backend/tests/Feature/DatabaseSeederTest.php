@@ -33,6 +33,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(3, Banner::count());
         $this->assertSame(6, Post::count());
         $this->assertSame(5, Post::published()->count());
+        $this->assertSame(1, Post::published()->where('is_featured', true)->count());
     }
 
     public function test_seeded_products_cover_demo_cases(): void

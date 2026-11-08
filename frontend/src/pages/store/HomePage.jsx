@@ -5,7 +5,6 @@ import {
   Cube,
   DiceFive,
   MaskHappy,
-  Newspaper,
   Robot,
   ShieldCheck,
   Smiley,
@@ -17,10 +16,12 @@ import {
 import { Link } from 'react-router'
 import BannerSlider from '../../components/BannerSlider'
 import ErrorState from '../../components/ErrorState'
+import { PostHighlights } from '../../components/PostCard'
 import ProductGrid from '../../components/ProductGrid'
 import Card from '../../components/ui/Card'
 import Skeleton from '../../components/ui/Skeleton'
 import { useBanners, useBrands, useCategories, useProducts } from '../../features/catalog/queries'
+import { usePostHighlights } from '../../features/posts/queries'
 
 // Danh mục chưa có ảnh → dùng icon theo slug (slug lạ dùng icon Tag).
 const CATEGORY_ICONS = {
@@ -143,6 +144,24 @@ function BrandStrip() {
   )
 }
 
+/** Khối tin nổi bật: tin hot (hoặc mới nhất) hiện to + 2 tin mới. Chưa có bài → lời nhắn. */
+function LatestNews() {
+  const { data, isPending, error, refetch } = usePostHighlights()
+
+  return (
+    <section>
+      <SectionHeader title="Tin mới" to="/news" />
+      <PostHighlights
+        posts={data?.data}
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        empty="Tin tức về hàng mới, sự kiện và mẹo sưu tầm sẽ xuất hiện ở đây."
+      />
+    </section>
+  )
+}
+
 export default function HomePage() {
   const banners = useBanners()
 
@@ -180,14 +199,7 @@ export default function HomePage() {
         <BrandStrip />
       </section>
 
-      {/* Nối dữ liệu bài viết ở task 35 */}
-      <section>
-        <SectionHeader title="Tin mới" to="/news" />
-        <Card className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-          <Newspaper aria-hidden className="size-8 text-subtle" />
-          <p className="text-muted">Tin tức về hàng mới, sự kiện và mẹo sưu tầm sẽ xuất hiện ở đây.</p>
-        </Card>
-      </section>
+      <LatestNews />
     </div>
   )
 }

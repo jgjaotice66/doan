@@ -1,12 +1,9 @@
 import { createBrowserRouter } from 'react-router'
 import AuthBootstrap from './components/AuthBootstrap'
-import PagePlaceholder from './components/PagePlaceholder'
 import RequireAdmin from './components/RequireAdmin'
 import RequireAuth from './components/RequireAuth'
 import StoreLayout from './layouts/StoreLayout'
 import NotFoundPage from './pages/NotFoundPage'
-
-const placeholder = (title, task) => <PagePlaceholder title={title} task={task} />
 
 /**
  * Mỗi trang là một bundle riêng, chỉ tải khi khách mở trang đó
@@ -27,8 +24,8 @@ export const router = createBrowserRouter([
           { index: true, lazy: lazyPage(() => import('./pages/store/HomePage')) },
           { path: 'products', lazy: lazyPage(() => import('./pages/store/ProductListPage')) },
           { path: 'products/:slug', lazy: lazyPage(() => import('./pages/store/ProductDetailPage')) },
-          { path: 'news', element: placeholder('Tin tức', '35') },
-          { path: 'news/:slug', element: placeholder('Bài viết', '35') },
+          { path: 'news', lazy: lazyPage(() => import('./pages/store/NewsListPage')) },
+          { path: 'news/:slug', lazy: lazyPage(() => import('./pages/store/NewsDetailPage')) },
           // Trang xem design system: chỉ có khi chạy `npm run dev`, bị loại khỏi bản build.
           ...(import.meta.env.DEV ? [{ path: 'dev/ui', lazy: lazyPage(() => import('./pages/dev/UiShowcasePage')) }] : []),
           { path: 'login', lazy: lazyPage(() => import('./pages/store/LoginPage')) },

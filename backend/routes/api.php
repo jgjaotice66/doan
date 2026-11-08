@@ -23,6 +23,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
     Route::get('/posts', [PostController::class, 'index']);
+    // Khai báo trước /posts/{slug}, nếu không "highlights" bị hiểu là slug.
+    Route::get('/posts/highlights', [PostController::class, 'highlights']);
     Route::get('/posts/{slug}', [PostController::class, 'show']);
 
     // Khách vãng lai — giới hạn 10 lần/phút để chống dò mật khẩu.

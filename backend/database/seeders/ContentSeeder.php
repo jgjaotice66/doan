@@ -40,6 +40,10 @@ class ContentSeeder extends Seeder
         ];
         foreach ($titles as $i => $title) {
             $factory = Post::factory();
+            // Bài đầu ghim làm tin hot (hiện to ở khối nổi bật), bài cuối để nháp.
+            if ($i === 0) {
+                $factory = $factory->featured();
+            }
             if ($i === count($titles) - 1) {
                 $factory = $factory->draft();
             }

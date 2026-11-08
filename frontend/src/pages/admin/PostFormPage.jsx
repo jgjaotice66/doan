@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowSquareOut, FloppyDisk } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowSquareOut, Fire, FloppyDisk } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Alert, App, Button, Card, Col, DatePicker, Flex, Form, Input, Result, Row, Skeleton, Space, Switch, Tag, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -24,7 +24,7 @@ import { formatDateTime } from '../../utils/format'
 const FORM_ID = 'post-form'
 const DATE_FORMAT = 'DD/MM/YYYY HH:mm'
 
-const EMPTY = { title: '', slug: '', excerpt: '', content: '', is_published: false, published_at: null, thumbnail: null }
+const EMPTY = { title: '', slug: '', excerpt: '', content: '', is_published: false, is_featured: false, published_at: null, thumbnail: null }
 
 const toFormValues = (post) => ({
   title: post.title,
@@ -32,6 +32,7 @@ const toFormValues = (post) => ({
   excerpt: post.excerpt ?? '',
   content: post.content,
   is_published: post.is_published,
+  is_featured: post.is_featured,
   published_at: post.published_at ? dayjs(post.published_at) : null,
   thumbnail: post.thumbnail,
 })
@@ -93,6 +94,7 @@ function PostForm({ post }) {
       excerpt: values.excerpt?.trim() || null,
       content: normalizeEditorHtml(values.content),
       is_published: values.is_published,
+      is_featured: values.is_featured,
       // format() = ISO kèm múi giờ máy (+07:00) → server đổi đúng về UTC.
       published_at: values.published_at ? values.published_at.format() : null,
       ...imagePayload('thumbnail', values.thumbnail, post?.thumbnail),
@@ -213,6 +215,14 @@ function PostForm({ post }) {
               <Card title="Xuất bản">
                 <Form.Item name="is_published" label="Hiển thị cho khách" valuePropName="checked">
                   <Switch checkedChildren="Xuất bản" unCheckedChildren="Nháp" />
+                </Form.Item>
+                <Form.Item
+                  name="is_featured"
+                  label="Ghim là tin hot"
+                  valuePropName="checked"
+                  extra="Bài ghim hiện to ở đầu trang Tin tức và khu Tin mới trên trang chủ. Ghim nhiều bài thì bài đăng mới nhất được hiện to; không ghim bài nào thì bài mới nhất hiện to."
+                >
+                  <Switch checkedChildren={<Fire size={14} weight="fill" style={{ verticalAlign: -2 }} />} unCheckedChildren="Không" />
                 </Form.Item>
                 <Form.Item
                   name="published_at"

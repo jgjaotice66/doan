@@ -22,3 +22,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
 export function formatDateTime(value) {
   return value ? dateTimeFormatter.format(new Date(value)) : ''
 }
+
+const dateFormatter = new Intl.DateTimeFormat('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })
+
+/**
+ * Chuỗi ISO -> "8 tháng 11, 2026"
+ */
+export function formatDate(value) {
+  return value ? dateFormatter.format(new Date(value)) : ''
+}

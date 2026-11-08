@@ -51,7 +51,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [32](32-admin-users.md) Người dùng — 26
 - [x] [33](33-admin-banners.md) Banner — 26, 11
 - [x] [34](34-news-api-admin.md) NEWS API + quản trị — 26
-- [ ] [35](35-news-storefront.md) NEWS storefront — 34, 14
+- [x] [35](35-news-storefront.md) NEWS storefront — 34, 14
 - [ ] [36](36-dashboard-api.md) Dashboard API (+test) — 21
 - [ ] [37](37-dashboard-page.md) Dashboard giao diện — 36, 26
 - [ ] [44](44-returns-after-delivery.md) *(task phụ)* Trả hàng & hoàn tiền sau khi giao (+test) — 30, 43, 31

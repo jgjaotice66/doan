@@ -27,8 +27,15 @@ class PostFactory extends Factory
             'excerpt' => fake()->sentence(20),
             'content' => '<p>'.implode('</p><p>', fake()->paragraphs(4)).'</p>',
             'is_published' => true,
+            'is_featured' => false,
             'published_at' => fake()->dateTimeBetween('-30 days', 'now'),
         ];
+    }
+
+    /** Ghim là tin hot. */
+    public function featured(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_featured' => true]);
     }
 
     public function draft(): static

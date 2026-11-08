@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['author_id', 'title', 'slug', 'thumbnail', 'excerpt', 'content', 'is_published', 'published_at'])]
+#[Fillable(['author_id', 'title', 'slug', 'thumbnail', 'excerpt', 'content', 'is_published', 'is_featured', 'published_at'])]
 class Post extends Model
 {
     use HasFactory;
 
     /** Cột cho danh sách — bỏ `content` (longText) cho nhẹ. */
-    public const LIST_COLUMNS = ['id', 'author_id', 'title', 'slug', 'thumbnail', 'excerpt', 'is_published', 'published_at', 'created_at', 'updated_at'];
+    public const LIST_COLUMNS = ['id', 'author_id', 'title', 'slug', 'thumbnail', 'excerpt', 'is_published', 'is_featured', 'published_at', 'created_at', 'updated_at'];
 
     public const STATUS_LABELS = [
         'draft' => 'Nháp',
@@ -30,6 +30,7 @@ class Post extends Model
     {
         return [
             'is_published' => 'boolean',
+            'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
     }
