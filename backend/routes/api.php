@@ -59,6 +59,11 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
             Route::get('/ping', fn () => ['status' => 'ok', 'scope' => 'admin']);
 
+            Route::get('/dashboard/summary', [Admin\DashboardController::class, 'summary'])->name('dashboard.summary');
+            Route::get('/dashboard/revenue', [Admin\DashboardController::class, 'revenue'])->name('dashboard.revenue');
+            Route::get('/dashboard/top-products', [Admin\DashboardController::class, 'topProducts'])->name('dashboard.top-products');
+            Route::get('/dashboard/order-status', [Admin\DashboardController::class, 'orderStatus'])->name('dashboard.order-status');
+
             Route::apiResource('categories', Admin\CategoryController::class)->except('show');
             Route::apiResource('brands', Admin\BrandController::class)->except('show');
 

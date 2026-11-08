@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'code', 'user_id', 'recipient_name', 'phone', 'address', 'note',
-    'subtotal', 'shipping_fee', 'total', 'payment_method', 'payment_status', 'status',
+    'subtotal', 'shipping_fee', 'total', 'payment_method', 'payment_status', 'status', 'completed_at',
 ])]
 class Order extends Model
 {
@@ -33,7 +33,18 @@ class Order extends Model
             'payment_method' => PaymentMethod::class,
             'payment_status' => PaymentStatus::class,
             'status' => OrderStatus::class,
+            'completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Đơn được tính doanh thu: đã hoàn thành VÀ đã thu tiền.
+     * Đơn hoàn tiền (refunded) hay hoàn thành mà chưa thu tiền đều không tính.
+     */
+    #[Scope]
+    protected function countedAsRevenue(Builder $query): Builder
+    {
+        return $query->where('orders.status', OrderStatus::Completed)->where('orders.payment_status', PaymentStatus::Paid);
     }
 
     /**

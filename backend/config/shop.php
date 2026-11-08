@@ -18,6 +18,12 @@ return [
     'low_stock_threshold' => (int) env('LOW_STOCK_THRESHOLD', 5),
 
     /*
+    | Múi giờ của cửa hàng: "hôm nay", "tháng này" trên dashboard tính theo giờ này
+    | (DB lưu UTC — 0h giờ VN là 17h UTC hôm trước).
+    */
+    'timezone' => env('SHOP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
+
+    /*
     | Thông tin tài khoản nhận chuyển khoản, dùng để tạo ảnh QR VietQR.
     | Mã ngân hàng xem tại https://api.vietqr.io/v2/banks
     */

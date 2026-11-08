@@ -109,8 +109,12 @@ class OrderService
             }
 
             $locked->status = $to;
-            if ($to === OrderStatus::Completed && $locked->payment_method === PaymentMethod::Cod) {
-                $locked->payment_status = PaymentStatus::Paid;
+            if ($to === OrderStatus::Completed) {
+                // Doanh thu tính vào ngày hoàn thành.
+                $locked->completed_at = now();
+                if ($locked->payment_method === PaymentMethod::Cod) {
+                    $locked->payment_status = PaymentStatus::Paid;
+                }
             }
             $locked->save();
 
