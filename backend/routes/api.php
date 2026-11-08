@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\WishlistController;
@@ -21,6 +22,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/{slug}', [PostController::class, 'show']);
 
     // Khách vãng lai — giới hạn 10 lần/phút để chống dò mật khẩu.
     Route::middleware('throttle:10,1')->group(function () {
@@ -79,6 +82,9 @@ Route::prefix('v1')->group(function () {
             Route::put('/banners/order', [Admin\BannerController::class, 'reorder'])->name('banners.reorder');
             Route::patch('/banners/{banner}/toggle-active', [Admin\BannerController::class, 'toggleActive'])->name('banners.toggle-active');
             Route::apiResource('banners', Admin\BannerController::class)->except('show');
+
+            Route::post('/posts/images', [Admin\PostController::class, 'uploadImage'])->name('posts.images');
+            Route::apiResource('posts', Admin\PostController::class);
 
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');

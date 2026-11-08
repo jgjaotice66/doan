@@ -1,0 +1,40 @@
+/* Khung Quill theo token antd (biến --rte-* do RichTextEditor truyền vào). */
+.admin-rich-text .ql-toolbar.ql-snow {
+  border: 1px solid var(--rte-border);
+  border-radius: var(--rte-radius) var(--rte-radius) 0 0;
+  background: var(--rte-toolbar-bg);
+  font-family: inherit;
+}
+
+.admin-rich-text .ql-container.ql-snow {
+  border: 1px solid var(--rte-border);
+  border-top: 0;
+  border-radius: 0 0 var(--rte-radius) var(--rte-radius);
+  background: var(--rte-bg);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.admin-rich-text .ql-editor {
+  min-height: 420px;
+  max-height: 70vh;
+  overflow-y: auto;
+  color: var(--rte-text);
+  line-height: 1.7;
+}
+
+.admin-rich-text .ql-editor.ql-blank::before {
+  color: var(--rte-placeholder);
+  font-style: normal;
+}
+
+.admin-rich-text .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.admin-rich-text .ql-editor blockquote {
+  border-left: 4px solid var(--rte-border);
+  padding-left: 12px;
+}
