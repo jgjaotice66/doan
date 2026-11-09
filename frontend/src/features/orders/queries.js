@@ -24,8 +24,10 @@ const AWAITING_POLL_MS = 15_000
 const ACTIVE_POLL_MS = 30_000
 const FINAL_STATUSES = ['completed', 'cancelled']
 
-/** Đơn còn được cửa hàng xử lý tiếp (chưa hoàn thành / huỷ). */
-const isActive = (order) => order && !FINAL_STATUSES.includes(order.status.value)
+/** Đơn còn được cửa hàng xử lý tiếp (chưa hoàn thành / huỷ), hoặc có yêu cầu trả hàng đang xử lý. */
+const isActive = (order) =>
+  order &&
+  (!FINAL_STATUSES.includes(order.status.value) || Boolean(order.returns?.some((r) => !['refunded', 'rejected'].includes(r.status.value))))
 
 /**
  * Chi tiết đơn tự hỏi lại server để thấy thao tác của admin mà không cần F5:

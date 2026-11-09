@@ -35,6 +35,14 @@ class CatalogTest extends TestCase
         $this->assertSame([], $tree['lego']['children']);
     }
 
+    public function test_banks_are_public_for_refund_account_form(): void
+    {
+        $this->getJson('/api/v1/banks')
+            ->assertOk()
+            ->assertJsonCount(count(config('shop.banks')), 'data')
+            ->assertJsonPath('data.0', ['code' => 'VCB', 'name' => 'Vietcombank']);
+    }
+
     public function test_brands_are_listed_by_name(): void
     {
         Brand::factory()->create(['name' => 'Tamiya']);

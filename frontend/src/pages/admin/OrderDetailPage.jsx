@@ -1,8 +1,9 @@
 import { ArrowCounterClockwise, ArrowLeft, CheckCircle, Money, Package, Truck, XCircle } from '@phosphor-icons/react'
 import { Alert, App, Avatar, Button, Card, Col, Descriptions, Flex, Popconfirm, Result, Row, Skeleton, Table, Tag, Typography } from 'antd'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { getErrorMessage } from '../../api/client'
 import { ORDER_STATUS_COLORS, paymentTag, useAdminOrder, useOrderActions } from '../../features/admin/orders'
+import { RETURN_STATUS_COLORS } from '../../features/admin/returns'
 import { formatDateTime, formatVND } from '../../utils/format'
 
 /** Nút cho từng trạng thái kế tiếp (server gửi danh sách hợp lệ trong allowed_next). */
@@ -184,6 +185,34 @@ function RecipientCard({ order }) {
   )
 }
 
+/** Các yêu cầu trả hàng của đơn (mới nhất trước) → bấm sang trang xử lý. */
+function ReturnsCard({ order }) {
+  if (!order.returns?.length) return null
+
+  return (
+    <Card title="Yêu cầu trả hàng" styles={{ body: { padding: '8px 0' } }}>
+      {order.returns.map((r) => (
+        <Link key={r.id} to={`/admin/returns/${r.id}`} className="dashboard-row-link" style={{ color: 'inherit', padding: '8px 24px' }}>
+          <Flex justify="space-between" align="center" gap={8}>
+            <Flex vertical gap={0} style={{ minWidth: 0 }}>
+              <Typography.Text strong>
+                #{r.id} · {r.reason.label}
+              </Typography.Text>
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {r.items.reduce((sum, i) => sum + i.quantity, 0)} sản phẩm · {formatDateTime(r.created_at)}
+                {r.refund_amount != null && ` · hoàn ${formatVND(r.refund_amount)}`}
+              </Typography.Text>
+            </Flex>
+            <Tag color={RETURN_STATUS_COLORS[r.status.value]} style={{ marginInlineEnd: 0 }}>
+              {r.status.label}
+            </Tag>
+          </Flex>
+        </Link>
+      ))}
+    </Card>
+  )
+}
+
 function OrderView({ order }) {
   const { message, modal } = App.useApp()
   const navigate = useNavigate()
@@ -303,6 +332,7 @@ function OrderView({ order }) {
               loading={markPaid.isPending || markRefunded.isPending}
             />
             <RecipientCard order={order} />
+            <ReturnsCard order={order} />
           </Flex>
         </Col>
       </Row>

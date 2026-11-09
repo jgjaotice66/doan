@@ -54,6 +54,7 @@ class DashboardService
             'pending_orders' => Order::where('status', OrderStatus::Pending)->count(),
             'awaiting_payment' => Order::awaitingTransfer()->count(),
             'needs_refund' => Order::needingRefund()->count(),
+            'pending_returns' => ReturnRequest::where('status', ReturnStatus::Pending)->count(),
             'new_customers_month' => User::where('role', UserRole::Customer)->where('created_at', '>=', $this->toDb($monthStart))->count(),
             'low_stock' => Product::where('stock', '<=', $threshold)->count(),
             'out_of_stock' => Product::where('stock', 0)->count(),

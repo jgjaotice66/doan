@@ -22,7 +22,7 @@ class OrderController extends Controller
     private const WITH = ['items.product.images'];
 
     /** Trang chi tiết: thêm yêu cầu trả hàng (khách xem tiến độ, hạn trả, số lượng còn trả được). */
-    public const DETAIL_WITH = [...self::WITH, 'returnRequests.items.orderItem', 'returnRequests.media'];
+    public const DETAIL_WITH = [...self::WITH, 'returnRequests.items.orderItem.product.images', 'returnRequests.media'];
 
     public function __construct(private OrderService $orders) {}
 

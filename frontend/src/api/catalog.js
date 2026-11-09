@@ -10,6 +10,8 @@ export const catalogApi = {
   categories: () => api.get('/categories').then((res) => res.data.data),
   brands: () => api.get('/brands').then((res) => res.data.data),
   banners: () => api.get('/banners').then((res) => res.data.data),
+  /** [{ code, name }] — gợi ý ô ngân hàng nhận tiền hoàn */
+  banks: () => api.get('/banks').then((res) => res.data.data),
 
   /** Trả { data: [...], meta: { current_page, last_page, total, ... } } */
   products: (params) => api.get('/products', { params: cleanParams(params) }).then((res) => res.data),

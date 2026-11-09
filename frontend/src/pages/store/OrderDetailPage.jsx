@@ -5,6 +5,7 @@ import { getErrorMessage } from '../../api/client'
 import BankQrBox from '../../components/BankQrBox'
 import ErrorState from '../../components/ErrorState'
 import OrderStatusBadge, { PaymentStatusBadge } from '../../components/OrderStatusBadge'
+import { ReturnEntryCard, ReturnList } from '../../components/ReturnSection'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Modal from '../../components/ui/Modal'
@@ -240,12 +241,17 @@ export default function OrderDetailPage() {
 
           {awaiting && order.qr_url && order.bank && <BankQrBox order={order} />}
 
+          <ReturnList returns={order.returns} />
+
           <div className="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
             <Card className="p-5">
               <h2 className="mb-4 font-bold">Sản phẩm ({order.item_count})</h2>
               <OrderItems items={order.items} />
             </Card>
-            <SummaryCard order={order} />
+            <div className="space-y-6">
+              <SummaryCard order={order} />
+              <ReturnEntryCard order={order} />
+            </div>
           </div>
         </div>
       )}

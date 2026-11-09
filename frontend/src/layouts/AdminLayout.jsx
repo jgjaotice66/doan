@@ -1,10 +1,11 @@
 import { CaretDown, List, SignOut, Storefront, UserCircle } from '@phosphor-icons/react'
-import { App, Button, ConfigProvider, Drawer, Dropdown, Grid, Layout, Menu, Space, theme, Typography } from 'antd'
+import { App, Badge, Button, ConfigProvider, Drawer, Dropdown, Flex, Grid, Layout, Menu, Space, theme, Typography } from 'antd'
 import viVN from 'antd/locale/vi_VN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
+import { useDashboardSummary } from '../features/admin/dashboard'
 import { useLogout } from '../features/auth/useLogout'
 import { useAuthStore } from '../stores/authStore'
 import { ADMIN_MENU, findAdminMenuItem } from './adminMenu'
@@ -23,11 +24,17 @@ const ADMIN_THEME = {
   },
 }
 
-const menuItems = ADMIN_MENU.map(({ path, label, icon: Icon }) => ({
-  key: path,
-  icon: <Icon aria-hidden size={18} />,
-  label: <Link to={path}>{label}</Link>,
-}))
+/** Nhãn menu + số việc đang chờ (đơn chờ xác nhận, trả hàng chờ duyệt); 0 thì không hiện. */
+function MenuLabel({ path, label, count }) {
+  return (
+    <Link to={path} aria-label={count ? `${label} (${count} đang chờ)` : undefined}>
+      <Flex justify="space-between" align="center" gap={8}>
+        <span>{label}</span>
+        {count > 0 && <Badge count={count} size="small" overflowCount={99} />}
+      </Flex>
+    </Link>
+  )
+}
 
 function Brand({ collapsed }) {
   return (
@@ -41,6 +48,14 @@ function Brand({ collapsed }) {
 }
 
 function SideMenu({ selectedKey, onNavigate }) {
+  // Dùng chung cache với trang Dashboard; tự hỏi lại mỗi phút để số trên menu không cũ.
+  const { data: summary } = useDashboardSummary({ refetchInterval: 60_000 })
+  const menuItems = ADMIN_MENU.map(({ path, label, icon: Icon, badge }) => ({
+    key: path,
+    icon: <Icon aria-hidden size={18} />,
+    label: <MenuLabel path={path} label={label} count={badge ? summary?.[badge] : 0} />,
+  }))
+
   return (
     <Menu
       theme="dark"

@@ -49,4 +49,17 @@ class ShopSettings
 
         Cache::forget(self::CACHE_KEY);
     }
+
+    /**
+     * Danh sách ngân hàng (config shop.banks) dạng [{ code, name }] — cho ô chọn ngân hàng.
+     *
+     * @return list<array{code: string, name: string}>
+     */
+    public static function banks(): array
+    {
+        return collect(config('shop.banks'))
+            ->map(fn (string $name, string $code) => ['code' => $code, 'name' => $name])
+            ->values()
+            ->all();
+    }
 }

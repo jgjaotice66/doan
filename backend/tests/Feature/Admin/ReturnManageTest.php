@@ -271,6 +271,15 @@ class ReturnManageTest extends TestCase
         $this->assertSame(0, $points['2026-11-15']['orders']);
     }
 
+    public function test_dashboard_counts_returns_waiting_for_review(): void
+    {
+        $this->returnRequest();
+        $this->returnRequest(ReturnStatus::Approved, Order::factory()->create());
+        $this->returnRequest(ReturnStatus::Rejected, Order::factory()->create());
+
+        $this->getJson('/api/v1/admin/dashboard/summary')->assertJsonPath('data.pending_returns', 1);
+    }
+
     public function test_customer_gets_403(): void
     {
         $request = $this->returnRequest();

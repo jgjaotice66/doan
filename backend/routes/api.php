@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReturnController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Support\ShopSettings;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -21,6 +22,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/brands', [BrandController::class, 'index']);
     Route::get('/banners', [BannerController::class, 'index']);
+    // Ô chọn ngân hàng nhận tiền hoàn (form trả hàng).
+    Route::get('/banks', fn () => ['data' => ShopSettings::banks()]);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
     Route::get('/posts', [PostController::class, 'index']);

@@ -3,6 +3,7 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  ArrowUUpLeft,
   CurrencyCircleDollar,
   HourglassMedium,
   Package,
@@ -21,17 +22,11 @@ import { getErrorMessage } from '../../api/client'
 import { adminDashboardApi } from '../../api/admin/dashboard'
 import { adminInventoryApi } from '../../api/admin/inventory'
 import StockAdjustModal from '../../components/admin/StockAdjustModal'
+import { dashboardKeys, useDashboardSummary } from '../../features/admin/dashboard'
 import { inventoryKeys } from '../../features/admin/inventory'
 import { useAuthStore } from '../../stores/authStore'
 import { formatVND } from '../../utils/format'
 
-/** Mọi khoá bắt đầu bằng ['admin','dashboard'] → đổi trạng thái / thanh toán đơn, nhập kho là cả trang tải lại. */
-const dashboardKeys = {
-  summary: ['admin', 'dashboard', 'summary'],
-  revenue: (range) => ['admin', 'dashboard', 'revenue', range],
-  topProducts: ['admin', 'dashboard', 'top-products'],
-  orderStatus: ['admin', 'dashboard', 'order-status'],
-}
 
 /** Màu chuỗi doanh thu (1 chuỗi → 1 màu); đã chạy kiểm tra tương phản ≥ 3:1 trên nền trắng. */
 const SERIES_COLOR = '#2a78d6'
@@ -277,6 +272,7 @@ function TodoCards({ summary }) {
     { count: s.pending_orders, label: 'Đơn chờ xác nhận', to: '/admin/orders?status=pending', icon: Receipt, tone: warning },
     { count: s.awaiting_payment, label: 'Chờ xác nhận tiền', to: '/admin/orders?awaiting_payment=1', icon: HourglassMedium, tone: warning },
     { count: s.needs_refund, label: 'Cần hoàn tiền', to: '/admin/orders?needs_refund=1', icon: ArrowCounterClockwise, tone: danger },
+    { count: s.pending_returns, label: 'Trả hàng chờ duyệt', to: '/admin/returns?status=pending', icon: ArrowUUpLeft, tone: warning },
     {
       count: s.low_stock,
       label: s.out_of_stock ? `Sắp hết hàng · ${s.out_of_stock} đã hết` : 'Sắp hết hàng',
@@ -295,7 +291,7 @@ function TodoCards({ summary }) {
         {items.map(({ count, label, to, icon, tone }) => {
           const active = count > 0
           return (
-            <Col key={to} xs={12} lg={6}>
+            <Col key={to} flex="1 1 200px">
               <Link to={to} aria-label={`${count} ${label.toLowerCase()} — xem danh sách`}>
                 <Card
                   hoverable
@@ -648,7 +644,7 @@ function LowStockCard() {
 }
 
 export default function DashboardPage() {
-  const summary = useQuery({ queryKey: dashboardKeys.summary, queryFn: adminDashboardApi.summary })
+  const summary = useDashboardSummary()
 
   return (
     <Flex vertical gap={24}>

@@ -29,9 +29,7 @@ class SettingController extends Controller
         return response()->json([
             'data' => [
                 ...ShopSettings::bankAccount(),
-                'banks' => collect(config('shop.banks'))
-                    ->map(fn (string $name, string $code) => ['code' => $code, 'name' => $name])
-                    ->values(),
+                'banks' => ShopSettings::banks(),
             ],
         ]);
     }
