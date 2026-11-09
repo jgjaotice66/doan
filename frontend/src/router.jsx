@@ -11,9 +11,6 @@ import NotFoundPage from './pages/NotFoundPage'
  */
 const lazyPage = (load) => async () => ({ Component: (await load()).default })
 
-/** Trang admin chưa làm: placeholder antd (tiêu đề + task lấy từ adminMenu theo URL). */
-const adminPlaceholder = lazyPage(() => import('./pages/admin/AdminPlaceholderPage'))
-
 export const router = createBrowserRouter([
   {
     element: <AuthBootstrap />,
@@ -52,7 +49,7 @@ export const router = createBrowserRouter([
           {
             lazy: lazyPage(() => import('./layouts/AdminLayout')),
             children: [
-              { index: true, lazy: adminPlaceholder },
+              { index: true, lazy: lazyPage(() => import('./pages/admin/DashboardPage')) },
               { path: 'products', lazy: lazyPage(() => import('./pages/admin/ProductsPage')) },
               { path: 'products/new', lazy: lazyPage(() => import('./pages/admin/ProductFormPage')) },
               { path: 'products/:id', lazy: lazyPage(() => import('./pages/admin/ProductFormPage')) },

@@ -28,7 +28,8 @@ export default function StockAdjustModal({ product, type, onClose }) {
   const save = useMutation({
     mutationFn: (payload) => adminInventoryApi.adjust(product.id, payload),
     onSuccess: ({ product: updated }) => {
-      ;[inventoryKeys.all, ...PRODUCT_RELATED_KEYS].forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
+      // + dashboard: số "sắp hết hàng" ở trang tổng quan đổi theo.
+      ;[inventoryKeys.all, ['admin', 'dashboard'], ...PRODUCT_RELATED_KEYS].forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
       message.success(`${updated.name}: tồn kho ${product.stock} → ${updated.stock}`)
       onClose()
     },

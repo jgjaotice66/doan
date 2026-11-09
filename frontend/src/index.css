@@ -100,6 +100,16 @@
     font-family: inherit;
   }
 
+  /* Dòng bấm được trên dashboard: nền nhạt khi di chuột / focus bàn phím. */
+  .admin-root .dashboard-row-link {
+    display: block;
+    transition: background-color 150ms ease-out;
+  }
+
+  .admin-root .dashboard-row-link:is(:hover, :focus-visible) {
+    background-color: var(--ant-color-fill-tertiary, rgb(0 0 0 / 0.04));
+  }
+
   /* Giá tiền không nhảy chiều rộng khi đổi số */
   .tabular {
     font-variant-numeric: tabular-nums;
