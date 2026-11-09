@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Support\Media;
+use App\Support\ShopSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
@@ -40,7 +41,7 @@ class DashboardService
 
         $revenueMonth = $this->revenueBetween($monthStart, $now);
         $revenueLastMonth = $this->revenueBetween($lastMonthStart, $lastMonthNow);
-        $threshold = (int) config('shop.low_stock_threshold');
+        $threshold = ShopSettings::lowStockThreshold();
 
         return [
             'revenue_today' => $this->revenueBetween($todayStart, $now),
@@ -56,7 +57,8 @@ class DashboardService
             'needs_refund' => Order::needingRefund()->count(),
             'pending_returns' => ReturnRequest::where('status', ReturnStatus::Pending)->count(),
             'new_customers_month' => User::where('role', UserRole::Customer)->where('created_at', '>=', $this->toDb($monthStart))->count(),
-            'low_stock' => Product::where('stock', '<=', $threshold)->count(),
+            // Theo ngưỡng thực tế từng sản phẩm (riêng → danh mục → chung); low_stock_threshold = ngưỡng chung.
+            'low_stock' => Product::lowStock()->count(),
             'out_of_stock' => Product::where('stock', 0)->count(),
             'low_stock_threshold' => $threshold,
         ];

@@ -598,25 +598,27 @@ function LowStockCard() {
       style={{ height: '100%' }}
     >
       <QueryState query={query} rows={6}>
-        {({ data: products, meta, summary }) =>
+        {({ data: products, meta }) =>
           products.length === 0 ? (
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Tồn kho ổn, chưa có món nào sắp hết." />
           ) : (
             <Flex vertical gap={16}>
               {products.map((p) => {
                 const out = p.stock === 0
+                // Ngưỡng của chính sản phẩm (riêng → danh mục → chung); ngưỡng 0 thì thanh tính trên 1.
+                const threshold = p.effective_low_stock_threshold.value
                 return (
                   <Flex key={p.id} align="center" gap={12}>
                     <Flex vertical gap={6} style={{ flex: 1, minWidth: 0 }}>
                       <ProductCell id={p.id} name={p.name} sku={null} thumbnail={p.thumbnail} />
                       <Flex align="center" gap={8}>
                         <Progress
-                          percent={Math.min(100, (p.stock / summary.threshold) * 100)}
+                          percent={Math.min(100, (p.stock / Math.max(1, threshold)) * 100)}
                           showInfo={false}
                           size="small"
                           strokeColor={out ? token.colorError : token.colorWarning}
                           style={{ flex: 1, margin: 0 }}
-                          aria-label={`Tồn ${p.stock} trên ngưỡng ${summary.threshold}`}
+                          aria-label={`Tồn ${p.stock} trên ngưỡng ${threshold}`}
                         />
                         <Typography.Text type={out ? 'danger' : 'warning'} strong style={{ fontSize: 12, whiteSpace: 'nowrap', ...TABULAR }}>
                           {out ? 'Hết hàng' : `Còn ${p.stock}`}

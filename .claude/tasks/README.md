@@ -55,6 +55,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [36](36-dashboard-api.md) Dashboard API (+test) — 21
 - [x] [37](37-dashboard-page.md) Dashboard giao diện — 36, 26
 - [x] [44](44-returns-after-delivery.md) *(task phụ)* Trả hàng & hoàn tiền sau khi giao (+test) — 30, 43, 31
+- [x] [45](45-low-stock-thresholds.md) *(task phụ)* Ngưỡng sắp hết hàng: chung / danh mục / sản phẩm (+test) — 31, 27, 42
 
 ## Tuần 6 – Hoàn thiện
 - [ ] [38](38-ux-states-responsive.md) UX & responsive — 25, 35

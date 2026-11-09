@@ -5,7 +5,8 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { adminProductsApi } from '../../api/admin/products'
 import { PendingImagesField, ProductImagesManager } from '../../components/admin/ProductImages'
 import { applyFormErrors } from '../../features/admin/formErrors'
-import { adminProductKeys, PRODUCT_RELATED_KEYS, useAdminProduct } from '../../features/admin/products'
+import { inheritedThreshold, LOW_STOCK_RELATED_KEYS, useGlobalLowStockThreshold } from '../../features/admin/inventory'
+import { adminProductKeys, useAdminProduct } from '../../features/admin/products'
 import { categoryOptions } from '../../features/admin/categoryOptions'
 import { useCrudMutations } from '../../features/admin/useCrudMutations'
 import { useBrands, useCategories } from '../../features/catalog/queries'
@@ -27,6 +28,7 @@ const EMPTY = {
   description: '',
   price: null,
   sale_price: null,
+  low_stock_threshold: null,
   stock: 0,
   min_age: 0,
   is_featured: false,
@@ -43,10 +45,30 @@ const toFormValues = (product) => ({
   description: product.description ?? '',
   price: product.price,
   sale_price: product.sale_price,
+  low_stock_threshold: product.low_stock_threshold,
   min_age: product.min_age,
   is_featured: product.is_featured,
   status: product.status.value,
 })
+
+/** Ngưỡng "sắp hết" riêng; bỏ trống thì gợi ý đang kế thừa mức nào (đổi theo danh mục đang chọn). */
+function ThresholdField({ tree }) {
+  const form = Form.useFormInstance()
+  const categoryId = Form.useWatch('category_id', form)
+  const globalThreshold = useGlobalLowStockThreshold()
+  const inherited = inheritedThreshold(tree, categoryId, globalThreshold)
+
+  return (
+    <Form.Item
+      name="low_stock_threshold"
+      label="Ngưỡng sắp hết hàng"
+      extra={`Bỏ trống = dùng ${inherited.label} (tồn ≤ ${inherited.value ?? '…'}).`}
+      style={{ marginTop: 24, marginBottom: 0 }}
+    >
+      <InputNumber style={{ width: '100%' }} min={0} max={1000} precision={0} prefix="Tồn ≤" placeholder={`${inherited.value ?? ''}`} />
+    </Form.Item>
+  )
+}
 
 function ProductForm({ product }) {
   const { message } = App.useApp()
@@ -56,7 +78,7 @@ function ProductForm({ product }) {
   const isEdit = Boolean(product)
   const { data: tree = [], isPending: loadingCategories } = useCategories()
   const { data: brands = [], isPending: loadingBrands } = useBrands()
-  const { save } = useCrudMutations(adminProductsApi, PRODUCT_RELATED_KEYS)
+  const { save } = useCrudMutations(adminProductsApi, LOW_STOCK_RELATED_KEYS)
 
   const onFinish = (values) => {
     const { images = [], stock, ...rest } = values
@@ -66,6 +88,7 @@ function ProductForm({ product }) {
       sku: rest.sku.trim(),
       description: rest.description?.trim() || null,
       sale_price: rest.sale_price ?? null,
+      low_stock_threshold: rest.low_stock_threshold ?? null,
       // Tồn kho + ảnh chỉ gửi lúc tạo; khi sửa có màn Kho / khu ảnh riêng.
       ...(isEdit ? {} : { stock, images: images.map((item) => item.file) }),
     }
@@ -234,6 +257,7 @@ function ProductForm({ product }) {
                     <InputNumber style={{ width: '100%' }} min={0} max={100000} precision={0} />
                   </Form.Item>
                 )}
+                <ThresholdField tree={tree} />
               </Card>
 
               <Card title="Hiển thị">

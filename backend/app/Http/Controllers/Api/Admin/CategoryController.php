@@ -49,6 +49,7 @@ class CategoryController extends Controller
             'name' => $request->validated('name'),
             'slug' => Slug::unique(Category::class, $request->validated('name')),
             'parent_id' => $request->validated('parent_id'),
+            'low_stock_threshold' => $request->validated('low_stock_threshold'),
             'image' => $image,
         ]));
 
@@ -64,6 +65,7 @@ class CategoryController extends Controller
             // Đổi tên thì slug đổi theo (giữ nguyên nếu tên không đổi).
             'slug' => $name === $category->name ? $category->slug : Slug::unique(Category::class, $name, $category->id),
             'parent_id' => $request->validated('parent_id'),
+            'low_stock_threshold' => $request->validated('low_stock_threshold'),
             'image' => $image,
         ]));
 

@@ -92,6 +92,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/inventory', [Admin\InventoryController::class, 'index'])->name('inventory.index');
             Route::get('/inventory/movements', [Admin\InventoryController::class, 'movements'])->name('inventory.movements');
+            Route::patch('/inventory/{product}/threshold', [Admin\InventoryController::class, 'threshold'])->name('inventory.threshold');
             Route::post('/inventory/{product}/adjust', [Admin\InventoryController::class, 'adjust'])->name('inventory.adjust');
 
             Route::get('/users', [Admin\UserController::class, 'index'])->name('users.index');
@@ -107,6 +108,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
+            Route::put('/settings/low-stock', [Admin\SettingController::class, 'updateLowStock'])->name('settings.low-stock');
         });
     });
 });

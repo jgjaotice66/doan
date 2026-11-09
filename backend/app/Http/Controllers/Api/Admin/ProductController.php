@@ -53,7 +53,7 @@ class ProductController extends Controller
         [$column, $direction] = self::SORTS[$validated['sort'] ?? 'newest'];
 
         $products = Product::query()
-            ->with(['category', 'brand', 'images' => fn ($query) => $query->limit(1)])
+            ->with(['category.parent', 'brand', 'images' => fn ($query) => $query->limit(1)])
             ->when($validated['q'] ?? null, fn ($query, $q) => $query->where(
                 fn ($query) => $query->where('name', 'like', "%{$q}%")->orWhere('sku', 'like', "%{$q}%"),
             ))
@@ -63,7 +63,7 @@ class ProductController extends Controller
             ))
             ->when($validated['brand'] ?? null, fn ($query, $id) => $query->where('brand_id', $id))
             ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when($request->boolean('low_stock'), fn ($query) => $query->where('stock', '<=', config('shop.low_stock_threshold')))
+            ->when($request->boolean('low_stock'), fn ($query) => $query->lowStock())
             ->orderBy($column, $direction)
             ->orderByDesc('id')
             ->paginate($validated['per_page'] ?? 10);
@@ -135,6 +135,6 @@ class ProductController extends Controller
 
     private function resource(Product $product): AdminProductResource
     {
-        return new AdminProductResource($product->load(['category', 'brand', 'images']));
+        return new AdminProductResource($product->load(['category.parent', 'brand', 'images']));
     }
 }

@@ -8,10 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['parent_id', 'name', 'slug', 'image'])]
+#[Fillable(['parent_id', 'name', 'slug', 'image', 'low_stock_threshold'])]
 class Category extends Model
 {
     use HasFactory;
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['low_stock_threshold' => 'integer'];
+    }
 
     /**
      * @return BelongsTo<Category, $this>

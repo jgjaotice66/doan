@@ -51,6 +51,21 @@ class ShopSettings
     }
 
     /**
+     * Ngưỡng "sắp hết hàng" chung (khi sản phẩm và danh mục không đặt riêng).
+     */
+    public static function lowStockThreshold(): int
+    {
+        return (int) self::get('low_stock_threshold');
+    }
+
+    public static function updateLowStockThreshold(int $threshold): void
+    {
+        Setting::updateOrCreate(['key' => 'low_stock_threshold'], ['value' => (string) $threshold]);
+
+        Cache::forget(self::CACHE_KEY);
+    }
+
+    /**
      * Danh sách ngân hàng (config shop.banks) dạng [{ code, name }] — cho ô chọn ngân hàng.
      *
      * @return list<array{code: string, name: string}>

@@ -1,5 +1,5 @@
 import { ArrowElbowDownRight, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
-import { App, Avatar, Button, Form, Input, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd'
+import { App, Avatar, Button, Form, Input, InputNumber, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd'
 import { useState } from 'react'
 import { getErrorMessage } from '../../api/client'
 import { adminCategoriesApi } from '../../api/admin/categories'
@@ -8,6 +8,7 @@ import FormModal from '../../components/admin/FormModal'
 import ImagePicker from '../../components/admin/ImagePicker'
 import { useCategories } from '../../features/catalog/queries'
 import { applyFormErrors } from '../../features/admin/formErrors'
+import { LOW_STOCK_RELATED_KEYS, useGlobalLowStockThreshold } from '../../features/admin/inventory'
 import { imagePayload, useCrudMutations } from '../../features/admin/useCrudMutations'
 
 const QUERY_KEY = ['admin', 'categories']
@@ -17,7 +18,16 @@ export default function CategoriesPage() {
   const [form] = Form.useForm()
   // editing: null = đóng · {} = thêm mới · bản ghi = đang sửa
   const [editing, setEditing] = useState(null)
-  const { save, remove } = useCrudMutations(adminCategoriesApi, [QUERY_KEY, ['categories'], ['products']])
+  // Đổi ngưỡng của danh mục → Kho, Dashboard, nhãn "sắp hết" ở sản phẩm đều đổi theo.
+  const { save, remove } = useCrudMutations(adminCategoriesApi, [QUERY_KEY, ['categories'], ...LOW_STOCK_RELATED_KEYS])
+  const globalThreshold = useGlobalLowStockThreshold()
+  const thresholdOf = (id) => tree.find((c) => c.id === id)?.low_stock_threshold ?? null
+  const formParentId = Form.useWatch('parent_id', form)
+  // Bỏ trống thì danh mục này dùng ngưỡng của cha (nếu cha có đặt), không thì ngưỡng chung.
+  const inherited = (parentId) => {
+    const fromParent = parentId ? thresholdOf(parentId) : null
+    return fromParent !== null ? { value: fromParent, label: 'theo danh mục cha' } : { value: globalThreshold, label: 'ngưỡng chung' }
+  }
 
   // Cây danh mục công khai: danh mục gốc làm lựa chọn "danh mục cha" (chỉ 2 cấp).
   const { data: tree = [], isPending: treeLoading } = useCategories()
@@ -34,6 +44,7 @@ export default function CategoriesPage() {
         payload: {
           name: values.name.trim(),
           parent_id: values.parent_id ?? null,
+          low_stock_threshold: values.low_stock_threshold ?? null,
           ...imagePayload('image', values.image, editing?.image),
         },
       },
@@ -90,6 +101,19 @@ export default function CategoriesPage() {
         </Typography.Text>
       ),
     },
+    {
+      title: 'Ngưỡng sắp hết',
+      dataIndex: 'low_stock_threshold',
+      render: (value, category) => {
+        if (value !== null) return <Tag color="blue">Tồn ≤ {value}</Tag>
+        const { value: used, label } = inherited(category.parent_id)
+        return (
+          <Typography.Text type="secondary">
+            ≤ {used ?? '…'} <span style={{ fontSize: 12 }}>({label})</span>
+          </Typography.Text>
+        )
+      },
+    },
     { title: 'Số sản phẩm', dataIndex: 'products_count', align: 'right', width: 130 },
     {
       title: 'Thao tác',
@@ -143,7 +167,12 @@ export default function CategoriesPage() {
         open={editing !== null}
         title={editing?.id ? `Sửa danh mục "${editing.name}"` : 'Thêm danh mục'}
         form={form}
-        initialValues={{ name: editing?.name ?? '', parent_id: editing?.parent_id ?? null, image: editing?.image ?? null }}
+        initialValues={{
+          name: editing?.name ?? '',
+          parent_id: editing?.parent_id ?? null,
+          low_stock_threshold: editing?.low_stock_threshold ?? null,
+          image: editing?.image ?? null,
+        }}
         onCancel={close}
         onSubmit={onSubmit}
         loading={save.isPending}
@@ -175,6 +204,23 @@ export default function CategoriesPage() {
             options={parentOptions}
             loading={treeLoading}
             disabled={hasChildren}
+          />
+        </Form.Item>
+        <Form.Item
+          name="low_stock_threshold"
+          label="Ngưỡng sắp hết hàng"
+          extra={
+            `Sản phẩm trong danh mục${formParentId ? '' : ' (và danh mục con)'} có tồn ≤ số này thì báo “sắp hết”. ` +
+            `Bỏ trống = dùng ${inherited(formParentId).label} (${inherited(formParentId).value ?? '…'}). Sản phẩm đặt riêng vẫn được ưu tiên.`
+          }
+        >
+          <InputNumber
+            min={0}
+            max={1000}
+            precision={0}
+            prefix="Tồn ≤"
+            placeholder={`${inherited(formParentId).value ?? ''}`}
+            style={{ width: 200 }}
           />
         </Form.Item>
         <Form.Item name="image" label="Ảnh danh mục">

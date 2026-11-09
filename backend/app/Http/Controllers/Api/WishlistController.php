@@ -20,7 +20,7 @@ class WishlistController extends Controller
     {
         $products = $request->user()->wishlist()
             ->active()
-            ->with(['brand', 'images' => fn ($q) => $q->limit(1)])
+            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(1)])
             ->orderByPivot('created_at', 'desc')
             ->orderByPivot('id', 'desc')
             ->get();

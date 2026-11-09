@@ -220,6 +220,7 @@ class ProductListTest extends TestCase
 
         $this->list();
 
-        $this->assertLessThanOrEqual(5, $queries);
+        // Đếm + sản phẩm + brand + ảnh + danh mục (ngưỡng sắp hết) + cài đặt chung — cố định, không tăng theo số sản phẩm.
+        $this->assertLessThanOrEqual(6, $queries);
     }
 }

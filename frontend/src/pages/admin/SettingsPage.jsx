@@ -1,10 +1,12 @@
 import { FloppyDisk } from '@phosphor-icons/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, App, Button, Card, Col, Empty, Flex, Form, Image, Input, Result, Row, Select, Skeleton, Tag, Typography } from 'antd'
+import { Alert, App, Button, Card, Col, Empty, Flex, Form, Image, Input, InputNumber, Result, Row, Select, Skeleton, Tag, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { getErrorMessage } from '../../api/client'
 import { adminSettingsApi } from '../../api/admin/settings'
 import { applyFormErrors } from '../../features/admin/formErrors'
+import { LOW_STOCK_RELATED_KEYS } from '../../features/admin/inventory'
 import { formatVND } from '../../utils/format'
 
 const settingsKey = ['admin', 'settings']
@@ -168,6 +170,65 @@ function SettingsForm({ settings }) {
   )
 }
 
+/**
+ * Ngưỡng "sắp hết hàng" chung. Danh mục / sản phẩm đặt riêng thì ưu tiên số của chúng
+ * (sản phẩm → danh mục → danh mục cha → số này).
+ */
+function LowStockCard({ settings }) {
+  const { message } = App.useApp()
+  const queryClient = useQueryClient()
+  const [form] = Form.useForm()
+
+  const save = useMutation({
+    mutationFn: ({ low_stock_threshold: value }) => adminSettingsApi.updateLowStock(value),
+    onSuccess: (saved) => {
+      queryClient.setQueryData(settingsKey, saved)
+      LOW_STOCK_RELATED_KEYS.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
+      message.success(`Đã lưu: tồn ≤ ${saved.low_stock_threshold} là sắp hết hàng`)
+    },
+    onError: (error) => applyFormErrors(form, error, message),
+  })
+
+  return (
+    <Card title="Kho hàng">
+      <Flex gap={24} wrap align="flex-start">
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ low_stock_threshold: settings.low_stock_threshold }}
+          onFinish={save.mutate}
+          disabled={save.isPending}
+          style={{ flex: '1 1 280px', maxWidth: 360 }}
+        >
+          <Form.Item
+            name="low_stock_threshold"
+            label="Ngưỡng sắp hết hàng (chung)"
+            extra="Tồn kho bằng hoặc dưới số này thì báo “sắp hết”. Đặt 0 = chỉ báo khi hết hẳn."
+            rules={[{ required: true, message: 'Vui lòng nhập ngưỡng' }]}
+          >
+            <InputNumber min={0} max={1000} precision={0} style={{ width: '100%' }} prefix="Tồn ≤" />
+          </Form.Item>
+          <Button type="primary" htmlType="submit" icon={<FloppyDisk size={16} />} loading={save.isPending}>
+            Lưu ngưỡng
+          </Button>
+        </Form>
+        <Alert
+          type="info"
+          showIcon
+          style={{ flex: '1 1 280px' }}
+          title="Muốn đặt riêng?"
+          description={
+            <>
+              Đặt ở <Link to="/admin/categories">Danh mục</Link> (áp dụng cho cả danh mục con), ở form sản phẩm hoặc sửa nhanh ngay trong{' '}
+              <Link to="/admin/inventory">Kho</Link>. Thứ tự ưu tiên: sản phẩm → danh mục → danh mục cha → ngưỡng chung.
+            </>
+          }
+        />
+      </Flex>
+    </Card>
+  )
+}
+
 export default function SettingsPage() {
   const { data: settings, isPending, error, refetch } = useQuery({ queryKey: settingsKey, queryFn: adminSettingsApi.get })
 
@@ -191,7 +252,10 @@ export default function SettingsPage() {
           }
         />
       ) : (
-        <SettingsForm settings={settings} />
+        <Flex vertical gap={16}>
+          <SettingsForm settings={settings} />
+          <LowStockCard settings={settings} />
+        </Flex>
       )}
     </>
   )

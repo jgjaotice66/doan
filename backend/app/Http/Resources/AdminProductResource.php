@@ -29,7 +29,10 @@ class AdminProductResource extends JsonResource
             'sale_price' => $this->sale_price,
             'final_price' => $this->final_price,
             'stock' => $this->stock,
-            'low_stock' => $this->stock <= config('shop.low_stock_threshold'),
+            'low_stock' => $this->isLowStock(),
+            // Giá trị tự đặt cho riêng sản phẩm (null = kế thừa) + ngưỡng đang áp dụng và nguồn của nó.
+            'low_stock_threshold' => $this->low_stock_threshold,
+            'effective_low_stock_threshold' => $this->lowStockThreshold(),
             'min_age' => $this->min_age,
             'is_featured' => $this->is_featured,
             'status' => ['value' => $this->status->value, 'label' => $this->status->label()],

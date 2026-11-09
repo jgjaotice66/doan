@@ -17,7 +17,7 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->active()
-            ->with(['brand', 'images' => fn ($q) => $q->limit(1)]);
+            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(1)]);
 
         $products = ProductFilter::apply($query, $request->validated())
             ->paginate($request->perPage())
@@ -34,7 +34,7 @@ class ProductController extends Controller
         $product = Product::query()
             ->active()
             ->where('slug', $slug)
-            ->with(['brand', 'category', 'images'])
+            ->with(['brand', 'category.parent', 'images'])
             ->firstOrFail();
 
         // Route công khai: chỉ kiểm tra yêu thích khi khách gửi kèm token.
@@ -46,7 +46,7 @@ class ProductController extends Controller
             ->active()
             ->where('category_id', $product->category_id)
             ->whereKeyNot($product->id)
-            ->with(['brand', 'images' => fn ($q) => $q->limit(1)])
+            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(1)])
             ->latest()
             ->limit(8)
             ->get());

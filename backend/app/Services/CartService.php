@@ -18,7 +18,7 @@ class CartService
     public function items(User $user): Collection
     {
         return $user->cartItems()
-            ->with(['product' => fn ($q) => $q->with(['brand', 'images' => fn ($i) => $i->limit(1)])])
+            ->with(['product' => fn ($q) => $q->with(['brand', 'category.parent', 'images' => fn ($i) => $i->limit(1)])])
             ->orderBy('id')
             ->get();
     }

@@ -38,6 +38,8 @@ class ProductRequest extends FormRequest
             'price' => ['required', 'integer', 'min:1000', 'max:1000000000'],
             'sale_price' => ['nullable', 'integer', 'min:0', 'lt:price'],
             'stock' => $creating ? ['required', 'integer', 'min:0', 'max:100000'] : ['prohibited'],
+            // Bỏ trống = dùng ngưỡng của danh mục / ngưỡng chung.
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'min_age' => ['required', 'integer', Rule::in(Product::AGE_GROUPS)],
             'is_featured' => ['sometimes', 'boolean'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
@@ -67,6 +69,9 @@ class ProductRequest extends FormRequest
             'stock.required' => 'Vui lòng nhập tồn kho ban đầu.',
             'stock.min' => 'Tồn kho không được âm.',
             'stock.prohibited' => 'Không sửa tồn kho ở đây — hãy dùng màn Kho để nhập/điều chỉnh (có lưu lịch sử).',
+            'low_stock_threshold.integer' => 'Ngưỡng phải là số nguyên.',
+            'low_stock_threshold.min' => 'Ngưỡng không được âm.',
+            'low_stock_threshold.max' => 'Ngưỡng tối đa 1000.',
             'min_age.in' => 'Độ tuổi phải là một trong: '.implode(', ', Product::AGE_GROUPS).'.',
             'status.enum' => 'Trạng thái không hợp lệ.',
             'images.max' => 'Mỗi sản phẩm tối đa '.self::MAX_IMAGES.' ảnh.',

@@ -49,6 +49,8 @@ class CategoryRequest extends FormRequest
             ],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_image' => ['sometimes', 'boolean'],
+            // Bỏ trống = dùng ngưỡng của danh mục cha / ngưỡng chung.
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0', 'max:1000'],
         ];
     }
 
@@ -65,6 +67,9 @@ class CategoryRequest extends FormRequest
             'image.image' => 'File phải là ảnh.',
             'image.mimes' => 'Ảnh phải có định dạng jpg, png hoặc webp.',
             'image.max' => 'Ảnh tối đa 2MB.',
+            'low_stock_threshold.integer' => 'Ngưỡng phải là số nguyên.',
+            'low_stock_threshold.min' => 'Ngưỡng không được âm.',
+            'low_stock_threshold.max' => 'Ngưỡng tối đa 1000.',
         ];
     }
 }

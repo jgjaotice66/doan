@@ -10,6 +10,7 @@ use App\Http\Resources\StockMovementResource;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Services\StockService;
+use App\Support\ShopSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -45,14 +46,13 @@ class InventoryController extends Controller
         ]);
 
         [$column, $direction] = self::SORTS[$validated['sort'] ?? 'stock_asc'];
-        $threshold = (int) config('shop.low_stock_threshold');
 
         $products = Product::query()
-            ->with(['category', 'brand', 'images' => fn ($query) => $query->limit(1)])
+            ->with(['category.parent', 'brand', 'images' => fn ($query) => $query->limit(1)])
             ->when($validated['q'] ?? null, fn ($query, $q) => $query->where(
                 fn ($query) => $query->where('name', 'like', "%{$q}%")->orWhere('sku', 'like', "%{$q}%"),
             ))
-            ->when($request->boolean('low_stock'), fn ($query) => $query->where('stock', '<=', $threshold))
+            ->when($request->boolean('low_stock'), fn ($query) => $query->lowStock())
             ->orderBy($column, $direction)
             ->orderBy('name')
             ->orderBy('id')
@@ -60,11 +60,29 @@ class InventoryController extends Controller
 
         return AdminProductResource::collection($products)->additional([
             'summary' => [
-                'low_stock' => Product::where('stock', '<=', $threshold)->count(),
+                'low_stock' => Product::lowStock()->count(),
                 'out_of_stock' => Product::where('stock', 0)->count(),
-                'threshold' => $threshold,
+                'threshold' => ShopSettings::lowStockThreshold(),
             ],
         ]);
+    }
+
+    /**
+     * Sửa nhanh ngưỡng "sắp hết hàng" riêng của sản phẩm ngay ở màn Kho. null = bỏ ngưỡng riêng (dùng của danh mục / chung).
+     */
+    public function threshold(Request $request, Product $product): AdminProductResource
+    {
+        $validated = $request->validate([
+            'low_stock_threshold' => ['present', 'nullable', 'integer', 'min:0', 'max:1000'],
+        ], [
+            'low_stock_threshold.integer' => 'Ngưỡng phải là số nguyên.',
+            'low_stock_threshold.min' => 'Ngưỡng không được âm.',
+            'low_stock_threshold.max' => 'Ngưỡng tối đa 1000.',
+        ]);
+
+        $product->update(['low_stock_threshold' => $validated['low_stock_threshold']]);
+
+        return new AdminProductResource($product->load(['category.parent', 'brand', 'images']));
     }
 
     /**
@@ -88,7 +106,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'data' => [
-                'product' => new AdminProductResource($product->refresh()->load(['category', 'brand', 'images'])),
+                'product' => new AdminProductResource($product->refresh()->load(['category.parent', 'brand', 'images'])),
                 'movement' => new StockMovementResource($movement->load(['user', 'order'])),
             ],
         ], 201);

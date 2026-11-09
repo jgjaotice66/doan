@@ -1,14 +1,17 @@
-import { ClockCounterClockwise, PlusCircle, SlidersHorizontal, Warning } from '@phosphor-icons/react'
-import { useQuery } from '@tanstack/react-query'
-import { Alert, Avatar, Button, DatePicker, Flex, Space, Tabs, Tag, Tooltip, Typography } from 'antd'
+import { ClockCounterClockwise, PencilSimple, PlusCircle, SlidersHorizontal, Warning } from '@phosphor-icons/react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Alert, App, Avatar, Button, DatePicker, Flex, InputNumber, Popover, Space, Tabs, Tag, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { adminInventoryApi } from '../../api/admin/inventory'
 import AdminTable from '../../components/admin/AdminTable'
 import StockAdjustModal from '../../components/admin/StockAdjustModal'
+import { getErrorMessage } from '../../api/client'
 import {
   inventoryKeys,
+  LOW_STOCK_RELATED_KEYS,
+  THRESHOLD_SOURCE_COLORS,
   MOVEMENT_SORT_OPTIONS,
   STOCK_REASON_COLORS,
   STOCK_REASON_OPTIONS,
@@ -35,7 +38,8 @@ function LowStockAlert() {
       type="error"
       showIcon
       icon={<Warning size={20} weight="fill" />}
-      title={`${summary.low_stock} sản phẩm sắp hết hàng (tồn ≤ ${summary.threshold})${summary.out_of_stock ? `, trong đó ${summary.out_of_stock} đã hết` : ''}`}
+      title={`${summary.low_stock} sản phẩm sắp hết hàng${summary.out_of_stock ? `, trong đó ${summary.out_of_stock} đã hết` : ''}`}
+      description={`Tồn ≤ ngưỡng của từng sản phẩm (riêng → danh mục → ngưỡng chung ${summary.threshold}).`}
       action={
         <Button size="small" onClick={() => setParams({ low_stock: '1' })}>
           Xem danh sách
@@ -53,6 +57,84 @@ function StockCell({ product }) {
       {product.stock}
       {product.low_stock && <Typography.Text type="danger"> · sắp hết</Typography.Text>}
     </Typography.Text>
+  )
+}
+
+/**
+ * Ngưỡng đang áp dụng + nguồn (riêng / danh mục / chung); bút chì → sửa nhanh ngưỡng riêng của sản phẩm ngay tại dòng.
+ */
+function ThresholdCell({ product }) {
+  const { message } = App.useApp()
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState(product.low_stock_threshold)
+  const effective = product.effective_low_stock_threshold
+
+  const save = useMutation({
+    mutationFn: (threshold) => adminInventoryApi.setThreshold(product.id, threshold),
+    onSuccess: (updated) => {
+      LOW_STOCK_RELATED_KEYS.forEach((queryKey) => queryClient.invalidateQueries({ queryKey }))
+      const { value: v, label } = updated.effective_low_stock_threshold
+      message.success(`${updated.name}: tồn ≤ ${v} là sắp hết (${label.toLowerCase()})`)
+      setOpen(false)
+    },
+    onError: (error) => message.error(getErrorMessage(error)),
+  })
+
+  const editor = (
+    <Flex vertical gap={8} style={{ width: 240 }}>
+      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+        Ngưỡng riêng cho sản phẩm này. Bỏ trống = dùng của danh mục / ngưỡng chung.
+      </Typography.Text>
+      <InputNumber
+        autoFocus
+        min={0}
+        max={1000}
+        precision={0}
+        prefix="Tồn ≤"
+        value={value}
+        onChange={setValue}
+        onPressEnter={() => save.mutate(value ?? null)}
+        placeholder={effective.source === 'product' ? '' : String(effective.value)}
+        aria-label={`Ngưỡng sắp hết của ${product.name}`}
+        style={{ width: '100%' }}
+      />
+      <Flex justify="space-between" gap={8}>
+        {product.low_stock_threshold !== null ? (
+          <Button size="small" type="link" style={{ paddingInline: 0 }} onClick={() => save.mutate(null)} disabled={save.isPending}>
+            Bỏ ngưỡng riêng
+          </Button>
+        ) : (
+          <span />
+        )}
+        <Button size="small" type="primary" loading={save.isPending} onClick={() => save.mutate(value ?? null)}>
+          Lưu
+        </Button>
+      </Flex>
+    </Flex>
+  )
+
+  return (
+    <Flex align="center" gap={4}>
+      <Tooltip title={effective.label}>
+        <Tag color={THRESHOLD_SOURCE_COLORS[effective.source]} style={{ marginInlineEnd: 0 }}>
+          ≤ {effective.value}
+          {effective.source === 'product' && ' · riêng'}
+        </Tag>
+      </Tooltip>
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next)
+          if (next) setValue(product.low_stock_threshold)
+        }}
+        trigger="click"
+        title="Ngưỡng sắp hết hàng"
+        content={editor}
+      >
+        <Button size="small" type="text" icon={<PencilSimple size={14} />} aria-label={`Sửa ngưỡng sắp hết của ${product.name}`} />
+      </Popover>
+    </Flex>
   )
 }
 
@@ -84,6 +166,15 @@ function StockTab({ onShowHistory }) {
     },
     { title: 'Danh mục', key: 'category', render: (_, product) => product.category?.name },
     { title: 'Tồn kho', dataIndex: 'stock', align: 'right', render: (_, product) => <StockCell product={product} /> },
+    {
+      title: (
+        <Tooltip title="Tím = riêng sản phẩm · xanh = theo danh mục · xám = ngưỡng chung (Cài đặt cửa hàng)">
+          <span>Ngưỡng sắp hết</span>
+        </Tooltip>
+      ),
+      key: 'threshold',
+      render: (_, product) => <ThresholdCell key={`${product.id}-${product.low_stock_threshold}`} product={product} />,
+    },
     {
       title: 'Thao tác',
       key: 'actions',
