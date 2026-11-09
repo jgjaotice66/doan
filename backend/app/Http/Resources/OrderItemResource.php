@@ -12,6 +12,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class OrderItemResource extends JsonResource
 {
+    private ?int $returnable = null;
+
+    /** Số lượng còn trả được (OrderResource tính từ các yêu cầu trả hàng của đơn); null = không hiện. */
+    public function returnable(?int $quantity): static
+    {
+        $this->returnable = $quantity;
+
+        return $this;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -27,6 +37,7 @@ class OrderItemResource extends JsonResource
             'price' => $this->price,
             'quantity' => $this->quantity,
             'line_total' => $this->line_total,
+            'returnable_quantity' => $this->when($this->returnable !== null, fn () => $this->returnable),
             // Chỉ để hiển thị/link; sản phẩm có thể đã bị xoá.
             'product_slug' => $product?->slug,
             'thumbnail' => $product ? Media::url($product->images->first()?->path) : null,

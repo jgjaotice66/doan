@@ -8,6 +8,7 @@ enum StockReason: string
     case Cancel = 'cancel';
     case Import = 'import';
     case Adjust = 'adjust';
+    case Return = 'return';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum StockReason: string
             self::Cancel => 'Huỷ đơn hoàn kho',
             self::Import => 'Nhập kho',
             self::Adjust => 'Điều chỉnh',
+            self::Return => 'Trả hàng',
         };
     }
 }

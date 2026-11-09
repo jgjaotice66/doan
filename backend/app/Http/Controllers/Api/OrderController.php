@@ -21,6 +21,9 @@ class OrderController extends Controller
     /** Quan hệ cần cho OrderResource (ảnh đại diện của từng sản phẩm trong đơn). */
     private const WITH = ['items.product.images'];
 
+    /** Trang chi tiết: thêm yêu cầu trả hàng (khách xem tiến độ, hạn trả, số lượng còn trả được). */
+    public const DETAIL_WITH = [...self::WITH, 'returnRequests.items.orderItem', 'returnRequests.media'];
+
     public function __construct(private OrderService $orders) {}
 
     /**
@@ -46,12 +49,12 @@ class OrderController extends Controller
     {
         $order = $this->orders->place($request->user(), $request->validated());
 
-        return (new OrderResource($order->load(self::WITH)))->response()->setStatusCode(201);
+        return (new OrderResource($order->load(self::DETAIL_WITH)))->response()->setStatusCode(201);
     }
 
     public function show(Request $request, string $code): OrderResource
     {
-        return new OrderResource($this->findOwnOrder($request, $code)->load(self::WITH));
+        return new OrderResource($this->findOwnOrder($request, $code)->load(self::DETAIL_WITH));
     }
 
     /**
@@ -61,7 +64,7 @@ class OrderController extends Controller
     {
         $order = $this->orders->cancelByCustomer($this->findOwnOrder($request, $code), $request->user());
 
-        return new OrderResource($order->load(self::WITH));
+        return new OrderResource($order->load(self::DETAIL_WITH));
     }
 
     /**

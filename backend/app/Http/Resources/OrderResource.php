@@ -19,6 +19,9 @@ class OrderResource extends JsonResource
     {
         // QR chỉ cần khi chọn chuyển khoản, chưa trả tiền và đơn chưa huỷ.
         $needsQr = $this->awaitsTransfer();
+        // Trả hàng: chỉ có khi đã tải returnRequests (trang chi tiết đơn), danh sách đơn không cần.
+        $withReturns = $this->relationLoaded('returnRequests');
+        $returned = $withReturns ? $this->returnedQuantities() : [];
 
         return [
             'id' => $this->id,
@@ -34,7 +37,12 @@ class OrderResource extends JsonResource
             'shipping_fee' => $this->shipping_fee,
             'total' => $this->total,
             'item_count' => $this->whenLoaded('items', fn () => (int) $this->items->sum('quantity')),
-            'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'items' => $this->whenLoaded('items', fn () => $this->items->map(
+                fn ($item) => (new OrderItemResource($item))->returnable($withReturns ? max(0, $item->quantity - ($returned[$item->id] ?? 0)) : null),
+            )),
+            'return_deadline' => $this->when($withReturns, fn () => $this->returnDeadline()),
+            'can_request_return' => $this->when($withReturns && $this->relationLoaded('items'), fn () => $this->canRequestReturn()),
+            'returns' => ReturnRequestResource::collection($this->whenLoaded('returnRequests')),
             'qr_url' => $needsQr ? VietQr::url($this->resource) : null,
             'bank' => $needsQr ? VietQr::bankInfo() : null,
             'created_at' => $this->created_at,

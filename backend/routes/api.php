@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ReturnController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
         Route::get('/orders/{code}', [OrderController::class, 'show']);
         Route::post('/orders/{code}/cancel', [OrderController::class, 'cancel']);
+        Route::post('/orders/{code}/returns', [ReturnController::class, 'store'])->middleware('throttle:10,1');
 
         // Quản trị viên.
         Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -77,6 +79,13 @@ Route::prefix('v1')->group(function () {
             Route::patch('/orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
             Route::patch('/orders/{order}/payment', [Admin\OrderController::class, 'markPaid'])->name('orders.payment');
             Route::patch('/orders/{order}/refund', [Admin\OrderController::class, 'markRefunded'])->name('orders.refund');
+
+            Route::get('/returns', [Admin\ReturnController::class, 'index'])->name('returns.index');
+            Route::get('/returns/{returnRequest}', [Admin\ReturnController::class, 'show'])->name('returns.show');
+            Route::patch('/returns/{returnRequest}/approve', [Admin\ReturnController::class, 'approve'])->name('returns.approve');
+            Route::patch('/returns/{returnRequest}/reject', [Admin\ReturnController::class, 'reject'])->name('returns.reject');
+            Route::patch('/returns/{returnRequest}/receive', [Admin\ReturnController::class, 'receive'])->name('returns.receive');
+            Route::patch('/returns/{returnRequest}/refund', [Admin\ReturnController::class, 'refund'])->name('returns.refund');
 
             Route::get('/inventory', [Admin\InventoryController::class, 'index'])->name('inventory.index');
             Route::get('/inventory/movements', [Admin\InventoryController::class, 'movements'])->name('inventory.movements');

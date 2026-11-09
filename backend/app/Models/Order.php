@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Enums\ReturnStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 #[Fillable([
     'code', 'user_id', 'recipient_name', 'phone', 'address', 'note',
@@ -88,6 +90,72 @@ class Order extends Model
     protected function needingRefund(Builder $query): void
     {
         $query->where('status', OrderStatus::Cancelled)->where('payment_status', PaymentStatus::Paid);
+    }
+
+    /**
+     * Hạn cuối gửi yêu cầu trả hàng = ngày hoàn thành + shop.return_days. Đơn chưa hoàn thành → null.
+     */
+    public function returnDeadline(): ?Carbon
+    {
+        if ($this->status !== OrderStatus::Completed || ! $this->completed_at) {
+            return null;
+        }
+
+        return $this->completed_at->copy()->addDays((int) config('shop.return_days'));
+    }
+
+    public function withinReturnWindow(): bool
+    {
+        return (bool) $this->returnDeadline()?->isFuture();
+    }
+
+    /**
+     * Số lượng đã/đang trả của từng dòng hàng (yêu cầu bị từ chối không tính): [order_item_id => SL].
+     * Dùng quan hệ returnRequests.items nếu đã tải sẵn, không thì truy vấn.
+     *
+     * @return array<int, int>
+     */
+    public function returnedQuantities(): array
+    {
+        $items = $this->relationLoaded('returnRequests')
+            ? $this->returnRequests->filter(fn (ReturnRequest $r) => $r->status !== ReturnStatus::Rejected)->flatMap->items
+            : ReturnRequestItem::whereHas('returnRequest', fn ($q) => $q->where('order_id', $this->id)->notRejected())->get();
+
+        return $items->groupBy('order_item_id')->map(fn ($group) => (int) $group->sum('quantity'))->all();
+    }
+
+    /**
+     * Khách gửi được yêu cầu mới: đơn hoàn thành, còn hạn, không có yêu cầu đang mở, còn món chưa trả hết.
+     * Cần đã tải items + returnRequests.items.
+     */
+    public function canRequestReturn(): bool
+    {
+        if (! $this->withinReturnWindow() || $this->returnRequests->contains(fn (ReturnRequest $r) => $r->status->isOpen())) {
+            return false;
+        }
+
+        $returned = $this->returnedQuantities();
+
+        return $this->items->contains(fn (OrderItem $item) => $item->quantity > ($returned[$item->id] ?? 0));
+    }
+
+    /**
+     * Tổng đã hoàn qua các yêu cầu trả hàng (trừ yêu cầu $except) — để chặn hoàn vượt giá trị đơn.
+     */
+    public function refundedByReturns(?int $except = null): int
+    {
+        return (int) $this->returnRequests()
+            ->where('status', ReturnStatus::Refunded)
+            ->when($except, fn ($q) => $q->whereKeyNot($except))
+            ->sum('refund_amount');
+    }
+
+    /**
+     * @return HasMany<ReturnRequest, $this>
+     */
+    public function returnRequests(): HasMany
+    {
+        return $this->hasMany(ReturnRequest::class)->latest()->orderByDesc('id');
     }
 
     /**

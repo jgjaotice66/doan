@@ -3,19 +3,23 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Enums\ReturnStatus;
 use App\Enums\UserRole;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Support\Media;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 /**
  * Số liệu trang tổng quan admin.
  *
  * Quy ước doanh thu: tổng `total` của đơn ĐÃ HOÀN THÀNH và ĐÃ THU TIỀN (Order::countedAsRevenue),
- * tính vào ngày hoàn thành (completed_at). "Hôm nay", "tháng này" theo giờ cửa hàng (config shop.timezone),
+ * tính vào ngày hoàn thành (completed_at), TRỪ tiền hoàn của yêu cầu trả hàng vào ngày hoàn tiền (refunded_at)
+ * — số của kỳ trước không bị sửa ngược. "Hôm nay", "tháng này" theo giờ cửa hàng (config shop.timezone),
  * còn DB lưu giờ ứng dụng (UTC) → mốc thời gian phải đổi múi giờ trước khi so sánh.
  */
 class DashboardService
@@ -96,10 +100,18 @@ class DashboardService
             }
         }
 
+        // Tiền hoàn của yêu cầu trả hàng trừ vào ngày hoàn tiền (ngày đó có thể âm).
+        foreach ($this->refundsQuery($start, $now)->get(['refunded_at', 'refund_amount']) as $refund) {
+            $key = $refund->refunded_at->copy()->setTimezone($this->timezone())->format($keyFormat);
+            if (isset($points[$key])) {
+                $points[$key]['revenue'] -= $refund->refund_amount;
+            }
+        }
+
         return [
             'range' => $range,
             'points' => array_values($points),
-            'total_revenue' => (int) $orders->sum('total'),
+            'total_revenue' => array_sum(array_column($points, 'revenue')),
             'total_orders' => $orders->count(),
         ];
     }
@@ -158,12 +170,25 @@ class DashboardService
         ], OrderStatus::cases());
     }
 
+    /** Doanh thu thuần trong khoảng = tiền đơn hoàn thành − tiền hoàn trả hàng (theo ngày hoàn tiền). */
     private function revenueBetween(Carbon $from, Carbon $to): int
     {
-        return (int) Order::countedAsRevenue()
+        $sales = (int) Order::countedAsRevenue()
             ->where('completed_at', '>=', $this->toDb($from))
             ->where('completed_at', '<=', $this->toDb($to))
             ->sum('total');
+
+        return $sales - (int) $this->refundsQuery($from, $to)->sum('refund_amount');
+    }
+
+    /**
+     * @return Builder<ReturnRequest>
+     */
+    private function refundsQuery(Carbon $from, Carbon $to): Builder
+    {
+        return ReturnRequest::where('status', ReturnStatus::Refunded)
+            ->where('refunded_at', '>=', $this->toDb($from))
+            ->where('refunded_at', '<=', $this->toDb($to));
     }
 
     private function timezone(): string

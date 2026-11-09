@@ -20,7 +20,7 @@ use Illuminate\Validation\Rule;
  */
 class OrderController extends Controller
 {
-    private const WITH = ['user', 'items.product.images'];
+    private const WITH = ['user', 'items.product.images', 'returnRequests.items.orderItem', 'returnRequests.media'];
 
     public function __construct(private OrderService $orders) {}
 

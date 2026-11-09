@@ -24,6 +24,11 @@ return [
     'timezone' => env('SHOP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
 
     /*
+    | Số ngày kể từ khi đơn hoàn thành mà khách còn được gửi yêu cầu trả hàng.
+    */
+    'return_days' => (int) env('RETURN_DAYS', 10),
+
+    /*
     | Thông tin tài khoản nhận chuyển khoản, dùng để tạo ảnh QR VietQR.
     | Mã ngân hàng xem tại https://api.vietqr.io/v2/banks
     */
