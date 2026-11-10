@@ -7,6 +7,7 @@ import Card from './ui/Card'
 export default function AuthCard({ title, formError, children, footer }) {
   return (
     <section className="mx-auto w-full max-w-md px-4 py-12">
+      <title>{`${title} – Toy Store`}</title>
       <Card className="p-6 sm:p-8">
         <h1 className="mb-6 text-2xl font-bold">{title}</h1>
         {formError && (

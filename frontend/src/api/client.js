@@ -35,8 +35,13 @@ api.interceptors.response.use(
 
 /**
  * Lấy thông báo lỗi dễ đọc từ response Laravel.
+ * - Không có response (mất mạng, server tắt) → báo lỗi kết nối.
+ * - 5xx → câu chung chung: không đưa thông điệp kỹ thuật (có thể là lỗi SQL khi APP_DEBUG) ra cho người dùng.
+ * - 4xx → dùng `message` của server (thông báo nghiệp vụ, đã viết tiếng Việt).
  */
 export function getErrorMessage(error, fallback = 'Đã có lỗi xảy ra, vui lòng thử lại.') {
+  if (error?.isAxiosError && !error.response) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'
+  if (error?.response?.status >= 500) return 'Máy chủ đang gặp sự cố, vui lòng thử lại sau ít phút.'
   return error?.response?.data?.message || fallback
 }
 

@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 
@@ -30,4 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Câu "Too Many Attempts." của Laravel viết cứng trong exception (không qua file lang) → tự đổi sang tiếng Việt.
+        $exceptions->render(fn (ThrottleRequestsException $e, Request $request) => $request->is('api/*') || $request->expectsJson()
+            ? response()->json(['message' => 'Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút.'], 429, $e->getHeaders())
+            : null);
     })->create();

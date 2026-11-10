@@ -1,5 +1,19 @@
-import { Heart, MagnifyingGlass, Receipt, ShoppingCartSimple, SignOut, UserCircle } from '@phosphor-icons/react'
+import {
+  Heart,
+  List,
+  MagnifyingGlass,
+  Newspaper,
+  Receipt,
+  ShieldCheck,
+  ShoppingCartSimple,
+  SignIn,
+  SignOut,
+  Storefront,
+  UserCircle,
+  UserPlus,
+} from '@phosphor-icons/react'
 import { useState } from 'react'
+import Drawer from '../components/ui/Drawer'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { useLogout } from '../features/auth/useLogout'
 import { useCart } from '../features/cart/queries'
@@ -32,7 +46,7 @@ function SearchBox() {
   }
 
   return (
-    <form onSubmit={onSubmit} role="search" className="relative order-last w-full md:order-none md:max-w-md md:flex-1">
+    <form onSubmit={onSubmit} role="search" className="relative order-last w-full lg:order-none lg:min-w-56 lg:max-w-md lg:flex-1">
       <label htmlFor="site-search" className="sr-only">
         Tìm sản phẩm
       </label>
@@ -70,7 +84,7 @@ function CartLink() {
           </span>
         )}
       </span>
-      <span className="sr-only lg:not-sr-only">Giỏ hàng</span>
+      <span className="sr-only xl:not-sr-only">Giỏ hàng</span>
       {count > 0 && <span className="sr-only">, {count} sản phẩm</span>}
     </NavLink>
   )
@@ -103,7 +117,7 @@ function AccountMenu() {
       )}
       <NavLink to="/orders" className={navLinkClass}>
         <Receipt aria-hidden className="size-5" />
-        <span className="sr-only lg:not-sr-only">Đơn hàng</span>
+        <span className="sr-only xl:not-sr-only">Đơn hàng</span>
       </NavLink>
       <NavLink to="/account" className={navLinkClass}>
         <UserCircle aria-hidden className="size-5" />
@@ -118,6 +132,99 @@ function AccountMenu() {
         <span className="sr-only sm:not-sr-only">Đăng xuất</span>
       </button>
     </div>
+  )
+}
+
+const drawerLinkClass = ({ isActive }) =>
+  cn(
+    'flex min-h-12 items-center gap-3 rounded-control px-3 text-base font-medium transition-colors hover:bg-raised',
+    isActive ? 'bg-raised text-primary' : 'text-fg',
+  )
+
+/**
+ * Menu điện thoại (< md): nút ☰ mở ngăn kéo chứa điều hướng + tài khoản.
+ * Bấm vào link nào cũng đóng ngăn kéo.
+ */
+function MobileMenu() {
+  const [open, setOpen] = useState(false)
+  const user = useAuthStore((s) => s.user)
+  const token = useAuthStore((s) => s.token)
+  const onLogout = useLogout()
+  const close = () => setOpen(false)
+
+  const item = (to, Icon, label) => (
+    <li>
+      <NavLink to={to} onClick={close} className={drawerLinkClass}>
+        <Icon aria-hidden className="size-5 text-muted" />
+        {label}
+      </NavLink>
+    </li>
+  )
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Mở menu"
+        aria-expanded={open}
+        className="-ml-2 inline-flex size-11 cursor-pointer items-center justify-center rounded-control text-fg hover:bg-raised md:hidden"
+      >
+        <List aria-hidden className="size-6" />
+      </button>
+      <Drawer
+        open={open}
+        onClose={close}
+        title="Menu"
+        footer={
+          token ? (
+            <button
+              type="button"
+              onClick={() => {
+                close()
+                onLogout()
+              }}
+              className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-base font-medium text-danger hover:bg-raised"
+            >
+              <SignOut aria-hidden className="size-5" />
+              Đăng xuất
+            </button>
+          ) : null
+        }
+      >
+        {token && (
+          <div className="mb-4 flex items-center gap-3 rounded-card border border-line bg-raised px-3 py-3">
+            <UserCircle aria-hidden className="size-9 shrink-0 text-primary" weight="duotone" />
+            <div className="min-w-0">
+              <p className="truncate font-semibold">{user?.name}</p>
+              <p className="truncate text-sm text-muted">{user?.email}</p>
+            </div>
+          </div>
+        )}
+        <nav aria-label="Menu điện thoại">
+          <ul className="space-y-1">
+            {item('/products', Storefront, 'Sản phẩm')}
+            {item('/news', Newspaper, 'Tin tức')}
+            {item('/wishlist', Heart, 'Yêu thích')}
+          </ul>
+          <hr className="my-3 border-line" />
+          <ul className="space-y-1">
+            {token ? (
+              <>
+                {item('/orders', Receipt, 'Đơn hàng của tôi')}
+                {item('/account', UserCircle, 'Tài khoản')}
+                {user?.role === 'admin' && item('/admin', ShieldCheck, 'Quản trị')}
+              </>
+            ) : (
+              <>
+                {item('/login', SignIn, 'Đăng nhập')}
+                {item('/register', UserPlus, 'Đăng ký')}
+              </>
+            )}
+          </ul>
+        </nav>
+      </Drawer>
+    </>
   )
 }
 
@@ -136,10 +243,13 @@ export default function StoreLayout() {
 
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
-          <Link to="/" className="font-display text-xl font-bold tracking-wide text-primary">
-            TOY<span className="text-fg">STORE</span>
-          </Link>
-          <nav aria-label="Danh mục chính" className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <MobileMenu />
+            <Link to="/" className="font-display text-xl font-bold tracking-wide text-primary">
+              TOY<span className="text-fg">STORE</span>
+            </Link>
+          </div>
+          <nav aria-label="Danh mục chính" className="hidden items-center gap-4 md:flex">
             <NavLink to="/products" className={navLinkClass}>
               Sản phẩm
             </NavLink>
@@ -151,10 +261,12 @@ export default function StoreLayout() {
           <div className="ml-auto flex items-center gap-4">
             <NavLink to="/wishlist" className={navLinkClass}>
               <Heart aria-hidden className="size-5" />
-              <span className="sr-only lg:not-sr-only">Yêu thích</span>
+              <span className="sr-only xl:not-sr-only">Yêu thích</span>
             </NavLink>
             <CartLink />
-            <AccountMenu />
+            <div className="hidden md:block">
+              <AccountMenu />
+            </div>
           </div>
         </div>
       </header>

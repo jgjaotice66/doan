@@ -106,10 +106,11 @@ export default function ProductListPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+      <title>{`${title} – Toy Store`}</title>
       <div className="mb-6 space-y-1">
         <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
         <div className="text-sm text-muted tabular" aria-live="polite">
-          {meta ? `${meta.total} sản phẩm` : <Skeleton className="h-5 w-24" />}
+          {meta ? `${meta.total} sản phẩm` : products.isPending && <Skeleton className="h-5 w-24" />}
         </div>
       </div>
 

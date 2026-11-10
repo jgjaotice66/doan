@@ -58,7 +58,7 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [45](45-low-stock-thresholds.md) *(task phụ)* Ngưỡng sắp hết hàng: chung / danh mục / sản phẩm (+test) — 31, 27, 42
 
 ## Tuần 6 – Hoàn thiện
-- [ ] [38](38-ux-states-responsive.md) UX & responsive — 25, 35
+- [x] [38](38-ux-states-responsive.md) UX & responsive — 25, 35
 - [ ] [39](39-demo-data.md) Dữ liệu demo đẹp — 05, 36
 - [ ] [40](40-e2e-manual-test.md) Kiểm thử toàn luồng — 38, 39
 - [ ] [41](41-report-docs.md) Tài liệu báo cáo — 40
