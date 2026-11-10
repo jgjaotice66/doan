@@ -152,7 +152,7 @@ function LatestNews() {
     <section>
       <SectionHeader title="Tin mới" to="/news" />
       <PostHighlights
-        posts={data?.data}
+        posts={data}
         isPending={isPending}
         error={error}
         onRetry={refetch}

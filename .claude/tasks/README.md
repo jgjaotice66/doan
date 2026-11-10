@@ -59,6 +59,6 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 
 ## Tuần 6 – Hoàn thiện
 - [x] [38](38-ux-states-responsive.md) UX & responsive — 25, 35
-- [ ] [39](39-demo-data.md) Dữ liệu demo đẹp — 05, 36
+- [x] [39](39-demo-data.md) Dữ liệu demo đẹp — 05, 36
 - [ ] [40](40-e2e-manual-test.md) Kiểm thử toàn luồng — 38, 39
 - [ ] [41](41-report-docs.md) Tài liệu báo cáo — 40

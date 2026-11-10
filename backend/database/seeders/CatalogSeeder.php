@@ -7,11 +7,14 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use Database\Seeders\Concerns\TravelsInTime;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class CatalogSeeder extends Seeder
 {
+    use TravelsInTime;
+
     /**
      * @var array<string, string> slug => tên thương hiệu
      */
@@ -112,25 +115,49 @@ class CatalogSeeder extends Seeder
         ]],
     ];
 
+    /**
+     * Đoạn mô tả thêm theo danh mục (nối sau câu giới thiệu chung).
+     *
+     * @var array<string, string>
+     */
+    private const DESCRIPTIONS = [
+        'figure' => 'Tượng được sơn hoàn thiện tỉ mỉ, nhiều khớp cử động và kèm phụ kiện thay thế (bàn tay, vũ khí, hiệu ứng) để tạo dáng trưng bày.',
+        'gundam' => 'Bộ kit lắp ráp không cần keo, các chi tiết được tách màu sẵn trên khung nhựa. Phù hợp cả người mới lẫn người chơi muốn sơn, kẻ lằn chìm.',
+        'lego' => 'Bộ gạch kèm sách hướng dẫn lắp từng bước, đánh số túi theo giai đoạn. Hoàn thành xong là một mô hình trưng bày đẹp cho bàn làm việc hay kệ sách.',
+        'mo-hinh-xe' => 'Thân xe đúc kim loại, bánh xe lăn được, tỉ lệ chuẩn cho dân sưu tầm. Hộp còn nguyên seal, giữ được giá trị lâu dài.',
+        'funko-pop' => 'Figure vinyl cao khoảng 9,5 cm, đầu to đặc trưng của dòng Pop!, đóng trong hộp có cửa sổ — để nguyên hộp trưng bày rất đẹp.',
+        'anime-figure' => 'Figure nhựa PVC/ABS cao cấp, gương mặt và trang phục được sơn chi tiết, kèm đế trưng bày. Một món không thể thiếu trong tủ của fan anime.',
+        'board-game' => 'Luật chơi đơn giản, ván chơi nhanh, phù hợp cho gia đình và nhóm bạn trong những buổi tụ tập cuối tuần.',
+        'phu-kien' => 'Dụng cụ chuyên dùng cho mô hình nhựa, giúp hoàn thiện sản phẩm gọn gàng và đẹp hơn.',
+    ];
+
+    /** Sản phẩm đầu tiên "nhập kho" cách đây 360 ngày, các sản phẩm sau cách nhau 5 ngày (sản phẩm cuối 60 ngày trước). */
+    private const FIRST_PRODUCT_DAYS_AGO = 360;
+
+    private const DAYS_BETWEEN_PRODUCTS = 5;
+
     public function run(): void
     {
-        $brands = collect(self::BRANDS)->map(fn (string $name, string $slug) => Brand::factory()->create([
+        $start = now()->subDays(self::FIRST_PRODUCT_DAYS_AGO)->setTime(9, 0);
+
+        $brands = $this->at($start, fn () => collect(self::BRANDS)->map(fn (string $name, string $slug) => Brand::factory()->create([
             'name' => $name,
             'slug' => $slug,
-        ]));
+        ])));
 
         $admin = User::where('email', 'admin@toystore.test')->first();
         $index = 0;
 
         foreach (self::CATALOG as $categorySlug => $categoryData) {
-            $category = Category::factory()->create([
+            $category = $this->at($start, fn () => Category::factory()->create([
                 'name' => $categoryData['name'],
                 'slug' => $categorySlug,
-            ]);
+            ]));
 
             foreach ($categoryData['products'] as [$name, $brandSlug, $price, $minAge]) {
                 $index++;
-                $this->createProduct($index, $name, $category, $brands[$brandSlug], $price, $minAge, $admin);
+                $createdAt = $start->copy()->addMinutes((int) round($index * self::DAYS_BETWEEN_PRODUCTS * 24 * 60));
+                $this->at($createdAt, fn () => $this->createProduct($index, $name, $category, $brands[$brandSlug], $price, $minAge, $admin));
             }
         }
     }
@@ -161,7 +188,8 @@ class CatalogSeeder extends Seeder
             'name' => $name,
             'slug' => Str::slug($name),
             'sku' => sprintf('TS-%04d', $index),
-            'description' => "{$name} chính hãng {$brand->name}. Hàng mới nguyên hộp, phù hợp sưu tầm và trưng bày.",
+            'description' => "{$name} chính hãng {$brand->name}, hàng mới nguyên hộp.\n\n".self::DESCRIPTIONS[$category->slug]
+                ."\n\nToy Store nhập hàng trực tiếp, đóng gói chống sốc và hỗ trợ đổi trả trong ".config('shop.return_days').' ngày nếu sản phẩm lỗi.',
             'price' => $price,
             'sale_price' => $salePrice,
             'min_age' => $minAge,
