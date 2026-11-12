@@ -229,6 +229,50 @@ function LowStockCard({ settings }) {
   )
 }
 
+/**
+ * Số hotline hiện ở nút gọi nổi góc dưới bên phải storefront. Để trống thì ẩn nút.
+ */
+function ContactCard({ settings }) {
+  const { message } = App.useApp()
+  const queryClient = useQueryClient()
+  const [form] = Form.useForm()
+
+  const save = useMutation({
+    mutationFn: ({ hotline }) => adminSettingsApi.updateHotline(hotline?.trim()),
+    onSuccess: (saved) => {
+      queryClient.setQueryData(settingsKey, saved)
+      queryClient.invalidateQueries({ queryKey: ['shop'] })
+      form.setFieldsValue({ hotline: saved.hotline ?? '' })
+      message.success(saved.hotline ? `Đã lưu hotline ${saved.hotline}` : 'Đã ẩn nút gọi trên cửa hàng')
+    },
+    onError: (error) => applyFormErrors(form, error, message),
+  })
+
+  return (
+    <Card title="Liên hệ">
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{ hotline: settings.hotline ?? '' }}
+        onFinish={save.mutate}
+        disabled={save.isPending}
+        style={{ maxWidth: 360 }}
+      >
+        <Form.Item
+          name="hotline"
+          label="Số hotline"
+          extra="Hiện ở nút điện thoại góc dưới bên phải cửa hàng. Để trống để ẩn nút."
+        >
+          <Input inputMode="tel" autoComplete="off" placeholder="VD: 0901 234 567 hoặc 1900 1234" maxLength={20} allowClear />
+        </Form.Item>
+        <Button type="primary" htmlType="submit" icon={<FloppyDisk size={16} />} loading={save.isPending}>
+          Lưu hotline
+        </Button>
+      </Form>
+    </Card>
+  )
+}
+
 export default function SettingsPage() {
   const { data: settings, isPending, error, refetch } = useQuery({ queryKey: settingsKey, queryFn: adminSettingsApi.get })
 
@@ -254,6 +298,7 @@ export default function SettingsPage() {
       ) : (
         <Flex vertical gap={16}>
           <SettingsForm settings={settings} />
+          <ContactCard settings={settings} />
           <LowStockCard settings={settings} />
         </Flex>
       )}

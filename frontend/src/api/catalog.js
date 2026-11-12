@@ -12,6 +12,8 @@ export const catalogApi = {
   banners: () => api.get('/banners').then((res) => res.data.data),
   /** [{ code, name }] — gợi ý ô ngân hàng nhận tiền hoàn */
   banks: () => api.get('/banks').then((res) => res.data.data),
+  /** { hotline: string | null, return_days: number } — nút gọi nổi, số ngày đổi trả */
+  shop: () => api.get('/shop').then((res) => res.data.data),
 
   /** Trả { data: [...], meta: { current_page, last_page, total, ... } } */
   products: (params) => api.get('/products', { params: cleanParams(params) }).then((res) => res.data),

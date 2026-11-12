@@ -13,6 +13,7 @@ import {
   UserPlus,
 } from '@phosphor-icons/react'
 import { useState } from 'react'
+import FloatingActions from '../components/FloatingActions'
 import Drawer from '../components/ui/Drawer'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { useLogout } from '../features/auth/useLogout'
@@ -281,6 +282,8 @@ export default function StoreLayout() {
       <footer className="border-t border-line py-8 text-center text-sm text-muted">
         © {new Date().getFullYear()} Toy Store – Đồ chơi sưu tầm
       </footer>
+
+      <FloatingActions />
     </div>
   )
 }

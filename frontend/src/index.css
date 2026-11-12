@@ -72,10 +72,48 @@
   }
 }
 
+/*
+ * Giao diện sáng: chỉ định nghĩa lại token, component không phải sửa.
+ * <html data-theme="light"> do utils/theme.js (và script đầu index.html) gắn.
+ * Vàng #f5b83d làm chữ trên nền trắng chỉ đạt 1.8:1 → dùng vàng đồng đậm, chữ trắng trên nút.
+ * Đã kiểm tra (WCAG AA): fg/bg 16.1 · muted/surface 7.6 · subtle/raised 4.9 · primary/raised 4.6 ·
+ * on-primary/primary 5.4 · accent/surface 6.0 · danger/bg 5.4 · control/bg 3.1 (UI).
+ */
+:root[data-theme="light"] {
+  --color-bg: #f5f4ef;
+  --color-surface: #ffffff;
+  --color-raised: #efede6;
+  --color-overlay: rgb(15 17 22 / 0.45);
+
+  --color-fg: #17181c;
+  --color-muted: #4d5461;
+  --color-subtle: #5f6673;
+
+  --color-line: #dedbd2;
+  --color-control: #858b97;
+
+  --color-primary: #9a5b00;
+  --color-primary-hover: #7f4a00;
+  --color-on-primary: #ffffff;
+  --color-accent: #2459d6;
+  --color-accent-soft: #1f4fc4;
+
+  --color-success: #047857;
+  --color-warning: #b4480b;
+  --color-danger: #c0262d;
+  --color-danger-strong: #b91c1c;
+
+  --shadow-glow: 0 0 0 1px rgb(154 91 0 / 0.25), 0 8px 28px -10px rgb(23 24 28 / 0.18);
+}
+
 @layer base {
   html {
     color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
   }
 
   body {

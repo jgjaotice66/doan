@@ -47,11 +47,32 @@ class SettingController extends Controller
         return $this->response();
     }
 
+    /**
+     * Số hotline cho nút gọi nổi trên storefront. Bỏ khoảng trắng, dấu chấm, gạch ngang trước khi kiểm tra;
+     * gửi rỗng / null để ẩn nút.
+     */
+    public function updateHotline(Request $request): JsonResponse
+    {
+        $hotline = $request->input('hotline');
+        $request->merge(['hotline' => is_string($hotline) ? (preg_replace('/[\s.\-]/', '', $hotline) ?: null) : $hotline]);
+
+        $validated = $request->validate([
+            'hotline' => ['present', 'nullable', 'string', 'regex:/^(0\d{9,10}|1[89]00\d{4,6})$/'],
+        ], [
+            'hotline.regex' => 'Số hotline không hợp lệ. Nhập số bắt đầu bằng 0 (10–11 số) hoặc tổng đài 1800/1900.',
+        ]);
+
+        ShopSettings::updateHotline($validated['hotline']);
+
+        return $this->response();
+    }
+
     private function response(): JsonResponse
     {
         return response()->json([
             'data' => [
                 ...ShopSettings::bankAccount(),
+                'hotline' => ShopSettings::hotline(),
                 'low_stock_threshold' => ShopSettings::lowStockThreshold(),
                 'banks' => ShopSettings::banks(),
             ],

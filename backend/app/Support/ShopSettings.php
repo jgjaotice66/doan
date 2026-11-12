@@ -58,6 +58,23 @@ class ShopSettings
         return (int) self::get('low_stock_threshold');
     }
 
+    /**
+     * Số hotline của cửa hàng; null khi chưa đặt (storefront ẩn nút gọi).
+     */
+    public static function hotline(): ?string
+    {
+        $hotline = self::get('hotline');
+
+        return $hotline === null || $hotline === '' ? null : $hotline;
+    }
+
+    public static function updateHotline(?string $hotline): void
+    {
+        Setting::updateOrCreate(['key' => 'hotline'], ['value' => $hotline ?? '']);
+
+        Cache::forget(self::CACHE_KEY);
+    }
+
     public static function updateLowStockThreshold(int $threshold): void
     {
         Setting::updateOrCreate(['key' => 'low_stock_threshold'], ['value' => (string) $threshold]);

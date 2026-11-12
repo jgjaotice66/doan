@@ -18,6 +18,10 @@ export const useCategories = () =>
 export const useBrands = () =>
   useQuery({ queryKey: catalogKeys.brands, queryFn: catalogApi.brands, staleTime: STATIC_STALE_MS })
 
+/** Thông tin liên hệ cửa hàng (hotline). */
+export const useShopInfo = () =>
+  useQuery({ queryKey: ['shop'], queryFn: catalogApi.shop, staleTime: STATIC_STALE_MS })
+
 export const useBanners = () =>
   useQuery({ queryKey: catalogKeys.banners, queryFn: catalogApi.banners, staleTime: STATIC_STALE_MS })
 

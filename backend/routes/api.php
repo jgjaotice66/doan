@@ -24,6 +24,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/banners', [BannerController::class, 'index']);
     // Ô chọn ngân hàng nhận tiền hoàn (form trả hàng).
     Route::get('/banks', fn () => ['data' => ShopSettings::banks()]);
+    // Thông tin cửa hàng cho storefront: hotline (nút gọi nổi), số ngày được đổi trả.
+    Route::get('/shop', fn () => ['data' => [
+        'hotline' => ShopSettings::hotline(),
+        'return_days' => (int) config('shop.return_days'),
+    ]]);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
     Route::get('/posts', [PostController::class, 'index']);
@@ -109,6 +114,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/settings', [Admin\SettingController::class, 'show'])->name('settings.show');
             Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
             Route::put('/settings/low-stock', [Admin\SettingController::class, 'updateLowStock'])->name('settings.low-stock');
+            Route::put('/settings/hotline', [Admin\SettingController::class, 'updateHotline'])->name('settings.hotline');
         });
     });
 });

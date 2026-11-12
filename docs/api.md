@@ -8,7 +8,7 @@
   - **Admin:** thêm điều kiện `role = admin` (`EnsureAdmin`).
 - **Giới hạn tần suất:** đăng nhập, đăng ký, đặt hàng, gửi yêu cầu trả hàng: tối đa 10 lần / phút.
 
-Danh sách sinh từ `php artisan route:list --path=api --except-vendor` (79 route, không tính 2 route `ping` kiểm tra kết nối).
+Danh sách sinh từ `php artisan route:list --path=api --except-vendor` (81 route, không tính 2 route `ping` kiểm tra kết nối).
 
 ## Mã lỗi thống nhất
 
@@ -46,6 +46,7 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 | GET | `/posts/highlights` | Bài nổi bật (bài ghim, không có thì bài mới nhất) và các bài mới tiếp theo |
 | GET | `/posts/{slug}` | Chi tiết bài viết |
 | GET | `/banks` | Danh sách ngân hàng `{ code, name }` (ô chọn ngân hàng) |
+| GET | `/shop` | Thông tin cửa hàng `{ hotline, return_days }`: số cho nút gọi nổi (`null` = ẩn nút), số ngày được đổi trả (`RETURN_DAYS`) |
 
 ## 3. Giỏ hàng và yêu thích
 
@@ -138,3 +139,4 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 | GET | `/admin/settings` | Cài đặt hiện tại: tài khoản nhận tiền, ngưỡng sắp hết hàng chung, danh sách ngân hàng |
 | PUT | `/admin/settings` | Lưu tài khoản nhận tiền (`bank` theo mã VietQR, `account` 6–20 chữ số, `account_name` in hoa không dấu) |
 | PUT | `/admin/settings/low-stock` | Lưu ngưỡng sắp hết hàng chung |
+| PUT | `/admin/settings/hotline` | Lưu số hotline (`hotline`: số bắt đầu bằng 0, 10–11 số, hoặc tổng đài 1800/1900; bỏ qua khoảng trắng, dấu chấm, gạch ngang; `null` = ẩn nút gọi) |

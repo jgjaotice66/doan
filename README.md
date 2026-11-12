@@ -111,6 +111,7 @@ Truy cập **http://localhost:5173**. Trang quản trị ở **http://localhost:
 ### Trước khi demo
 
 - **Tài khoản nhận chuyển khoản:** dữ liệu demo dùng số tài khoản mẫu `0000000000`. Muốn quét mã QR bằng app ngân hàng thật, vào **Admin → Cài đặt**, chọn ngân hàng, nhập số tài khoản và tên chủ tài khoản (in hoa, không dấu). Mã QR của các đơn chưa thanh toán đổi theo ngay.
+- **Hotline:** nhập số ở **Admin → Cài đặt → Liên hệ** để hiện nút gọi ở góc dưới bên phải cửa hàng (cạnh nút đổi giao diện sáng / tối).
 - **Làm mới dữ liệu:** chạy `php artisan app:reset-demo`. Lệnh xoá **toàn bộ** dữ liệu và ảnh đã tải lên rồi nạp lại dữ liệu demo, nên phải gõ `yes` xác nhận; thêm `--force` để bỏ qua bước hỏi. Lệnh từ chối chạy khi `APP_ENV=production`.
 
 ## 4. Cấu hình riêng của dự án (`backend/.env`)
@@ -122,6 +123,7 @@ Truy cập **http://localhost:5173**. Trang quản trị ở **http://localhost:
 | `LOW_STOCK_THRESHOLD` | `5` | Ngưỡng sắp hết hàng chung. Ngưỡng lưu ở Admin → Cài đặt được ưu tiên hơn; sản phẩm và danh mục có thể đặt ngưỡng riêng (ưu tiên: sản phẩm → danh mục → danh mục cha → chung) |
 | `SHOP_TIMEZONE` | `Asia/Ho_Chi_Minh` | Múi giờ tính "hôm nay", "tháng này" trên dashboard |
 | `RETURN_DAYS` | `10` | Số ngày sau khi đơn hoàn thành mà khách còn được yêu cầu trả hàng |
+| `SHOP_HOTLINE` | (trống) | Số hotline ở nút gọi nổi góc dưới bên phải cửa hàng. Giá trị lưu ở Admin → Cài đặt được ưu tiên hơn; trống thì ẩn nút |
 | `VIETQR_BANK`, `VIETQR_ACCOUNT`, `VIETQR_ACCOUNT_NAME` | `MB`, `0000000000`, … | Tài khoản nhận tiền mặc định. Giá trị lưu ở Admin → Cài đặt được ưu tiên hơn |
 
 **Quy ước doanh thu:** chỉ tính đơn *Hoàn thành* và *Đã thanh toán*, vào ngày hoàn thành, theo giờ cửa hàng. Tiền hoàn của yêu cầu trả hàng được trừ vào ngày hoàn tiền. Chi tiết xem [docs/flows.md](docs/flows.md#6-quy-ước-tính-doanh-thu).

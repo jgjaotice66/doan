@@ -31,3 +31,13 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', { day: 'numeric', month: 
 export function formatDate(value) {
   return value ? dateFormatter.format(new Date(value)) : ''
 }
+
+/**
+ * Số điện thoại dễ đọc: 0901234567 → "0901 234 567", 02838123456 → "028 3812 3456", 19001234 → "1900 1234"
+ */
+export function formatHotline(number) {
+  if (/^1[89]00/.test(number)) return `${number.slice(0, 4)} ${number.slice(4)}`
+  return number.length === 10
+    ? `${number.slice(0, 4)} ${number.slice(4, 7)} ${number.slice(7)}`
+    : `${number.slice(0, 3)} ${number.slice(3, 7)} ${number.slice(7)}`
+}

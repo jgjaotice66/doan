@@ -68,6 +68,7 @@ flowchart LR
 | UC10 | Yêu cầu trả hàng | Xem đặc tả bên dưới. |
 | UC11 | Yêu thích | Thêm / bỏ từ thẻ sản phẩm hoặc trang chi tiết; xem danh sách. |
 | UC12 | Hồ sơ | Sửa tên, số điện thoại; đổi mật khẩu (phải nhập mật khẩu cũ). |
+| UC13 | Đổi giao diện, gọi hotline | Nút nổi góc dưới bên phải: chuyển sáng / tối (nhớ lựa chọn, lần đầu theo hệ điều hành); nút điện thoại di chuột hiện số hotline, bấm để gọi. Khách vãng lai cũng dùng được. |
 
 ### Quản trị viên
 
@@ -82,7 +83,7 @@ flowchart LR
 | AD7 | Người dùng | Tìm kiếm, khoá / mở khoá. Không tự khoá chính mình. |
 | AD8 | Banner | CRUD, bật / tắt, sắp xếp thứ tự. |
 | AD9 | NEWS | Soạn bài HTML (chèn ảnh), lưu nháp / xuất bản, ghim tin nổi bật. |
-| AD10 | Cài đặt | Ngân hàng, số tài khoản, tên chủ tài khoản dùng để tạo QR; ngưỡng sắp hết hàng chung. |
+| AD10 | Cài đặt | Ngân hàng, số tài khoản, tên chủ tài khoản dùng để tạo QR; số hotline; ngưỡng sắp hết hàng chung. |
 
 ## Đặc tả các use case chính
 

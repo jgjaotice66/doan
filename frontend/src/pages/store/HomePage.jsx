@@ -20,7 +20,7 @@ import { PostHighlights } from '../../components/PostCard'
 import ProductGrid from '../../components/ProductGrid'
 import Card from '../../components/ui/Card'
 import Skeleton from '../../components/ui/Skeleton'
-import { useBanners, useBrands, useCategories, useProducts } from '../../features/catalog/queries'
+import { useBanners, useBrands, useCategories, useProducts, useShopInfo } from '../../features/catalog/queries'
 import { usePostHighlights } from '../../features/posts/queries'
 
 // Danh mục chưa có ảnh → dùng icon theo slug (slug lạ dùng icon Tag).
@@ -35,10 +35,15 @@ const CATEGORY_ICONS = {
   'phu-kien': Wrench,
 }
 
-const PERKS = [
+/** Số ngày đổi trả lấy từ cấu hình RETURN_DAYS của backend, để luôn khớp quy tắc trả hàng thật. */
+const perks = (returnDays) => [
   { icon: ShieldCheck, title: 'Hàng chính hãng', text: 'Nhập trực tiếp từ hãng' },
   { icon: Truck, title: 'Giao toàn quốc', text: 'Đóng gói chống sốc' },
-  { icon: ArrowsCounterClockwise, title: 'Đổi trả 7 ngày', text: 'Nếu lỗi từ nhà sản xuất' },
+  {
+    icon: ArrowsCounterClockwise,
+    title: returnDays ? `Đổi trả ${returnDays} ngày` : 'Đổi trả dễ dàng',
+    text: 'Nếu lỗi từ nhà sản xuất',
+  },
 ]
 
 const HOME_GRID = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
@@ -164,6 +169,7 @@ function LatestNews() {
 
 export default function HomePage() {
   const banners = useBanners()
+  const { data: shop } = useShopInfo()
 
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-6 sm:space-y-16 sm:py-8">
@@ -173,8 +179,8 @@ export default function HomePage() {
         {banners.error ? null : <BannerSlider banners={banners.data} isPending={banners.isPending} />}
 
         <ul className="grid gap-3 sm:grid-cols-3">
-          {PERKS.map(({ icon: Icon, title, text }) => (
-            <li key={title} className="flex items-center gap-3 rounded-card border border-line bg-surface px-4 py-3">
+          {perks(shop?.return_days).map(({ icon: Icon, title, text }) => (
+            <li key={text}className="flex items-center gap-3 rounded-card border border-line bg-surface px-4 py-3">
               <Icon aria-hidden className="size-7 shrink-0 text-primary" />
               <div>
                 <p className="text-sm font-semibold text-fg">{title}</p>

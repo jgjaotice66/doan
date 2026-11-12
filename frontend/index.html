@@ -12,6 +12,15 @@
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap&subset=vietnamese"
     />
     <title>Toy Store – Đồ chơi sưu tầm</title>
+    <script>
+      // Gắn giao diện sáng / tối trước khi trang vẽ, tránh nháy màu (logic đầy đủ ở src/utils/theme.js).
+      try {
+        var saved = localStorage.getItem('theme')
+        var theme = saved === 'light' || saved === 'dark' ? saved : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = theme
+        if (theme === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f5f4ef')
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

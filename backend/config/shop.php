@@ -29,6 +29,12 @@ return [
     'return_days' => (int) env('RETURN_DAYS', 10),
 
     /*
+    | Số hotline hiện ở nút gọi nổi trên storefront. Để trống thì ẩn nút.
+    | Admin sửa được ở "Cài đặt cửa hàng" (giá trị đã lưu ưu tiên hơn .env).
+    */
+    'hotline' => env('SHOP_HOTLINE', ''),
+
+    /*
     | Thông tin tài khoản nhận chuyển khoản, dùng để tạo ảnh QR VietQR.
     | Mã ngân hàng xem tại https://api.vietqr.io/v2/banks
     */
