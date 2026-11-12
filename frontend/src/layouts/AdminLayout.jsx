@@ -1,5 +1,5 @@
-import { CaretDown, List, SignOut, Storefront, UserCircle } from '@phosphor-icons/react'
-import { App, Badge, Button, ConfigProvider, Drawer, Dropdown, Flex, Grid, Layout, Menu, Space, theme, Typography } from 'antd'
+import { CaretDown, List, Moon, SignOut, Storefront, Sun, UserCircle } from '@phosphor-icons/react'
+import { App, Badge, Button, ConfigProvider, Drawer, Dropdown, Flex, Grid, Layout, Menu, Space, theme, Tooltip, Typography } from 'antd'
 import viVN from 'antd/locale/vi_VN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
@@ -8,20 +8,49 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { useDashboardSummary } from '../features/admin/dashboard'
 import { useLogout } from '../features/auth/useLogout'
 import { useAuthStore } from '../stores/authStore'
+import { useTheme } from '../utils/theme'
 import { ADMIN_MENU, findAdminMenuItem } from './adminMenu'
 
 // Lịch (DatePicker) hiện tên tháng/thứ tiếng Việt, tuần bắt đầu từ thứ Hai.
 dayjs.locale('vi')
 
 const SIDER_WIDTH = 232
-const SIDER_DARK_BG = '#001529'
+/** Sidebar luôn màu than (cả 2 chế độ), mục đang chọn nhấn vàng — cùng nhận diện "Mecha Gold" với cửa hàng. */
+const SIDER_BG = '#1a1c22'
+const GOLD = '#f5b83d'
 
-/** Theme antd mặc định (nền sáng) + font giống storefront để hai khu nhìn cùng một sản phẩm. */
-const ADMIN_THEME = {
-  token: {
-    fontFamily: '"Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
-    borderRadius: 8,
-  },
+/**
+ * Theme antd theo nhận diện cửa hàng. Màu chính:
+ *  - sáng: vàng đồng #9a5b00 (chữ trắng trên nút đạt 5.4:1; vàng tươi chỉ 1.8:1 trên nền trắng)
+ *  - tối: vàng #f5b83d, chữ nút màu than (10.6:1)
+ * Nền tối lấy đúng tông than của storefront.
+ */
+function adminTheme(mode) {
+  const dark = mode === 'dark'
+  return {
+    algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    token: {
+      fontFamily: '"Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
+      borderRadius: 8,
+      colorPrimary: dark ? GOLD : '#9a5b00',
+      colorLink: dark ? GOLD : '#9a5b00',
+      colorInfo: dark ? '#7aa7ff' : '#2459d6',
+      ...(dark && { colorBgLayout: '#0e0f12', colorBgContainer: '#1a1c22', colorBgElevated: '#23262e' }),
+    },
+    components: {
+      // Chữ trên nút chính: trắng ở chế độ sáng, màu than trên nền vàng ở chế độ tối.
+      Button: dark ? { primaryColor: '#14110a' } : {},
+      Layout: { siderBg: SIDER_BG, headerBg: dark ? '#1a1c22' : '#ffffff' },
+      Menu: {
+        darkItemBg: SIDER_BG,
+        darkSubMenuItemBg: SIDER_BG,
+        darkItemColor: '#9ca3af',
+        darkItemHoverColor: '#f3f4f6',
+        darkItemSelectedBg: 'rgba(245, 184, 61, 0.16)',
+        darkItemSelectedColor: GOLD,
+      },
+    },
+  }
 }
 
 /** Nhãn menu + số việc đang chờ (đơn chờ xác nhận, trả hàng chờ duyệt); 0 thì không hiện. */
@@ -36,14 +65,47 @@ function MenuLabel({ path, label, count }) {
   )
 }
 
+/** Logo giống storefront (TOY vàng + STORE trắng) + nhãn ADMIN; sidebar luôn tối nên dùng màu cố định. */
 function Brand({ collapsed }) {
   return (
     <Link
       to="/admin"
-      className="flex h-16 items-center gap-2 whitespace-nowrap px-6 font-display text-lg font-bold text-primary"
+      aria-label="Toy Store Admin – về Dashboard"
+      className="flex h-16 items-center gap-2 whitespace-nowrap px-6 font-display text-xl font-bold tracking-wide"
+      style={{ color: GOLD }}
     >
-      {collapsed ? 'TS' : 'Toy Store Admin'}
+      {collapsed ? (
+        'TS'
+      ) : (
+        <>
+          <span>
+            TOY<span style={{ color: '#f3f4f6' }}>STORE</span>
+          </span>
+          <span
+            className="rounded px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-widest"
+            style={{ background: 'rgba(245, 184, 61, 0.16)', color: GOLD }}
+          >
+            ADMIN
+          </span>
+        </>
+      )}
     </Link>
+  )
+}
+
+/** Nút sáng / tối — dùng chung lựa chọn với cửa hàng (utils/theme.js). */
+function ThemeToggle() {
+  const [mode, toggle] = useTheme()
+  const label = mode === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'
+  return (
+    <Tooltip title={label}>
+      <Button
+        type="text"
+        aria-label={label}
+        onClick={toggle}
+        icon={mode === 'dark' ? <Sun aria-hidden size={20} /> : <Moon aria-hidden size={20} />}
+      />
+    </Tooltip>
   )
 }
 
@@ -117,8 +179,8 @@ function AdminShell() {
           onClose={() => setDrawerOpen(false)}
           size={SIDER_WIDTH + 24}
           closable={false}
-          // Cùng màu nền với Layout.Sider tối mặc định của antd.
-          styles={{ body: { padding: 0, background: SIDER_DARK_BG } }}
+          // Cùng màu nền với Layout.Sider (màu than).
+          styles={{ body: { padding: 0, background: SIDER_BG } }}
         >
           <Brand />
           <SideMenu selectedKey={current?.path} onNavigate={() => setDrawerOpen(false)} />
@@ -166,6 +228,7 @@ function AdminShell() {
               Xem cửa hàng
             </Button>
           )}
+          <ThemeToggle />
           <UserMenu />
         </Layout.Header>
 
@@ -182,8 +245,10 @@ function AdminShell() {
  * không đụng tới storefront, và chỉ được tải khi admin mở /admin.
  */
 export default function AdminLayout() {
+  const [mode] = useTheme()
+
   return (
-    <ConfigProvider locale={viVN} theme={ADMIN_THEME}>
+    <ConfigProvider locale={viVN} theme={adminTheme(mode)}>
       <App className="admin-root">
         <AdminShell />
       </App>

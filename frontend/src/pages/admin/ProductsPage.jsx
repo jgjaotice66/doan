@@ -1,5 +1,5 @@
 import { ArrowSquareOut, PencilSimple, Plus, Star, Trash } from '@phosphor-icons/react'
-import { App, Avatar, Button, Flex, Popconfirm, Space, Tag, theme, Tooltip, Typography } from 'antd'
+import { App, Avatar, Button, Card, Flex, Popconfirm, Space, Tag, theme, Tooltip, Typography } from 'antd'
 import { Link, useNavigate } from 'react-router'
 import { getErrorMessage } from '../../api/client'
 import { adminProductsApi } from '../../api/admin/products'
@@ -30,6 +30,41 @@ function StockCell({ product }) {
       {product.stock}
       {product.low_stock && ' · sắp hết'}
     </Typography.Text>
+  )
+}
+
+/** Thẻ sản phẩm cho điện thoại; bấm cả thẻ để mở form sửa. */
+function ProductCard({ product }) {
+  return (
+    <Link to={`/admin/products/${product.id}`} aria-label={`Sửa ${product.name}`}>
+      <Card size="small" hoverable>
+        <Flex gap={12} align="flex-start">
+          <Avatar shape="square" size={56} src={product.thumbnail} alt="">
+            {product.name.charAt(0)}
+          </Avatar>
+          <Flex vertical gap={4} style={{ flex: 1, minWidth: 0 }}>
+            <Typography.Text strong ellipsis>
+              {product.is_featured && '★ '}
+              {product.name}
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              {product.sku} · {product.category?.name}
+            </Typography.Text>
+            <Flex justify="space-between" align="center" gap={8} wrap>
+              <Typography.Text strong type={product.sale_price != null ? 'danger' : undefined}>
+                {formatVND(product.sale_price ?? product.price)}
+              </Typography.Text>
+              <Flex gap={6} align="center">
+                <StockCell product={product} />
+                <Tag color={product.status.value === 'active' ? 'green' : 'default'} style={{ marginInlineEnd: 0 }}>
+                  {product.status.label}
+                </Tag>
+              </Flex>
+            </Flex>
+          </Flex>
+        </Flex>
+      </Card>
+    </Link>
   )
 }
 
@@ -175,6 +210,7 @@ export default function ProductsPage() {
           Thêm sản phẩm
         </Button>
       }
+      renderCard={(product) => <ProductCard product={product} />}
     />
   )
 }

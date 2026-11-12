@@ -26,23 +26,28 @@ import { dashboardKeys, useDashboardSummary } from '../../features/admin/dashboa
 import { inventoryKeys } from '../../features/admin/inventory'
 import { useAuthStore } from '../../stores/authStore'
 import { formatVND } from '../../utils/format'
+import { useTheme } from '../../utils/theme'
 
-
-/** Màu chuỗi doanh thu (1 chuỗi → 1 màu); đã chạy kiểm tra tương phản ≥ 3:1 trên nền trắng. */
-const SERIES_COLOR = '#2a78d6'
 
 /**
- * Màu thanh trạng thái đơn. Không dùng lại màu Tag antd: xanh dương ↔ xanh đậm của antd gần như trùng
- * với người mù màu (đã chạy kiểm tra). Bộ này đạt kiểm tra; luôn đi kèm nhãn chữ + số nên không phụ thuộc màu.
- * Đã huỷ = xám trung tính (không phải "một loại" cần chú ý).
+ * Màu biểu đồ theo chế độ sáng / tối (cùng hue, bậc khác nhau cho từng nền) — đã chạy validate_palette của skill dataviz:
+ *  - Doanh thu (1 chuỗi): xanh dương, ≥ 3:1 trên cả nền trắng và nền than #1a1c22.
+ *  - Trạng thái đơn: không dùng lại màu Tag antd (xanh dương ↔ xanh đậm trùng nhau với người mù màu).
+ *    "Đang giao" = cam (hồng cũ đứng cạnh xanh ngọc chỉ ΔE 1.6 với mù màu đỏ–lục ở nền tối).
+ *    Đã huỷ = xám trung tính có chủ đích (không phải "một loại" cần chú ý). Luôn kèm nhãn chữ + số.
  */
-const STATUS_CHART_COLORS = {
-  pending: '#eda100',
-  confirmed: '#2a78d6',
-  shipping: '#e87ba4',
-  completed: '#1baf7a',
-  cancelled: '#a8a8a8',
+const CHART_COLORS = {
+  light: {
+    series: '#2a78d6',
+    status: { pending: '#eda100', confirmed: '#2a78d6', shipping: '#eb6834', completed: '#1baf7a', cancelled: '#a8a8a8' },
+  },
+  dark: {
+    series: '#3987e5',
+    status: { pending: '#c98500', confirmed: '#3987e5', shipping: '#d95926', completed: '#199e70', cancelled: '#6b7280' },
+  },
 }
+
+const useChartColors = () => CHART_COLORS[useTheme()[0]]
 
 const RANGE_OPTIONS = [
   { value: '30d', label: '30 ngày' },
@@ -193,6 +198,7 @@ function StatTile({ title, value, icon, tone, footer, aside }) {
 
 function SummaryTiles({ summary }) {
   const { token } = theme.useToken()
+  const chart = useChartColors()
   // Dùng chung cache với biểu đồ doanh thu 30 ngày → không gọi API thêm.
   const revenue30d = useQuery({ queryKey: dashboardKeys.revenue('30d'), queryFn: () => adminDashboardApi.revenue('30d') })
   const last7 = revenue30d.data?.points.slice(-7) ?? []
@@ -224,7 +230,7 @@ function SummaryTiles({ summary }) {
               </Typography.Text>
             )
           }
-          aside={<Sparkline values={last7.map((p) => p.revenue)} color={SERIES_COLOR} width={88} height={32} />}
+          aside={<Sparkline values={last7.map((p) => p.revenue)} color={chart.series} width={88} height={32} />}
         />
       </Col>
       <Col xs={24} sm={12} xl={6}>
@@ -333,6 +339,8 @@ function TodoCards({ summary }) {
 
 function RevenueChart({ points }) {
   const { token } = theme.useToken()
+  const [mode] = useTheme()
+  const chart = CHART_COLORS[mode]
   return (
     <Area
       data={points}
@@ -340,8 +348,10 @@ function RevenueChart({ points }) {
       yField="revenue"
       height={280}
       autoFit
-      style={{ fill: `linear-gradient(-90deg, ${SERIES_COLOR}00 0%, ${SERIES_COLOR}40 100%)` }}
-      line={{ style: { stroke: SERIES_COLOR, lineWidth: 2 } }}
+      // Tooltip / nền biểu đồ theo chế độ sáng–tối của admin.
+      theme={mode === 'dark' ? 'classicDark' : 'classic'}
+      style={{ fill: `linear-gradient(-90deg, ${chart.series}00 0%, ${chart.series}40 100%)` }}
+      line={{ style: { stroke: chart.series, lineWidth: 2 } }}
       axis={{
         x: { title: false, labelAutoHide: true, labelFill: token.colorTextSecondary, line: true, lineStroke: token.colorBorder, tick: false },
         y: {
@@ -357,8 +367,8 @@ function RevenueChart({ points }) {
       tooltip={{
         title: 'label',
         items: [
-          { field: 'revenue', name: 'Doanh thu', valueFormatter: formatVND, color: SERIES_COLOR },
-          { field: 'orders', name: 'Số đơn', color: SERIES_COLOR },
+          { field: 'revenue', name: 'Doanh thu', valueFormatter: formatVND, color: chart.series },
+          { field: 'orders', name: 'Số đơn', color: chart.series },
         ],
       }}
     />
@@ -428,6 +438,7 @@ function RevenueCard() {
 /** Thanh ghép cho thấy tỉ lệ tổng thể + danh sách có nhãn/số/% (đọc được cả khi không phân biệt màu). */
 function OrderStatusCard() {
   const { token } = theme.useToken()
+  const chart = useChartColors()
   const query = useQuery({ queryKey: dashboardKeys.orderStatus, queryFn: adminDashboardApi.orderStatus })
 
   return (
@@ -454,7 +465,7 @@ function OrderStatusCard() {
                   .filter((s) => s.count > 0)
                   .map((s) => (
                     <Tooltip key={s.value} title={`${s.label}: ${s.count} đơn (${percent(s.count)}%)`}>
-                      <div style={{ flex: s.count, background: STATUS_CHART_COLORS[s.value] }} />
+                      <div style={{ flex: s.count, background: chart.status[s.value] }} />
                     </Tooltip>
                   ))}
               </Flex>
@@ -467,7 +478,7 @@ function OrderStatusCard() {
                     style={{ color: 'inherit', padding: '8px 8px', margin: '0 -8px', borderRadius: 8 }}
                   >
                     <Flex align="center" gap={10}>
-                      <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, background: STATUS_CHART_COLORS[s.value], flexShrink: 0 }} />
+                      <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, background: chart.status[s.value], flexShrink: 0 }} />
                       <Typography.Text style={{ flex: 1 }}>{s.label}</Typography.Text>
                       <Typography.Text strong style={TABULAR}>
                         {s.count}
@@ -531,6 +542,7 @@ function ProductCell({ id, name, sku, thumbnail }) {
 
 function TopProductsCard() {
   const { token } = theme.useToken()
+  const chart = useChartColors()
   const query = useQuery({ queryKey: dashboardKeys.topProducts, queryFn: () => adminDashboardApi.topProducts(10) })
   const maxRevenue = Math.max(1, ...(query.data ?? []).map((p) => p.revenue))
 
@@ -549,7 +561,7 @@ function TopProductsCard() {
             {formatVND(revenue)}
           </Typography.Text>
           <div aria-hidden style={{ width: 120, height: 4, borderRadius: 2, background: token.colorFillSecondary }}>
-            <div style={{ width: `${(revenue / maxRevenue) * 100}%`, height: '100%', borderRadius: 2, background: SERIES_COLOR }} />
+            <div style={{ width: `${(revenue / maxRevenue) * 100}%`, height: '100%', borderRadius: 2, background: chart.series }} />
           </div>
         </Flex>
       ),

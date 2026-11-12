@@ -73,6 +73,10 @@ export default function RichTextEditor({ value, onChange, id, placeholder, statu
         '--rte-toolbar-bg': token.colorFillQuaternary,
         '--rte-text': token.colorText,
         '--rte-placeholder': token.colorTextPlaceholder,
+        // Icon thanh công cụ / menu chọn kiểu chữ (Quill ghi cứng #444, #06c, nền trắng → chìm ở chế độ tối).
+        '--rte-icon': token.colorTextSecondary,
+        '--rte-active': token.colorPrimary,
+        '--rte-popup-bg': token.colorBgElevated,
       }}
     >
       <ReactQuill

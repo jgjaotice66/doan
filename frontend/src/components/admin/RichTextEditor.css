@@ -38,3 +38,34 @@
   border-left: 4px solid var(--rte-border);
   padding-left: 12px;
 }
+
+/* Icon + menu chọn kiểu chữ theo token antd (Quill mặc định #444 / #06c / nền trắng → chìm ở chế độ tối). */
+.admin-rich-text .ql-snow .ql-stroke {
+  stroke: var(--rte-icon);
+}
+
+.admin-rich-text .ql-snow .ql-fill,
+.admin-rich-text .ql-snow .ql-stroke.ql-fill {
+  fill: var(--rte-icon);
+}
+
+.admin-rich-text .ql-snow .ql-picker {
+  color: var(--rte-icon);
+}
+
+.admin-rich-text .ql-snow.ql-toolbar :is(button, .ql-picker-label, .ql-picker-item):is(:hover, :focus, .ql-active) {
+  color: var(--rte-active);
+}
+
+.admin-rich-text .ql-snow.ql-toolbar :is(button, .ql-picker-label, .ql-picker-item):is(:hover, :focus, .ql-active) .ql-stroke {
+  stroke: var(--rte-active);
+}
+
+.admin-rich-text .ql-snow.ql-toolbar :is(button, .ql-picker-label, .ql-picker-item):is(:hover, :focus, .ql-active) .ql-fill {
+  fill: var(--rte-active);
+}
+
+.admin-rich-text .ql-snow .ql-picker-options {
+  background: var(--rte-popup-bg);
+  border-color: var(--rte-border);
+}

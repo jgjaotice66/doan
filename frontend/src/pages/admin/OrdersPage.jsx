@@ -1,5 +1,5 @@
 import { ArrowCounterClockwise, Eye, HourglassMedium } from '@phosphor-icons/react'
-import { Button, DatePicker, Flex, Tag, Tooltip, Typography } from 'antd'
+import { Button, Card, DatePicker, Flex, Tag, Tooltip, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { Link, useNavigate } from 'react-router'
 import { adminOrdersApi } from '../../api/admin/orders'
@@ -95,6 +95,47 @@ function QuickFilters() {
   )
 }
 
+/** Thẻ đơn hàng cho điện thoại: đủ thông tin cần quét nhanh, bấm cả thẻ để mở chi tiết. */
+function OrderCard({ order }) {
+  const method = order.payment_method.value === 'bank_qr' ? 'Chuyển khoản' : 'COD'
+  const tag = paymentTag(order)
+  return (
+    <Link to={`/admin/orders/${order.id}`} aria-label={`Đơn ${order.code}, ${order.status.label}, ${formatVND(order.total)}`}>
+      <Card size="small" hoverable>
+        <Flex vertical gap={8}>
+          <Flex justify="space-between" align="center" gap={8}>
+            <Typography.Text strong>{order.code}</Typography.Text>
+            <Tag color={ORDER_STATUS_COLORS[order.status.value]} style={{ marginInlineEnd: 0 }}>
+              {order.status.label}
+            </Tag>
+          </Flex>
+          <Flex justify="space-between" gap={8}>
+            <Typography.Text ellipsis style={{ minWidth: 0 }}>
+              {order.recipient_name} · {order.phone}
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
+              {formatDateTime(order.created_at)}
+            </Typography.Text>
+          </Flex>
+          <Flex justify="space-between" align="center" gap={8}>
+            <Flex gap={6} align="center" wrap>
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                {method} · {order.item_count} SP
+              </Typography.Text>
+              <Tag color={tag.color} style={{ marginInlineEnd: 0 }}>
+                {tag.label}
+              </Tag>
+            </Flex>
+            <Typography.Text strong style={{ fontSize: 16, whiteSpace: 'nowrap' }}>
+              {formatVND(order.total)}
+            </Typography.Text>
+          </Flex>
+        </Flex>
+      </Card>
+    </Link>
+  )
+}
+
 export default function OrdersPage() {
   const navigate = useNavigate()
 
@@ -187,10 +228,11 @@ export default function OrdersPage() {
             options: PAYMENT_STATUS_OPTIONS,
             width: 170,
           },
-          { name: 'dates', render: () => <DateRangeFilter /> },
-          { name: 'user', render: () => <CustomerFilterTag /> },
+          { name: 'dates', render: () => <DateRangeFilter />, isActive: (p) => Boolean(p.from) },
+          { name: 'user', render: () => <CustomerFilterTag />, isActive: (p) => Boolean(p.user) },
         ]}
         toolbar={<QuickFilters />}
+        renderCard={(order) => <OrderCard order={order} />}
       />
     </>
   )
