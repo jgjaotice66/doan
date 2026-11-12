@@ -1,4 +1,5 @@
 import {
+  CaretDown,
   Heart,
   List,
   MagnifyingGlass,
@@ -8,16 +9,20 @@ import {
   ShoppingCartSimple,
   SignIn,
   SignOut,
+  SquaresFour,
   Storefront,
   UserCircle,
   UserPlus,
 } from '@phosphor-icons/react'
 import { useState } from 'react'
+import CategoryMenu from '../components/CategoryMenu'
 import FloatingActions from '../components/FloatingActions'
+import StoreFooter from '../components/StoreFooter'
 import Drawer from '../components/ui/Drawer'
 import { Link, NavLink, Outlet, ScrollRestoration, useNavigate, useSearchParams } from 'react-router'
 import { useLogout } from '../features/auth/useLogout'
 import { useCart } from '../features/cart/queries'
+import { useCategories } from '../features/catalog/queries'
 import { useAuthStore } from '../stores/authStore'
 import { cn } from '../utils/cn'
 
@@ -58,7 +63,7 @@ function SearchBox() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Tìm Gundam, LEGO, figure…"
-        className="h-11 w-full rounded-control border border-control bg-surface pl-9 pr-3 text-base text-fg placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="h-11 w-full rounded-control border border-control bg-bg pl-9 pr-3 text-base text-fg placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
     </form>
   )
@@ -143,6 +148,41 @@ const drawerLinkClass = ({ isActive }) =>
   )
 
 /**
+ * Danh mục trong menu điện thoại: mục thu gọn được (details/summary có sẵn bàn phím + trình đọc màn hình).
+ */
+function MobileCategories({ onNavigate }) {
+  const { data: categories } = useCategories()
+  if (!categories?.length) return null
+
+  return (
+    <details className="group">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 rounded-control px-3 text-base font-medium text-fg hover:bg-raised [&::-webkit-details-marker]:hidden">
+        <SquaresFour aria-hidden className="size-5 text-muted" />
+        Danh mục
+        <CaretDown aria-hidden weight="bold" className="ml-auto size-4 text-muted motion-safe:transition-transform group-open:rotate-180" />
+      </summary>
+      <ul className="mt-1 space-y-0.5 pl-11">
+        {categories.flatMap((category) => [category, ...(category.children ?? [])]).map((category) => (
+          <li key={category.id}>
+            <Link
+              to={`/products?category=${category.slug}`}
+              onClick={onNavigate}
+              className={cn(
+                'flex min-h-11 items-center justify-between rounded-control px-3 text-sm hover:bg-raised hover:text-primary',
+                category.parent_id ? 'pl-6 text-muted' : 'text-fg',
+              )}
+            >
+              {category.name}
+              {category.products_count != null && <span className="text-xs text-subtle tabular">{category.products_count}</span>}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
+/**
  * Menu điện thoại (< md): nút ☰ mở ngăn kéo chứa điều hướng + tài khoản.
  * Bấm vào link nào cũng đóng ngăn kéo.
  */
@@ -205,6 +245,9 @@ function MobileMenu() {
         <nav aria-label="Menu điện thoại">
           <ul className="space-y-1">
             {item('/products', Storefront, 'Sản phẩm')}
+            <li>
+              <MobileCategories onNavigate={close} />
+            </li>
             {item('/news', Newspaper, 'Tin tức')}
             {item('/wishlist', Heart, 'Yêu thích')}
           </ul>
@@ -242,7 +285,8 @@ export default function StoreLayout() {
         Bỏ qua đến nội dung chính
       </a>
 
-      <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
+      {/* Nền header khác thân trang ở cả 2 chế độ (token --color-header) + bóng nhẹ để tách lớp khi cuộn */}
+      <header className="sticky top-0 z-30 border-b border-line bg-header/95 shadow-[0_6px_20px_-12px_rgb(0_0_0/0.35)] backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
           <div className="flex items-center gap-1">
             <MobileMenu />
@@ -251,6 +295,7 @@ export default function StoreLayout() {
             </Link>
           </div>
           <nav aria-label="Danh mục chính" className="hidden items-center gap-4 md:flex">
+            <CategoryMenu />
             <NavLink to="/products" className={navLinkClass}>
               Sản phẩm
             </NavLink>
@@ -279,9 +324,7 @@ export default function StoreLayout() {
       {/* Trang mới → cuộn lên đầu; bấm Back → về đúng vị trí cũ */}
       <ScrollRestoration />
 
-      <footer className="border-t border-line py-8 text-center text-sm text-muted">
-        © {new Date().getFullYear()} Toy Store – Đồ chơi sưu tầm
-      </footer>
+      <StoreFooter />
 
       <FloatingActions />
     </div>

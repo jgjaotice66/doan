@@ -20,7 +20,7 @@ export default function Toaster() {
       aria-live="polite"
       aria-atomic="false"
       // Chừa cột bên phải cho cụm nút nổi (đổi giao diện, hotline) để toast không đè lên.
-      className="pointer-events-none fixed bottom-4 left-4 right-20 z-50 flex flex-col items-center gap-2 sm:left-auto sm:items-end"
+      className="pointer-events-none fixed bottom-[calc(1rem+var(--fab-offset,0px))] left-4 right-20 z-50 flex flex-col items-center gap-2 sm:left-auto sm:items-end"
     >
       {toasts.map((t) => {
         const { icon: Icon, className, label } = TYPES[t.type] ?? TYPES.info

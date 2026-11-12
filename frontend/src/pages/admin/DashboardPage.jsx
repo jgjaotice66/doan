@@ -512,9 +512,10 @@ function ProductCell({ id, name, sku, thumbnail }) {
       <Avatar shape="square" size={40} src={thumbnail} alt="">
         {name.charAt(0)}
       </Avatar>
-      <Flex vertical style={{ minWidth: 0 }}>
-        <Link to={`/admin/products/${id}`}>
-          <Typography.Text strong ellipsis={{ tooltip: name }} style={{ maxWidth: 240 }}>
+      {/* Tên co theo chỗ trống (tối đa 240px) rồi mới cắt "…" — không tràn sang nút bên cạnh ở thẻ hẹp */}
+      <Flex vertical style={{ minWidth: 0, flex: 1 }}>
+        <Link to={`/admin/products/${id}`} style={{ display: 'block', minWidth: 0, maxWidth: 240 }}>
+          <Typography.Text strong ellipsis={{ tooltip: name }} style={{ maxWidth: '100%' }}>
             {name}
           </Typography.Text>
         </Link>
@@ -591,7 +592,7 @@ function LowStockCard() {
     <Card
       title="Sắp hết hàng"
       extra={
-        <Link to="/admin/inventory?low_stock=1">
+        <Link to="/admin/inventory?low_stock=1" style={{ whiteSpace: 'nowrap' }}>
           Xem kho <ArrowRight aria-hidden size={14} style={{ verticalAlign: -2 }} />
         </Link>
       }
@@ -625,14 +626,20 @@ function LowStockCard() {
                         </Typography.Text>
                       </Flex>
                     </Flex>
-                    <Button size="small" icon={<Plus aria-hidden size={14} />} onClick={() => setImporting(p)} aria-label={`Nhập hàng ${p.name}`}>
+                    <Button
+                      size="small"
+                      icon={<Plus aria-hidden size={14} />}
+                      onClick={() => setImporting(p)}
+                      aria-label={`Nhập hàng ${p.name}`}
+                      style={{ flexShrink: 0 }}
+                    >
                       Nhập
                     </Button>
                   </Flex>
                 )
               })}
               {meta.total > products.length && (
-                <Link to="/admin/inventory?low_stock=1">
+                <Link to="/admin/inventory?low_stock=1" style={{ whiteSpace: 'nowrap' }}>
                   Xem tất cả {meta.total} sản phẩm <ArrowRight aria-hidden size={14} style={{ verticalAlign: -2 }} />
                 </Link>
               )}

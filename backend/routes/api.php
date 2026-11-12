@@ -24,10 +24,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/banners', [BannerController::class, 'index']);
     // Ô chọn ngân hàng nhận tiền hoàn (form trả hàng).
     Route::get('/banks', fn () => ['data' => ShopSettings::banks()]);
-    // Thông tin cửa hàng cho storefront: hotline (nút gọi nổi), số ngày được đổi trả.
+    // Thông tin cửa hàng cho storefront: hotline (nút gọi nổi), chính sách đổi trả và phí ship (footer, trang sản phẩm).
     Route::get('/shop', fn () => ['data' => [
         'hotline' => ShopSettings::hotline(),
         'return_days' => (int) config('shop.return_days'),
+        'shipping_fee' => (int) config('shop.shipping_fee'),
     ]]);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);

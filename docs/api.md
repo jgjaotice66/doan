@@ -39,14 +39,14 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 |---|---|---|
 | GET | `/categories` | Cây danh mục: danh mục gốc kèm `children`, có số sản phẩm đang bán |
 | GET | `/brands` | Danh sách thương hiệu |
-| GET | `/products` | Danh sách sản phẩm đang bán, phân trang. Tham số: `q` (tên / SKU), `category` (slug, gồm danh mục con), `brand[]` (slug), `min_age`, `price_min`, `price_max`, `featured`, `sort` = `newest` \| `price_asc` \| `price_desc` \| `best_selling`, `page`, `per_page` |
+| GET | `/products` | Danh sách sản phẩm đang bán, phân trang; mỗi thẻ có `thumbnail` và `hover_image` (ảnh thứ 2, hiện khi di chuột). Tham số: `q` (tên / SKU), `category` (slug, gồm danh mục con), `brand[]` (slug), `min_age`, `price_min`, `price_max`, `featured`, `sort` = `newest` \| `price_asc` \| `price_desc` \| `best_selling`, `page`, `per_page` |
 | GET | `/products/{slug}` | Chi tiết sản phẩm: ảnh, danh mục, thương hiệu, tồn kho, sản phẩm liên quan |
 | GET | `/banners` | Banner đang bật, theo thứ tự |
 | GET | `/posts` | Bài viết đã xuất bản, phân trang |
 | GET | `/posts/highlights` | Bài nổi bật (bài ghim, không có thì bài mới nhất) và các bài mới tiếp theo |
 | GET | `/posts/{slug}` | Chi tiết bài viết |
 | GET | `/banks` | Danh sách ngân hàng `{ code, name }` (ô chọn ngân hàng) |
-| GET | `/shop` | Thông tin cửa hàng `{ hotline, return_days }`: số cho nút gọi nổi (`null` = ẩn nút), số ngày được đổi trả (`RETURN_DAYS`) |
+| GET | `/shop` | Thông tin cửa hàng `{ hotline, return_days, shipping_fee }`: số cho nút gọi nổi (`null` = ẩn nút), số ngày được đổi trả (`RETURN_DAYS`), phí ship (`SHIPPING_FEE`) — dùng cho footer và khối cam kết ở trang sản phẩm |
 
 ## 3. Giỏ hàng và yêu thích
 

@@ -56,6 +56,22 @@ class ProductListTest extends TestCase
             ->assertJsonPath('data.0.low_stock', false);
     }
 
+    public function test_card_has_second_image_for_hover_when_available(): void
+    {
+        $two = Product::factory()->create(['slug' => 'hai-anh']);
+        ProductImage::factory()->create(['product_id' => $two->id, 'path' => 'https://img.test/b.png', 'sort_order' => 2]);
+        ProductImage::factory()->create(['product_id' => $two->id, 'path' => 'https://img.test/a.png', 'sort_order' => 1]);
+        ProductImage::factory()->create(['product_id' => $two->id, 'path' => 'https://img.test/c.png', 'sort_order' => 3]);
+        $one = Product::factory()->create(['slug' => 'mot-anh']);
+        ProductImage::factory()->create(['product_id' => $one->id, 'path' => 'https://img.test/x.png', 'sort_order' => 1]);
+
+        $cards = collect($this->list()->json('data'))->keyBy('slug');
+
+        $this->assertSame('https://img.test/a.png', $cards['hai-anh']['thumbnail']);
+        $this->assertSame('https://img.test/b.png', $cards['hai-anh']['hover_image']);
+        $this->assertNull($cards['mot-anh']['hover_image']);
+    }
+
     public function test_low_stock_flag_uses_configured_threshold(): void
     {
         config(['shop.low_stock_threshold' => 5]);

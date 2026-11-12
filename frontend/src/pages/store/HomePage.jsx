@@ -1,18 +1,4 @@
-import {
-  ArrowRight,
-  ArrowsCounterClockwise,
-  Car,
-  Cube,
-  DiceFive,
-  MaskHappy,
-  Robot,
-  ShieldCheck,
-  Smiley,
-  Sparkle,
-  Tag,
-  Truck,
-  Wrench,
-} from '@phosphor-icons/react'
+import { ArrowRight, ArrowsCounterClockwise, ShieldCheck, Truck } from '@phosphor-icons/react'
 import { Link } from 'react-router'
 import BannerSlider from '../../components/BannerSlider'
 import ErrorState from '../../components/ErrorState'
@@ -22,18 +8,7 @@ import Card from '../../components/ui/Card'
 import Skeleton from '../../components/ui/Skeleton'
 import { useBanners, useBrands, useCategories, useProducts, useShopInfo } from '../../features/catalog/queries'
 import { usePostHighlights } from '../../features/posts/queries'
-
-// Danh mục chưa có ảnh → dùng icon theo slug (slug lạ dùng icon Tag).
-const CATEGORY_ICONS = {
-  figure: MaskHappy,
-  gundam: Robot,
-  lego: Cube,
-  'mo-hinh-xe': Car,
-  'funko-pop': Smiley,
-  'anime-figure': Sparkle,
-  'board-game': DiceFive,
-  'phu-kien': Wrench,
-}
+import { categoryIcon } from '../../utils/categoryIcons'
 
 /** Số ngày đổi trả lấy từ cấu hình RETURN_DAYS của backend, để luôn khớp quy tắc trả hàng thật. */
 const perks = (returnDays) => [
@@ -79,7 +54,7 @@ function CategoryGrid() {
             </li>
           ))
         : categories.map((category) => {
-            const Icon = CATEGORY_ICONS[category.slug] ?? Tag
+            const Icon = categoryIcon(category.slug)
             return (
               <li key={category.id} className="flex">
                 <Card

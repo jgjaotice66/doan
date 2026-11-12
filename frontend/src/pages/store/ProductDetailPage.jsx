@@ -1,10 +1,11 @@
 import { CaretRight, CheckCircle, Heart, ShoppingCartSimple, Warning, XCircle } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import ErrorState from '../../components/ErrorState'
 import Price from '../../components/Price'
 import ProductGallery from '../../components/ProductGallery'
 import ProductGrid from '../../components/ProductGrid'
+import ShopPolicies from '../../components/ShopPolicies'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import QuantityInput from '../../components/ui/QuantityInput'
@@ -68,12 +69,71 @@ function StockStatus({ product }) {
 }
 
 /**
+ * true khi phần tử đã bị cuộn lên khuất phía trên màn hình (không tính lúc nó còn ở dưới, chưa cuộn tới).
+ * Dùng sự kiện scroll thay vì IntersectionObserver: vuốt nhanh có thể nhảy thẳng từ "dưới màn hình"
+ * lên "trên màn hình" mà không lúc nào giao khung nhìn → observer không báo.
+ */
+function useScrolledPast(ref) {
+  const [past, setPast] = useState(false)
+
+  useEffect(() => {
+    let frame = 0
+    const check = () => {
+      frame = 0
+      const el = ref.current
+      if (el) setPast(el.getBoundingClientRect().bottom < 0)
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check)
+    }
+    check()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [ref])
+
+  return past
+}
+
+/**
+ * Thanh mua hàng dính đáy màn hình (chỉ điện thoại), hiện khi nút "Thêm vào giỏ" chính đã cuộn khuất.
+ * Gắn class lên <html> để cụm nút nổi và toast đẩy lên trên thanh này (xem index.css).
+ */
+function StickyBuyBar({ product, onAddToCart, loading }) {
+  useEffect(() => {
+    document.documentElement.classList.add('has-sticky-cta')
+    return () => document.documentElement.classList.remove('has-sticky-cta')
+  }, [])
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-30 animate-toast-in border-t border-line bg-surface/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm text-muted">{product.name}</p>
+          <Price price={product.price} salePrice={product.sale_price} size="sm" />
+        </div>
+        <Button onClick={onAddToCart} loading={loading}>
+          <ShoppingCartSimple aria-hidden className="size-5" />
+          Thêm vào giỏ
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Khu mua hàng: số lượng + Thêm vào giỏ + Yêu thích.
  */
 function PurchasePanel({ product }) {
   const { addToCart, isPending } = useAddToCartAction()
   const { isWishlisted, toggleWishlist } = useWishlistAction()
   const [quantity, setQuantity] = useState(1)
+  const buyRowRef = useRef(null)
+  const scrolledPast = useScrolledPast(buyRowRef)
   const soldOut = !product.in_stock
   const liked = isWishlisted(product.id, product.is_wishlisted)
 
@@ -82,8 +142,9 @@ function PurchasePanel({ product }) {
 
   return (
     <div className="space-y-4">
+      {scrolledPast && !soldOut && <StickyBuyBar product={product} onAddToCart={onAddToCart} loading={isPending} />}
       <QuantityInput value={quantity} onChange={setQuantity} max={Math.max(1, product.stock)} disabled={soldOut} />
-      <div className="flex gap-3">
+      <div ref={buyRowRef} className="flex gap-3">
         <Button size="lg" className="flex-1" onClick={onAddToCart} disabled={soldOut} loading={isPending}>
           <ShoppingCartSimple aria-hidden className="size-5" />
           {soldOut ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
@@ -162,6 +223,8 @@ export default function ProductDetailPage() {
               <StockStatus product={product} />
 
               <PurchasePanel key={product.id} product={product} />
+
+              <ShopPolicies />
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-card border border-line bg-surface p-4 text-sm">
                 <dt className="text-muted">Mã SP</dt>

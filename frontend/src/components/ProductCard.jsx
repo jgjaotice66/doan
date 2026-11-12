@@ -16,20 +16,38 @@ export default function ProductCard({ product, wishlisted = false, onToggleWishl
   const soldOut = !product.in_stock
 
   return (
-    <Card as="article" interactive className="group relative flex w-full flex-col overflow-hidden">
+    <Card
+      as="article"
+      interactive
+      className="group relative flex w-full flex-col overflow-hidden motion-safe:transition-[border-color,box-shadow,translate] motion-safe:hover:-translate-y-1"
+    >
       <div className="relative aspect-square overflow-hidden bg-raised">
         {product.thumbnail ? (
-          <img
-            src={product.thumbnail}
-            alt={product.name}
-            loading="lazy"
-            width="400"
-            height="400"
-            className={cn(
-              'size-full object-cover transition-transform duration-300 ease-out-soft group-hover:scale-105',
-              soldOut && 'opacity-50 grayscale',
+          <>
+            <img
+              src={product.thumbnail}
+              alt={product.name}
+              loading="lazy"
+              width="400"
+              height="400"
+              className={cn(
+                'size-full object-cover transition-transform duration-300 ease-out-soft group-hover:scale-105',
+                soldOut && 'opacity-50 grayscale',
+              )}
+            />
+            {/* Ảnh thứ 2 hiện khi di chuột (chỉ thiết bị có chuột; Tailwind 4 chỉ áp hover khi hỗ trợ). */}
+            {product.hover_image && !soldOut && (
+              <img
+                src={product.hover_image}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                width="400"
+                height="400"
+                className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 ease-out-soft group-hover:opacity-100"
+              />
             )}
-          />
+          </>
         ) : (
           <div className="flex size-full items-center justify-center text-subtle">
             <ImageBroken aria-hidden className="size-10" />

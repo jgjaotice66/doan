@@ -19,6 +19,8 @@
   --color-surface: #1a1c22;
   --color-raised: #23262e;
   --color-overlay: rgb(5 6 8 / 0.75);
+  /* Nền header: khác thân trang để tách vùng điều hướng (cùng tông footer) */
+  --color-header: #1a1c22;
 
   /* Chữ */
   --color-fg: #f3f4f6;
@@ -84,6 +86,7 @@
   --color-surface: #ffffff;
   --color-raised: #efede6;
   --color-overlay: rgb(15 17 22 / 0.45);
+  --color-header: #ffffff;
 
   --color-fg: #17181c;
   --color-muted: #4d5461;
@@ -116,6 +119,13 @@
     color-scheme: light;
   }
 
+  /* Thanh mua hàng dính đáy (trang sản phẩm, điện thoại) đang hiện → cụm nút nổi + toast đẩy lên trên nó. */
+  @media (width < 48rem) {
+    html.has-sticky-cta {
+      --fab-offset: 4.75rem;
+    }
+  }
+
   body {
     @apply bg-bg font-sans text-fg antialiased;
   }
@@ -136,6 +146,12 @@
 
   .admin-root :is(h1, h2, h3) {
     font-family: inherit;
+  }
+
+  /* Preflight của Tailwind đặt svg = block → icon đi kèm chữ (VD "Xem kho →") bị rớt dòng.
+     Icon nào có verticalAlign là icon viết để nằm cùng dòng chữ. */
+  .admin-root svg[style*="vertical-align"] {
+    display: inline;
   }
 
   /* Dòng bấm được trên dashboard: nền nhạt khi di chuột / focus bàn phím. */

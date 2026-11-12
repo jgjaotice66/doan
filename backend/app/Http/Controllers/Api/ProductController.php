@@ -17,7 +17,7 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->active()
-            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(1)]);
+            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(2)]);
 
         $products = ProductFilter::apply($query, $request->validated())
             ->paginate($request->perPage())
@@ -46,7 +46,7 @@ class ProductController extends Controller
             ->active()
             ->where('category_id', $product->category_id)
             ->whereKeyNot($product->id)
-            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(1)])
+            ->with(['brand', 'category.parent', 'images' => fn ($q) => $q->limit(2)])
             ->latest()
             ->limit(8)
             ->get());

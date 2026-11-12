@@ -1,4 +1,4 @@
-import { CaretLeft, CaretRight, Pause, Play } from '@phosphor-icons/react'
+import { ArrowRight, CaretLeft, CaretRight, Pause, Play } from '@phosphor-icons/react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { cn } from '../utils/cn'
@@ -76,7 +76,7 @@ export default function BannerSlider({ banners, isPending }) {
               i === index ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
-            <BannerLink href={banner.link} className="block size-full">
+            <BannerLink href={banner.link} className="group block size-full">
               <img
                 src={banner.image}
                 alt={banner.title}
@@ -85,6 +85,20 @@ export default function BannerSlider({ banners, isPending }) {
                 width="1600"
                 height="600"
               />
+              {banner.link && (
+                // Chỉ là nhãn trong link của banner (không lồng thêm nút) → cho khách biết banner bấm được.
+                <span
+                  aria-hidden
+                  className={cn(
+                    'absolute left-3 inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-4 text-sm font-bold text-on-primary shadow-glow sm:left-6 sm:px-5 sm:text-base',
+                    'transition-colors group-hover:bg-primary-hover',
+                    count > 1 ? 'bottom-17 sm:bottom-20' : 'bottom-3 sm:bottom-6',
+                  )}
+                >
+                  Khám phá ngay
+                  <ArrowRight weight="bold" className="size-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              )}
             </BannerLink>
           </div>
         ))}

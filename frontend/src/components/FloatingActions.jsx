@@ -36,7 +36,8 @@ export default function FloatingActions() {
   const themeLabel = toLight ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'
 
   return (
-    <div className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3">
+    // --fab-offset: chừa chỗ cho thanh mua hàng dính đáy trên điện thoại (index.css).
+    <div className="fixed right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))+var(--fab-offset,0px))] z-40 flex flex-col items-end gap-3">
       <button
         type="button"
         onClick={toggleTheme}

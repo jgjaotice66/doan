@@ -16,14 +16,14 @@ class HotlineTest extends TestCase
     {
         parent::setUp();
 
-        config(['shop.hotline' => '', 'shop.return_days' => 10]);
+        config(['shop.hotline' => '', 'shop.return_days' => 10, 'shop.shipping_fee' => 30000]);
     }
 
     public function test_public_shop_info_is_empty_when_no_hotline_is_set(): void
     {
         $this->getJson('/api/v1/shop')
             ->assertOk()
-            ->assertExactJson(['data' => ['hotline' => null, 'return_days' => 10]]);
+            ->assertExactJson(['data' => ['hotline' => null, 'return_days' => 10, 'shipping_fee' => 30000]]);
     }
 
     public function test_public_shop_info_exposes_return_window_from_config(): void

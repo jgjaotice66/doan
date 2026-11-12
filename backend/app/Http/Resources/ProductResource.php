@@ -27,6 +27,8 @@ class ProductResource extends JsonResource
             'sale_price' => $this->sale_price,
             'final_price' => $this->final_price,
             'thumbnail' => $this->whenLoaded('images', fn () => Media::url($this->images->first()?->path)),
+            // Ảnh thứ 2 hiện khi di chuột lên thẻ sản phẩm (null nếu chỉ có 1 ảnh).
+            'hover_image' => $this->whenLoaded('images', fn () => Media::url($this->images->get(1)?->path)),
             'in_stock' => $this->stock > 0,
             'low_stock' => $this->stock > 0 && $this->isLowStock(),
             'min_age' => $this->min_age,
