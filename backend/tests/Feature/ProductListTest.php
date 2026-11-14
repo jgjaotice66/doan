@@ -97,6 +97,14 @@ class ProductListTest extends TestCase
         $this->assertEqualsCanonicalizing(['theo-ten', 'theo-sku'], $slugs);
     }
 
+    public function test_search_requires_every_word_but_not_adjacent(): void
+    {
+        Product::factory()->create(['slug' => 'du-tu', 'name' => 'Nendoroid Hatsune Miku']);
+        Product::factory()->create(['slug' => 'thieu-tu', 'name' => 'Nendoroid Gojo Satoru']);
+
+        $this->assertSame(['du-tu'], $this->slugs($this->list(['q' => 'miku  nendoroid'])));
+    }
+
     public function test_category_filter_includes_child_categories(): void
     {
         $parent = Category::factory()->create(['slug' => 'mo-hinh']);

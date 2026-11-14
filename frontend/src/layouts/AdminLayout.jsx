@@ -53,13 +53,13 @@ function adminTheme(mode) {
   }
 }
 
-/** Nhãn menu + số việc đang chờ (đơn chờ xác nhận, trả hàng chờ duyệt); 0 thì không hiện. */
-function MenuLabel({ path, label, count }) {
+/** Nhãn menu + số việc cần xử lý (đơn chờ xác nhận, trả hàng chờ duyệt, hàng cần nhập); 0 thì không hiện. */
+function MenuLabel({ path, label, count, hint = 'đang chờ', color }) {
   return (
-    <Link to={path} aria-label={count ? `${label} (${count} đang chờ)` : undefined}>
+    <Link to={path} aria-label={count ? `${label} (${count} ${hint})` : undefined}>
       <Flex justify="space-between" align="center" gap={8}>
         <span>{label}</span>
-        {count > 0 && <Badge count={count} size="small" overflowCount={99} />}
+        {count > 0 && <Badge count={count} size="small" overflowCount={99} color={color} title={`${count} ${hint}`} />}
       </Flex>
     </Link>
   )
@@ -112,10 +112,10 @@ function ThemeToggle() {
 function SideMenu({ selectedKey, onNavigate }) {
   // Dùng chung cache với trang Dashboard; tự hỏi lại mỗi phút để số trên menu không cũ.
   const { data: summary } = useDashboardSummary({ refetchInterval: 60_000 })
-  const menuItems = ADMIN_MENU.map(({ path, label, icon: Icon, badge }) => ({
+  const menuItems = ADMIN_MENU.map(({ path, label, icon: Icon, badge, badgeHint, badgeColor }) => ({
     key: path,
     icon: <Icon aria-hidden size={18} />,
-    label: <MenuLabel path={path} label={label} count={badge ? summary?.[badge] : 0} />,
+    label: <MenuLabel path={path} label={label} count={badge ? summary?.[badge] : 0} hint={badgeHint} color={badgeColor} />,
   }))
 
   return (

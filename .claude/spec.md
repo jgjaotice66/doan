@@ -1,5 +1,7 @@
 # Spec: Web TMĐT bán đồ chơi sưu tầm (Đồ án)
 
+> Đây là **bản thiết kế ban đầu** (giữ nguyên để đối chiếu). Những gì đã đổi hoặc bổ sung khi làm nằm ở mục cuối **Cập nhật sau khi triển khai**. Tài liệu chính thức cho báo cáo: thư mục `docs/`.
+
 ## Context
 Đồ án môn học/tốt nghiệp, 1 người làm trong 4–6 tuần. Đã có sẵn 2 thư mục vừa khởi tạo:
 - `backend/` — Laravel 13 (PHP 8.3), skeleton mặc định, đang dùng SQLite, chỉ có migration users/cache/jobs.
@@ -89,3 +91,15 @@ Danh sách task dự kiến:
 | 6 | 38-ux-states-responsive · 39-demo-data · 40-e2e-manual-test · 41-report-docs (ERD, use case, API) |
 
 Sau đó làm lần lượt từng task theo README (TDD cho backend), đánh dấu checklist khi xong.
+
+## Cập nhật sau khi triển khai
+Khác so với kế hoạch ban đầu:
+- **Thư viện:** Ant Design **6** (không phải v5). Admin **không** dùng theme mặc định: chỉnh theo màu thương hiệu, có chế độ tối.
+- **Bảng thêm:** `settings` (tài khoản nhận tiền, hotline, ngưỡng sắp hết chung), `return_requests` / `return_request_items` / `return_request_media` (trả hàng & hoàn tiền); cột `orders.completed_at`, `posts.is_featured`, `low_stock_threshold` ở `categories` / `products`. `payment_status` có thêm `refunded`.
+- **Ngưỡng sắp hết hàng:** không còn cố định `LOW_STOCK_THRESHOLD`; ưu tiên sản phẩm → danh mục → danh mục cha → ngưỡng chung (task 45).
+- **Doanh thu:** chỉ tính đơn hoàn thành **và** đã thanh toán, theo `completed_at`; trừ tiền hoàn trả hàng vào ngày hoàn (xem `docs/flows.md`).
+- **Mô tả sản phẩm:** HTML từ trình soạn thảo (có ảnh), không còn là chữ thường (task 50).
+
+Tính năng bổ sung (task 42–52, xem `tasks/README.md`): cài đặt cửa hàng, hoàn tiền đơn huỷ, trả hàng sau khi giao, ngưỡng sắp hết theo cấp, giao diện sáng / tối + hotline, nâng cấp giao diện cửa hàng và admin, **chatbot theo kịch bản** (không dùng AI, `POST /chat`), mô tả sản phẩm có ảnh + "Xem thêm", cảnh báo tồn kho ở trang Sản phẩm admin.
+
+Kết quả kiểm thử hiện tại: 360 trường hợp PHPUnit đạt, lint / build đạt (chi tiết `docs/testing.md`).

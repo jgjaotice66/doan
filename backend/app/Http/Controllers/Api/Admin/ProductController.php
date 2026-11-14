@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Enums\ProductStatus;
 use App\Enums\StockReason;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ContentImageRequest;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Http\Resources\AdminProductResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductImageService;
 use App\Services\StockService;
+use App\Support\Media;
+use App\Support\ProductContent;
 use App\Support\Slug;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,6 +49,8 @@ class ProductController extends Controller
             'brand' => ['nullable', 'integer'],
             'status' => ['nullable', Rule::enum(ProductStatus::class)],
             'low_stock' => ['nullable', 'boolean'],
+            // out = hết hàng (tồn 0); low = sắp hết (còn hàng nhưng ≤ ngưỡng).
+            'stock' => ['nullable', Rule::in(['out', 'low'])],
             'sort' => ['nullable', Rule::in(array_keys(self::SORTS))],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
@@ -64,11 +69,19 @@ class ProductController extends Controller
             ->when($validated['brand'] ?? null, fn ($query, $id) => $query->where('brand_id', $id))
             ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->when($request->boolean('low_stock'), fn ($query) => $query->lowStock())
+            ->when(($validated['stock'] ?? null) === 'out', fn ($query) => $query->where('stock', 0))
+            ->when(($validated['stock'] ?? null) === 'low', fn ($query) => $query->lowStock()->where('stock', '>', 0))
             ->orderBy($column, $direction)
             ->orderByDesc('id')
             ->paginate($validated['per_page'] ?? 10);
 
-        return AdminProductResource::collection($products);
+        // Số cần nhập hàng của cả cửa hàng (không theo bộ lọc) → thông báo đầu trang Sản phẩm.
+        return AdminProductResource::collection($products)->additional(['meta' => [
+            'stock_alerts' => [
+                'out_of_stock' => Product::where('stock', 0)->count(),
+                'low_stock' => Product::lowStock()->where('stock', '>', 0)->count(),
+            ],
+        ]]);
     }
 
     /**
@@ -81,6 +94,7 @@ class ProductController extends Controller
         $product = DB::transaction(function () use ($request, $data) {
             $product = Product::create([
                 ...Arr::except($data, ['stock', 'images']),
+                'description' => ProductContent::normalize($data['description'] ?? null),
                 'slug' => Slug::unique(Product::class, $data['name']),
                 'is_featured' => $request->boolean('is_featured'),
                 'stock' => 0,
@@ -107,20 +121,34 @@ class ProductController extends Controller
 
     /**
      * Sửa thông tin (không gồm tồn kho và ảnh — có màn/API riêng). Đổi tên thì slug đổi theo.
+     * Ảnh chèn trong mô tả mà bị bỏ khỏi nội dung thì xoá luôn file.
      */
     public function update(ProductRequest $request, Product $product): AdminProductResource
     {
         $data = $request->validated();
+        $before = $product->description;
 
         $product->update([
             ...$data,
             'slug' => $data['name'] === $product->name ? $product->slug : Slug::unique(Product::class, $data['name'], $product->id),
             'is_featured' => $request->boolean('is_featured'),
             'sale_price' => $data['sale_price'] ?? null,
-            'description' => $data['description'] ?? null,
+            'description' => ProductContent::normalize($data['description'] ?? null),
         ]);
 
+        ProductContent::deleteUnusedImages($before, $product->description);
+
         return $this->resource($product);
+    }
+
+    /**
+     * Ảnh chèn trong mô tả (nút ảnh / kéo-thả / dán của trình soạn thảo) → trả URL để chèn vào nội dung.
+     */
+    public function uploadContentImage(ContentImageRequest $request): JsonResponse
+    {
+        $path = Media::store($request->file('image'), ProductContent::IMAGE_DIR);
+
+        return response()->json(['url' => Media::url($path)], 201);
     }
 
     /**

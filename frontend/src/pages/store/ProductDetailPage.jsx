@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import ErrorState from '../../components/ErrorState'
 import Price from '../../components/Price'
+import ProductDescription from '../../components/ProductDescription'
 import ProductGallery from '../../components/ProductGallery'
 import ProductGrid from '../../components/ProductGrid'
 import ShopPolicies from '../../components/ShopPolicies'
@@ -242,15 +243,11 @@ export default function ProductDetailPage() {
                 <dt className="text-muted">Độ tuổi</dt>
                 <dd className="font-medium text-fg">{ageLabel(product.min_age)}</dd>
               </dl>
-
-              {product.description && (
-                <section>
-                  <h2 className="mb-2 text-lg font-bold">Mô tả sản phẩm</h2>
-                  <p className="whitespace-pre-line leading-relaxed text-muted">{product.description}</p>
-                </section>
-              )}
             </div>
           </div>
+
+          {/* Mô tả nằm dưới, rộng hết khung (có ảnh, dài thì thu gọn); key: sang sản phẩm khác thì về trạng thái thu gọn. */}
+          {product.description && <ProductDescription key={product.id} html={product.description} />}
 
           {product.related?.length > 0 && (
             <section className="mt-16">

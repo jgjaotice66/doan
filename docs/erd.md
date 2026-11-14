@@ -190,6 +190,8 @@ erDiagram
 
 `posts`, `banners`, `settings` không có khoá ngoại tới bảng khác ngoài `posts.author_id → users`.
 
+Chatbot không có bảng riêng: bot đọc dữ liệu có sẵn (sản phẩm, đơn hàng, cài đặt), còn lịch sử trò chuyện chỉ nằm ở trình duyệt (`sessionStorage`).
+
 ## Mô tả các bảng
 
 | Bảng | Vai trò |
@@ -198,7 +200,7 @@ erDiagram
 | `personal_access_tokens` | Token Sanctum. Mỗi lần đăng nhập tạo một token, đăng xuất thì xoá. |
 | `categories` | Danh mục 2 cấp (`parent_id`). Có thể đặt ngưỡng sắp hết hàng riêng cho cả danh mục. |
 | `brands` | Thương hiệu (Bandai, LEGO, Good Smile…). |
-| `products` | Sản phẩm. `sale_price` là giá khuyến mãi; giá bán thực tế = `sale_price` nếu có, không thì `price`. Xoá mềm để đơn cũ vẫn tra được. |
+| `products` | Sản phẩm. `sale_price` là giá khuyến mãi; giá bán thực tế = `sale_price` nếu có, không thì `price`. `description` là HTML đã lọc (có thể chứa ảnh nằm ở `storage/app/public/products/content`). Xoá mềm để đơn cũ vẫn tra được. |
 | `product_images` | Nhiều ảnh mỗi sản phẩm, sắp xếp bằng `sort_order` (ảnh đầu là ảnh đại diện). |
 | `cart_items` | Giỏ hàng lưu trên server theo tài khoản, mỗi sản phẩm một dòng. |
 | `wishlists` | Danh sách yêu thích. |
@@ -210,7 +212,7 @@ erDiagram
 | `return_request_media` | Ảnh và video minh chứng (tối đa 5 file; ảnh ≤ 5 MB, video ≤ 50 MB). |
 | `posts` | Bài viết NEWS, nội dung HTML soạn bằng trình soạn thảo. Một bài được ghim làm tin nổi bật. |
 | `banners` | Ảnh slider ở trang chủ. |
-| `settings` | Cài đặt admin sửa được (tài khoản nhận tiền VietQR, ngưỡng sắp hết hàng chung). Giá trị trong bảng ưu tiên hơn `.env`. |
+| `settings` | Cài đặt admin sửa được (tài khoản nhận tiền VietQR, số hotline, ngưỡng sắp hết hàng chung). Giá trị trong bảng ưu tiên hơn `.env`. |
 
 ## Ràng buộc đáng chú ý
 

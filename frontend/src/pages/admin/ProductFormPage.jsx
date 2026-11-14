@@ -4,6 +4,7 @@ import { App, Button, Card, Col, Flex, Form, Input, InputNumber, Radio, Result, 
 import { Link, useNavigate, useParams } from 'react-router'
 import { adminProductsApi } from '../../api/admin/products'
 import { PendingImagesField, ProductImagesManager } from '../../components/admin/ProductImages'
+import RichTextEditor from '../../components/admin/RichTextEditor'
 import { applyFormErrors } from '../../features/admin/formErrors'
 import { inheritedThreshold, LOW_STOCK_RELATED_KEYS, useGlobalLowStockThreshold } from '../../features/admin/inventory'
 import { adminProductKeys, useAdminProduct } from '../../features/admin/products'
@@ -194,8 +195,18 @@ function ProductForm({ product }) {
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item name="description" label="Mô tả" rules={[{ max: 20000, message: 'Tối đa 20.000 ký tự' }]} style={{ marginBottom: 0 }}>
-                  <Input.TextArea rows={6} showCount maxLength={20000} placeholder="Chất liệu, kích thước, phụ kiện đi kèm…" />
+                <Form.Item
+                  name="description"
+                  label="Mô tả"
+                  extra="Chèn ảnh bằng nút ảnh trên thanh công cụ, kéo-thả hoặc dán. Mô tả dài sẽ được thu gọn kèm nút “Xem thêm” ở trang sản phẩm."
+                  rules={[{ max: 50000, message: 'Mô tả quá dài (tối đa 50.000 ký tự HTML)' }]}
+                  style={{ marginBottom: 0 }}
+                >
+                  <RichTextEditor
+                    placeholder="Chất liệu, kích thước, phụ kiện đi kèm…"
+                    uploadImage={adminProductsApi.uploadContentImage}
+                    minHeight="260px"
+                  />
                 </Form.Item>
               </Card>
 

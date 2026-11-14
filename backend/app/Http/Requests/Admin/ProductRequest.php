@@ -34,7 +34,8 @@ class ProductRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             // Unique tính cả sản phẩm đã xoá mềm (cột sku là unique trong DB).
             'sku' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('products', 'sku')->ignore($this->route('product'))],
-            'description' => ['nullable', 'string', 'max:20000'],
+            // HTML từ trình soạn thảo (có thể kèm ảnh) — lọc lại ở ProductContent::normalize trước khi lưu.
+            'description' => ['nullable', 'string', 'max:50000'],
             'price' => ['required', 'integer', 'min:1000', 'max:1000000000'],
             'sale_price' => ['nullable', 'integer', 'min:0', 'lt:price'],
             'stock' => $creating ? ['required', 'integer', 'min:0', 'max:100000'] : ['prohibited'],

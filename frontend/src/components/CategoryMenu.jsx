@@ -81,7 +81,7 @@ export default function CategoryMenu() {
       </button>
 
       {/* pt-2 thay cho margin: giữ vùng di chuột liền mạch từ nút xuống bảng, không bị đóng giữa chừng */}
-      <div id={panelId} hidden={!open} className="absolute left-0 top-full z-40 pt-2">
+      <div id={panelId} hidden={!open} className="header-popover absolute left-0 top-full z-40 pt-2">
         <div className="w-[min(36rem,calc(100vw-2rem))] animate-toast-in rounded-card border border-line bg-surface p-3 shadow-glow">
           {error ? (
             <p className="p-3 text-sm text-muted">Không tải được danh mục.</p>

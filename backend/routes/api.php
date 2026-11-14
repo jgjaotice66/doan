@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProductController;
@@ -36,6 +37,9 @@ Route::prefix('v1')->group(function () {
     // Khai báo trước /posts/{slug}, nếu không "highlights" bị hiểu là slug.
     Route::get('/posts/highlights', [PostController::class, 'highlights']);
     Route::get('/posts/{slug}', [PostController::class, 'show']);
+
+    // Chatbot hỗ trợ khách (theo kịch bản, không dùng AI) — 20 tin/phút.
+    Route::post('/chat', ChatController::class)->middleware('throttle:20,1');
 
     // Khách vãng lai — giới hạn 10 lần/phút để chống dò mật khẩu.
     Route::middleware('throttle:10,1')->group(function () {
@@ -78,6 +82,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('categories', Admin\CategoryController::class)->except('show');
             Route::apiResource('brands', Admin\BrandController::class)->except('show');
 
+            // Khai báo trước apiResource cho rõ ràng: "content-images" không phải {product}.
+            Route::post('/products/content-images', [Admin\ProductController::class, 'uploadContentImage'])->name('products.content-images');
             Route::apiResource('products', Admin\ProductController::class);
             Route::post('/products/{product}/images', [Admin\ProductImageController::class, 'store'])->name('products.images.store');
             Route::put('/products/{product}/images/order', [Admin\ProductImageController::class, 'reorder'])->name('products.images.reorder');

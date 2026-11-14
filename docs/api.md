@@ -6,9 +6,9 @@
   - **Công khai:** không cần token.
   - **Khách:** cần token của tài khoản đang hoạt động (middleware `auth:sanctum` + `EnsureActiveUser`).
   - **Admin:** thêm điều kiện `role = admin` (`EnsureAdmin`).
-- **Giới hạn tần suất:** đăng nhập, đăng ký, đặt hàng, gửi yêu cầu trả hàng: tối đa 10 lần / phút.
+- **Giới hạn tần suất:** đăng nhập, đăng ký, đặt hàng, gửi yêu cầu trả hàng: tối đa 10 lần / phút; chatbot: 20 tin / phút.
 
-Danh sách sinh từ `php artisan route:list --path=api --except-vendor` (81 route, không tính 2 route `ping` kiểm tra kết nối).
+Danh sách sinh từ `php artisan route:list --path=api --except-vendor` (83 route, không tính 2 route `ping` kiểm tra kết nối).
 
 ## Mã lỗi thống nhất
 
@@ -39,7 +39,7 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 |---|---|---|
 | GET | `/categories` | Cây danh mục: danh mục gốc kèm `children`, có số sản phẩm đang bán |
 | GET | `/brands` | Danh sách thương hiệu |
-| GET | `/products` | Danh sách sản phẩm đang bán, phân trang; mỗi thẻ có `thumbnail` và `hover_image` (ảnh thứ 2, hiện khi di chuột). Tham số: `q` (tên / SKU), `category` (slug, gồm danh mục con), `brand[]` (slug), `min_age`, `price_min`, `price_max`, `featured`, `sort` = `newest` \| `price_asc` \| `price_desc` \| `best_selling`, `page`, `per_page` |
+| GET | `/products` | Danh sách sản phẩm đang bán, phân trang; mỗi thẻ có `thumbnail` và `hover_image` (ảnh thứ 2, hiện khi di chuột). Tham số: `q` (tên / SKU; nhiều từ thì phải có đủ các từ, không cần liền nhau), `category` (slug, gồm danh mục con), `brand[]` (slug), `min_age`, `price_min`, `price_max`, `featured`, `sort` = `newest` \| `price_asc` \| `price_desc` \| `best_selling`, `page`, `per_page` |
 | GET | `/products/{slug}` | Chi tiết sản phẩm: ảnh, danh mục, thương hiệu, tồn kho, sản phẩm liên quan |
 | GET | `/banners` | Banner đang bật, theo thứ tự |
 | GET | `/posts` | Bài viết đã xuất bản, phân trang |
@@ -47,6 +47,7 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 | GET | `/posts/{slug}` | Chi tiết bài viết |
 | GET | `/banks` | Danh sách ngân hàng `{ code, name }` (ô chọn ngân hàng) |
 | GET | `/shop` | Thông tin cửa hàng `{ hotline, return_days, shipping_fee }`: số cho nút gọi nổi (`null` = ẩn nút), số ngày được đổi trả (`RETURN_DAYS`), phí ship (`SHIPPING_FEE`) — dùng cho footer và khối cam kết ở trang sản phẩm |
+| POST | `/chat` | Chatbot theo kịch bản (không dùng AI). Body `{ message (≤ 500 ký tự), context? }`. Trả `{ intent, text, products[], orders[], link, context, suggestions[] }`. `intent` = `products` \| `orders` \| `returns` \| `payment` \| `shipping` \| `hotline` \| `greeting` \| `thanks` \| `fallback`. Gửi kèm token thì tra được đơn của chính khách; `context` là bộ lọc bot trả về lần trước, gửi lại để hiểu câu nối tiếp ("còn cái rẻ hơn không?"). |
 
 ## 3. Giỏ hàng và yêu thích
 
@@ -85,13 +86,14 @@ Danh sách có phân trang trả về `{ data: [...], meta: { current_page, last
 
 | Method | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | `/admin/products` | Danh sách (cả sản phẩm ẩn), lọc `q, category, brand` (id), `status, low_stock`, phân trang |
-| POST | `/admin/products` | Tạo sản phẩm |
+| GET | `/admin/products` | Danh sách (cả sản phẩm ẩn), lọc `q, category, brand` (id), `status`, `stock` = `out` (hết hàng) \| `low` (sắp hết, còn hàng), phân trang. `meta.stock_alerts = { out_of_stock, low_stock }` đếm trên toàn cửa hàng (không theo bộ lọc) cho thông báo đầu trang |
+| POST | `/admin/products` | Tạo sản phẩm. `description` là HTML từ trình soạn thảo (lọc danh sách trắng như bài viết; chữ thường được đổi thành các đoạn `<p>`) |
 | GET | `/admin/products/{product}` | Chi tiết để sửa |
 | PUT/PATCH | `/admin/products/{product}` | Cập nhật |
 | DELETE | `/admin/products/{product}` | Xoá mềm |
 | POST | `/admin/products/{product}/images` | Tải ảnh (multipart `images[]`, jpg / png / webp ≤ 2 MB) |
 | PUT | `/admin/products/{product}/images/order` | Sắp xếp lại ảnh (`ids[]`, đủ tất cả ảnh của sản phẩm) |
+| POST | `/admin/products/content-images` | Tải ảnh chèn vào mô tả (multipart `image`, jpg / png / webp / gif ≤ 5 MB) → `{ url }`. Ảnh bị bỏ khỏi mô tả khi lưu thì file bị xoá |
 | DELETE | `/admin/product-images/{productImage}` | Xoá một ảnh |
 | GET / POST | `/admin/categories` | Danh sách / tạo danh mục |
 | PUT/PATCH / DELETE | `/admin/categories/{category}` | Sửa / xoá (từ chối nếu còn sản phẩm hoặc danh mục con) |

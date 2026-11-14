@@ -6,7 +6,8 @@ import { useSyncExternalStore } from 'react'
  * index.html có script nhỏ gắn data-theme trước khi React chạy để trang không nháy màu.
  */
 const STORAGE_KEY = 'theme'
-const META_COLORS = { dark: '#0e0f12', light: '#f5f4ef' }
+// Màu thanh trình duyệt trên điện thoại = màu header (sáng: đỏ cam, xem .store-header trong index.css).
+const META_COLORS = { dark: '#0e0f12', light: '#b93a0e' }
 const listeners = new Set()
 
 const readTheme = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')

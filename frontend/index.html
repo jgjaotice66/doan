@@ -18,7 +18,7 @@
         var saved = localStorage.getItem('theme')
         var theme = saved === 'light' || saved === 'dark' ? saved : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
         document.documentElement.dataset.theme = theme
-        if (theme === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f5f4ef')
+        if (theme === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#b93a0e')
       } catch (e) {}
     </script>
   </head>

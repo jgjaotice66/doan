@@ -22,4 +22,6 @@ export const adminProductsApi = {
   /** ids = tất cả id ảnh theo thứ tự mới (ảnh đầu = ảnh đại diện). */
   reorderImages: (id, ids) => api.put(`/admin/products/${id}/images/order`, { ids }).then(unwrap),
   deleteImage: (imageId) => api.delete(`/admin/product-images/${imageId}`),
+  /** Ảnh chèn trong mô tả (trình soạn thảo) → URL để chèn vào nội dung. */
+  uploadContentImage: (file) => api.post('/admin/products/content-images', toFormData({ image: file })).then((res) => res.data.url),
 }

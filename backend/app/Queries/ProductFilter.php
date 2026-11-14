@@ -24,10 +24,13 @@ class ProductFilter
     public static function apply(Builder $query, array $filters): Builder
     {
         $query
+            // Mỗi từ phải có trong tên hoặc SKU, không cần liền nhau: "nendoroid miku" → "Nendoroid Hatsune Miku".
             ->when($filters['q'] ?? null, function (Builder $q, string $keyword) {
-                $q->where(fn (Builder $w) => $w
-                    ->where('name', 'like', "%{$keyword}%")
-                    ->orWhere('sku', 'like', "%{$keyword}%"));
+                foreach (preg_split('/\s+/u', trim($keyword), -1, PREG_SPLIT_NO_EMPTY) as $word) {
+                    $q->where(fn (Builder $w) => $w
+                        ->where('name', 'like', "%{$word}%")
+                        ->orWhere('sku', 'like', "%{$word}%"));
+                }
             })
             // Danh mục cha bao gồm cả sản phẩm của danh mục con.
             ->when($filters['category'] ?? null, function (Builder $q, string $slug) {

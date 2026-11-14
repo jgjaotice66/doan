@@ -16,7 +16,7 @@
 }
 
 .admin-rich-text .ql-editor {
-  min-height: 420px;
+  min-height: var(--rte-min-height, 420px);
   max-height: 70vh;
   overflow-y: auto;
   color: var(--rte-text);

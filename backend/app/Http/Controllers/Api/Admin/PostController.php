@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ContentImageRequest;
 use App\Http\Requests\Admin\PostRequest;
 use App\Http\Resources\AdminPostResource;
 use App\Models\Post;
@@ -91,18 +92,8 @@ class PostController extends Controller
      * Ảnh chèn trong nội dung (nút ảnh của trình soạn thảo) → trả URL để chèn vào bài,
      * tránh việc trình soạn thảo nhét ảnh base64 thẳng vào HTML.
      */
-    public function uploadImage(Request $request): JsonResponse
+    public function uploadImage(ContentImageRequest $request): JsonResponse
     {
-        $request->validate([
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
-        ], [
-            'image.required' => 'Vui lòng chọn ảnh.',
-            'image.image' => 'File phải là ảnh.',
-            'image.mimes' => 'Ảnh phải có định dạng jpg, png, webp hoặc gif.',
-            'image.max' => 'Ảnh tối đa 5MB.',
-            'image.uploaded' => 'Tải ảnh lên thất bại (file có thể quá lớn), vui lòng thử lại.',
-        ]);
-
         $path = Media::store($request->file('image'), PostContent::IMAGE_DIR);
 
         return response()->json(['url' => Media::url($path)], 201);

@@ -31,9 +31,15 @@ class PostContent
 
     private static ?HTMLPurifier $purifier = null;
 
+    /**
+     * Quill 2 (getSemanticHTML) ghi mọi dấu cách thành &nbsp; → cả đoạn thành một "từ" dài,
+     * trình duyệt chỉ ngắt dòng ở dấu gạch hoặc giữa chữ. Đổi về dấu cách thường sau khi lọc.
+     */
     public static function clean(?string $html): string
     {
-        return trim(self::purifier()->purify((string) $html));
+        $clean = self::purifier()->purify((string) $html);
+
+        return trim(str_replace(["\u{00A0}", '&nbsp;', '&#160;'], ' ', $clean));
     }
 
     /**
@@ -66,7 +72,7 @@ class PostContent
      */
     public static function imagePaths(?string $html): array
     {
-        preg_match_all('#/storage/('.preg_quote(self::IMAGE_DIR, '#').'/[A-Za-z0-9._-]+)#', (string) $html, $matches);
+        preg_match_all('#/storage/('.preg_quote(static::IMAGE_DIR, '#').'/[A-Za-z0-9._-]+)#', (string) $html, $matches);
 
         return array_values(array_unique($matches[1]));
     }

@@ -62,10 +62,22 @@
 
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-toast-in: toast-in 220ms var(--ease-out-soft);
+  --animate-chat-in: chat-in 240ms var(--ease-out-soft);
+  --animate-typing: typing 1s ease-in-out infinite;
 
   @keyframes shimmer {
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
+  }
+
+  @keyframes chat-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
   }
 
   @keyframes toast-in {
@@ -81,7 +93,9 @@
  * Đã kiểm tra (WCAG AA): fg/bg 16.1 · muted/surface 7.6 · subtle/raised 4.9 · primary/raised 4.6 ·
  * on-primary/primary 5.4 · accent/surface 6.0 · danger/bg 5.4 · control/bg 3.1 (UI).
  */
-:root[data-theme="light"] {
+/* .header-popover: ô tìm kiếm, menu xổ xuống, ngăn kéo điện thoại nằm trong header → lấy lại token sáng gốc. */
+:root[data-theme="light"],
+:root[data-theme="light"] .store-header .header-popover {
   --color-bg: #f5f4ef;
   --color-surface: #ffffff;
   --color-raised: #efede6;
@@ -107,6 +121,26 @@
   --color-danger-strong: #b91c1c;
 
   --shadow-glow: 0 0 0 1px rgb(154 91 0 / 0.25), 0 8px 28px -10px rgb(23 24 28 / 0.18);
+}
+
+/*
+ * Header giao diện sáng: nền đỏ cam cho nổi bật với thân trang màu kem.
+ * Đổi token chỉ trong phạm vi header (chữ trắng, nhấn vàng nhạt); ô tìm kiếm & menu xổ xuống dùng .header-popover.
+ * Đã kiểm tra trên #b93a0e: fg 5.7 · muted 4.7 · primary 4.6 · on-primary/primary 7.9.
+ */
+:root[data-theme="light"] .store-header {
+  --color-header: #b93a0e;
+  --color-fg: #ffffff;
+  --color-muted: #ffe4cc;
+  --color-subtle: #ffe4cc;
+  --color-primary: #fde68a;
+  --color-primary-hover: #fef3c7;
+  --color-on-primary: #7c2d12;
+  --color-raised: #a3330c;
+  --color-line: rgb(255 255 255 / 0.22);
+  --color-control: rgb(255 255 255 / 0.6);
+  --color-danger: #ffffff;
+  --shadow-glow: 0 0 0 1px rgb(253 230 138 / 0.4), 0 8px 28px -10px rgb(23 24 28 / 0.3);
 }
 
 @layer base {

@@ -62,3 +62,12 @@ Thiết kế tổng thể: [../spec.md](../spec.md)
 - [x] [39](39-demo-data.md) Dữ liệu demo đẹp — 05, 36
 - [x] [40](40-e2e-manual-test.md) Kiểm thử toàn luồng — 38, 39
 - [x] [41](41-report-docs.md) Tài liệu báo cáo — 40
+
+## Sau MVP – Tính năng bổ sung
+- [x] [46](46-theme-hotline.md) *(task phụ)* Giao diện sáng / tối + nút hotline (+test) — 14, 42
+- [x] [47](47-storefront-ui-upgrade.md) *(task phụ)* Nâng cấp giao diện cửa hàng (footer, menu danh mục, thanh mua hàng, header đỏ cam) — 38, 46
+- [x] [48](48-admin-ui-upgrade.md) *(task phụ)* Nâng cấp giao diện admin (thương hiệu, chế độ tối, thẻ trên điện thoại) — 26, 46
+- [x] [49](49-chatbot.md) *(task phụ)* Chatbot theo kịch bản, không dùng AI (+test) — 12, 24, 46
+- [x] [50](50-product-description-rich.md) *(task phụ)* Mô tả sản phẩm có ảnh, thu gọn "Xem thêm" (+test) — 28, 29, 34
+- [x] [51](51-admin-stock-alerts.md) *(task phụ)* Cảnh báo hết / sắp hết hàng ở trang Sản phẩm admin (+test) — 29, 45
+- [x] [52](52-report-docs-update.md) *(task phụ)* Bổ sung tài liệu báo cáo (`docs/ui.md`, `docs/testing.md`) — 41, 46–51

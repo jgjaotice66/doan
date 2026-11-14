@@ -11,6 +11,7 @@ use App\Models\ProductImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -70,6 +71,7 @@ class ProductTest extends TestCase
             'upload images' => ['post', '/api/v1/admin/products/1/images'],
             'reorder images' => ['put', '/api/v1/admin/products/1/images/order'],
             'delete image' => ['delete', '/api/v1/admin/product-images/1'],
+            'content image' => ['post', '/api/v1/admin/products/content-images'],
         ];
     }
 
@@ -315,5 +317,108 @@ class ProductTest extends TestCase
         $this->putJson("/api/v1/admin/products/{$product->id}/images/order", ['ids' => []])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('ids');
+    }
+
+    // ── Cảnh báo tồn kho ──────────────────────────────────────────
+
+    public function test_stock_filter_separates_out_of_stock_from_low_stock(): void
+    {
+        config(['shop.low_stock_threshold' => 5]);
+        $out = Product::factory()->create(['stock' => 0]);
+        $low = Product::factory()->create(['stock' => 3]);
+        Product::factory()->create(['stock' => 50]);
+
+        $this->getJson('/api/v1/admin/products?stock=out')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $out->id);
+        $this->getJson('/api/v1/admin/products?stock=low')->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $low->id);
+        $this->getJson('/api/v1/admin/products?stock=abc')->assertUnprocessable()->assertJsonValidationErrors('stock');
+    }
+
+    public function test_list_meta_counts_stock_alerts_regardless_of_filters(): void
+    {
+        config(['shop.low_stock_threshold' => 5]);
+        Product::factory()->count(2)->create(['stock' => 0]);
+        Product::factory()->create(['stock' => 3]);
+        Product::factory()->create(['stock' => 0])->delete(); // đã xoá → không tính
+
+        $this->getJson('/api/v1/admin/products?status=hidden')
+            ->assertOk()
+            ->assertJsonPath('meta.stock_alerts', ['out_of_stock' => 2, 'low_stock' => 1]);
+    }
+
+    // ── Mô tả dạng HTML (trình soạn thảo) ────────────────────────
+
+    public function test_description_html_is_sanitized_and_keeps_images(): void
+    {
+        $html = '<h2>Điểm nổi bật</h2><p onclick="steal()">Khớp <strong>linh hoạt</strong></p>'
+            .'<script>alert(1)</script><p><img src="http://localhost/storage/products/content/a.png" alt=""></p>';
+
+        $description = $this->postJson('/api/v1/admin/products', $this->payload(['description' => $html]))
+            ->assertCreated()
+            ->json('data.description');
+
+        $this->assertStringContainsString('<h2>Điểm nổi bật</h2>', $description);
+        $this->assertStringContainsString('<strong>linh hoạt</strong>', $description);
+        $this->assertStringContainsString('<img src="http://localhost/storage/products/content/a.png"', $description);
+        $this->assertStringNotContainsString('script', $description);
+        $this->assertStringNotContainsString('onclick', $description);
+    }
+
+    public function test_editor_non_breaking_spaces_become_normal_spaces(): void
+    {
+        // Quill 2 (getSemanticHTML) ghi mọi dấu cách thành &nbsp; → trình duyệt không xuống dòng được giữa các từ.
+        $description = $this->postJson('/api/v1/admin/products', $this->payload(['description' => "<p>Khớp&nbsp;cử&nbsp;động\u{00A0}linh hoạt</p>"]))
+            ->assertCreated()
+            ->json('data.description');
+
+        $this->assertSame('<p>Khớp cử động linh hoạt</p>', $description);
+    }
+
+    public function test_plain_text_description_becomes_paragraphs(): void
+    {
+        $description = $this->postJson('/api/v1/admin/products', $this->payload(['description' => "Dòng 1\nDòng 2\n\nĐoạn <2>"]))
+            ->assertCreated()
+            ->json('data.description');
+
+        $this->assertSame('<p>Dòng 1<br>Dòng 2</p><p>Đoạn &lt;2&gt;</p>', $description);
+    }
+
+    public function test_empty_editor_content_is_saved_as_null(): void
+    {
+        $this->postJson('/api/v1/admin/products', $this->payload(['description' => '<p><br></p>']))
+            ->assertCreated()
+            ->assertJsonPath('data.description', null);
+    }
+
+    public function test_upload_description_image_returns_url(): void
+    {
+        $url = $this->post('/api/v1/admin/products/content-images', ['image' => UploadedFile::fake()->image('in.png')], ['Accept' => 'application/json'])
+            ->assertCreated()
+            ->json('url');
+
+        $this->assertStringContainsString('/storage/products/content/', $url);
+        Storage::disk('public')->assertExists('products/content/'.basename($url));
+
+        $this->post('/api/v1/admin/products/content-images', ['image' => UploadedFile::fake()->create('a.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])
+            ->assertJsonValidationErrors('image');
+    }
+
+    public function test_images_removed_from_description_are_deleted(): void
+    {
+        $keep = UploadedFile::fake()->image('keep.png')->store('products/content', 'public');
+        $drop = UploadedFile::fake()->image('drop.png')->store('products/content', 'public');
+        $product = Product::factory()->create([
+            'category_id' => $this->category->id,
+            'brand_id' => $this->brand->id,
+            'description' => '<p><img src="http://localhost/storage/'.$keep.'"><img src="http://localhost/storage/'.$drop.'"></p>',
+        ]);
+
+        $this->putJson("/api/v1/admin/products/{$product->id}", Arr::except($this->payload([
+            'name' => $product->name,
+            'sku' => $product->sku,
+            'description' => '<p><img src="http://localhost/storage/'.$keep.'"></p>',
+        ]), ['stock']))->assertOk();
+
+        Storage::disk('public')->assertExists($keep);
+        Storage::disk('public')->assertMissing($drop);
     }
 }

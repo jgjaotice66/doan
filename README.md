@@ -1,20 +1,28 @@
 # Toy Store – Website thương mại điện tử bán đồ chơi sưu tầm
 
-Đồ án: cửa hàng trực tuyến bán figure, mô hình Gundam, LEGO, Funko… Khách xem và lọc sản phẩm, đặt hàng (COD hoặc chuyển khoản QR), theo dõi và huỷ đơn, yêu cầu trả hàng. Quản trị viên quản lý sản phẩm, kho, đơn hàng, trả hàng, nội dung và xem thống kê doanh thu.
+Đồ án: cửa hàng trực tuyến bán figure, mô hình Gundam, LEGO, Funko…
+
+**Tính năng chính**
+
+- **Khách:** xem và lọc sản phẩm (danh mục, thương hiệu, độ tuổi, giá), yêu thích, giỏ hàng, đặt hàng (COD hoặc chuyển khoản bằng mã VietQR), theo dõi và huỷ đơn, yêu cầu trả hàng kèm ảnh / video, đọc tin tức.
+- **Hỗ trợ khách:** chatbot tìm hàng, tra đơn, giải đáp chính sách (theo kịch bản, không dùng AI, không tốn phí); nút gọi hotline.
+- **Quản trị viên:** dashboard doanh thu, sản phẩm và ảnh (mô tả soạn bằng trình soạn thảo, chèn được ảnh), danh mục, thương hiệu, đơn hàng và thanh toán, trả hàng và hoàn tiền, kho và lịch sử kho, người dùng, banner, bài viết, cài đặt cửa hàng.
+- **Giao diện:** chế độ sáng / tối cho cả cửa hàng và trang quản trị, dùng tốt trên điện thoại, đạt độ tương phản WCAG AA.
 
 | Phần | Công nghệ |
 |---|---|
 | Backend | Laravel 13 (PHP 8.3), REST API `/api/v1`, Sanctum (token), MySQL |
 | Frontend | React 19 + Vite, React Router, TanStack Query, Zustand, Tailwind CSS 4 (cửa hàng), Ant Design 6 (trang quản trị) |
-| Kiểm thử | PHPUnit (300+ feature test), ESLint |
+| Kiểm thử | PHPUnit (360 trường hợp feature test), ESLint, Playwright (kịch bản giao diện) |
 
 ## Tài liệu
 
 - [Cơ sở dữ liệu (ERD)](docs/erd.md)
 - [Use case](docs/use-cases.md)
 - [Danh sách API](docs/api.md)
-- [Luồng nghiệp vụ và sơ đồ trạng thái](docs/flows.md): đặt hàng, trạng thái đơn / thanh toán / trả hàng, quy ước doanh thu, tồn kho
-- [Kết quả kiểm thử toàn luồng](.claude/test-checklist.md)
+- [Luồng nghiệp vụ và sơ đồ trạng thái](docs/flows.md): kiến trúc, đặt hàng, trạng thái đơn / thanh toán / trả hàng, quy ước doanh thu, tồn kho, chatbot
+- [Thiết kế giao diện](docs/ui.md): hệ thống màu, sáng / tối, độ tương phản, bố cục, khả năng truy cập
+- [Kiểm thử](docs/testing.md): test tự động theo chức năng, kịch bản trên giao diện, lỗi đã phát hiện và sửa
 
 ## 1. Yêu cầu môi trường
 
@@ -112,6 +120,7 @@ Truy cập **http://localhost:5173**. Trang quản trị ở **http://localhost:
 
 - **Tài khoản nhận chuyển khoản:** dữ liệu demo dùng số tài khoản mẫu `0000000000`. Muốn quét mã QR bằng app ngân hàng thật, vào **Admin → Cài đặt**, chọn ngân hàng, nhập số tài khoản và tên chủ tài khoản (in hoa, không dấu). Mã QR của các đơn chưa thanh toán đổi theo ngay.
 - **Hotline:** nhập số ở **Admin → Cài đặt → Liên hệ** để hiện nút gọi ở góc dưới bên phải cửa hàng (cạnh nút đổi giao diện sáng / tối).
+- **Chatbot:** nút chat màu xanh ở góc dưới bên phải. Bot trả lời theo kịch bản, không dùng AI (không cần khoá API, không cần mạng ngoài). Câu demo gợi ý: "có con gundam nào dưới 1 triệu không", "quà cho bé 6 tuổi" rồi "còn cái nào rẻ hơn không", "đơn hàng của tôi" (sau khi đăng nhập), "ship bao nhiêu tiền". Cách bot hiểu câu: xem UC14 trong `docs/use-cases.md`.
 - **Làm mới dữ liệu:** chạy `php artisan app:reset-demo`. Lệnh xoá **toàn bộ** dữ liệu và ảnh đã tải lên rồi nạp lại dữ liệu demo, nên phải gõ `yes` xác nhận; thêm `--force` để bỏ qua bước hỏi. Lệnh từ chối chạy khi `APP_ENV=production`.
 
 ## 4. Cấu hình riêng của dự án (`backend/.env`)
@@ -148,7 +157,9 @@ backend/
   app/Enums/             Trạng thái đơn, thanh toán, trả hàng, lý do kho… (kèm luồng chuyển hợp lệ)
   app/Http/Controllers/  Api/ (cửa hàng) và Api/Admin/ (quản trị)
   app/Http/Requests/     Kiểm tra dữ liệu đầu vào (thông báo tiếng Việt)
-  app/Services/          Nghiệp vụ: đặt hàng, kho, trả hàng, giỏ, thống kê
+  app/Services/          Nghiệp vụ: đặt hàng, kho, trả hàng, giỏ, thống kê, chatbot
+  app/Support/           Tiện ích: cài đặt cửa hàng, VietQR, lọc HTML bài viết, bộ hiểu câu chatbot
+  app/Queries/           Bộ lọc sản phẩm dùng chung (trang danh sách và chatbot)
   database/seeders/      Dữ liệu demo
   routes/api.php         Toàn bộ API /api/v1
   tests/Feature/         Feature test
@@ -157,6 +168,8 @@ frontend/src/
   features/              Hook TanStack Query theo module
   pages/store, pages/admin
   components/, layouts/, stores/ (Zustand)
+  components/chat/       Khung chatbot
+  index.css              Token màu Mecha Gold (sáng / tối)
 docs/                    Tài liệu báo cáo
 ```
 
@@ -170,3 +183,4 @@ docs/                    Tài liệu báo cáo
 | Frontend báo "Không kết nối được máy chủ" | Backend chưa chạy, hoặc `VITE_API_URL` trong `frontend/.env` sai cổng |
 | Lỗi CORS | `FRONTEND_URL` trong `backend/.env` phải đúng địa chỉ đang mở frontend |
 | Test lỗi kết nối DB | Chưa tạo database `toystore_test` |
+| Chatbot báo "Bạn gửi hơi nhanh" | Quá 20 tin / phút, đợi 1 phút |

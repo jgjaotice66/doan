@@ -29,6 +29,8 @@ flowchart LR
         UC10([Yêu cầu trả hàng])
         UC11([Quản lý danh sách yêu thích])
         UC12([Cập nhật hồ sơ, đổi mật khẩu])
+        UC13([Đổi giao diện sáng / tối, gọi hotline])
+        UC14([Hỏi chatbot: tìm hàng, tra đơn, chính sách])
     end
 
     subgraph Admin["Trang quản trị /admin"]
@@ -41,10 +43,10 @@ flowchart LR
         AD7([Khoá / mở khoá tài khoản khách])
         AD8([Quản lý banner])
         AD9([Quản lý bài viết NEWS])
-        AD10([Cài đặt: tài khoản nhận tiền, ngưỡng chung])
+        AD10([Cài đặt: tài khoản nhận tiền, hotline, ngưỡng chung])
     end
 
-    G --- UC1 & UC2 & UC3 & UC4 & UC5
+    G --- UC1 & UC2 & UC3 & UC4 & UC5 & UC13 & UC14
     C --- UC6 & UC7 & UC8 & UC9 & UC10 & UC11 & UC12
     C -.->|kế thừa| G
     A --- AD1 & AD2 & AD3 & AD4 & AD5 & AD6 & AD7 & AD8 & AD9 & AD10
@@ -58,7 +60,7 @@ flowchart LR
 |---|---|---|
 | UC1 | Xem trang chủ | Slider banner, sản phẩm nổi bật, hàng mới, danh mục, tin mới. |
 | UC2 | Tìm kiếm và lọc | Tìm theo tên hoặc SKU; lọc theo danh mục (danh mục cha gồm cả danh mục con), thương hiệu, độ tuổi, khoảng giá; sắp xếp mới nhất / giá tăng / giá giảm / bán chạy; phân trang. Bộ lọc nằm trên URL nên chia sẻ được link. |
-| UC3 | Xem chi tiết sản phẩm | Ảnh, giá (giá gốc gạch ngang nếu đang khuyến mãi), tồn kho, mô tả, sản phẩm liên quan. |
+| UC3 | Xem chi tiết sản phẩm | Ảnh, giá (giá gốc gạch ngang nếu đang khuyến mãi), tồn kho, sản phẩm liên quan. Mô tả (chữ + ảnh) nằm dưới, rộng hết khung; mô tả dài được thu gọn kèm nút **Xem thêm / Thu gọn**. |
 | UC4 | Đọc NEWS | Danh sách bài đã xuất bản, bài ghim nổi bật, chi tiết bài. |
 | UC5 | Đăng ký / Đăng nhập | Giới hạn 10 lần mỗi phút. Tài khoản bị khoá không đăng nhập được. |
 | UC6 | Quản lý giỏ hàng | Thêm, đổi số lượng, xoá. Không cho vượt tồn kho; báo dòng nào đã hết hàng hoặc ngừng bán. |
@@ -69,13 +71,14 @@ flowchart LR
 | UC11 | Yêu thích | Thêm / bỏ từ thẻ sản phẩm hoặc trang chi tiết; xem danh sách. |
 | UC12 | Hồ sơ | Sửa tên, số điện thoại; đổi mật khẩu (phải nhập mật khẩu cũ). |
 | UC13 | Đổi giao diện, gọi hotline | Nút nổi góc dưới bên phải: chuyển sáng / tối (nhớ lựa chọn, lần đầu theo hệ điều hành); nút điện thoại di chuột hiện số hotline, bấm để gọi. Khách vãng lai cũng dùng được. |
+| UC14 | Hỏi chatbot | Xem đặc tả bên dưới. |
 
 ### Quản trị viên
 
 | Mã | Use case | Mô tả ngắn |
 |---|---|---|
 | AD1 | Dashboard | Doanh thu hôm nay / tháng này, đơn chờ xử lý, khách mới, sắp hết hàng; biểu đồ doanh thu 30 ngày / 12 tháng; top sản phẩm bán chạy; tỉ lệ trạng thái đơn. |
-| AD2 | Sản phẩm | Tạo, sửa, ẩn, xoá mềm; tải nhiều ảnh, đổi thứ tự ảnh, xoá ảnh. Lọc theo danh mục, thương hiệu, trạng thái. |
+| AD2 | Sản phẩm | Tạo, sửa, ẩn, xoá mềm; tải nhiều ảnh, đổi thứ tự ảnh, xoá ảnh. Soạn mô tả bằng trình soạn thảo (tiêu đề, đậm / nghiêng, danh sách, link, chèn ảnh bằng nút ảnh / kéo-thả / dán). Lọc theo danh mục, thương hiệu, trạng thái, tồn kho (hết hàng / sắp hết). Đầu trang có thông báo **cần nhập hàng** (số sản phẩm hết và sắp hết, nút lọc nhanh, nút sang trang Kho); menu Sản phẩm có badge cam đếm số sản phẩm cần nhập. |
 | AD3 | Danh mục, thương hiệu | CRUD; không xoá được khi còn sản phẩm (danh mục: cả khi còn danh mục con). Danh mục có danh mục cha. |
 | AD4 | Đơn hàng | Lọc, tìm theo mã hoặc tên; chuyển trạng thái theo đúng luồng; bấm **Đã nhận tiền** cho đơn chuyển khoản; bấm **Đã hoàn tiền** cho đơn đã huỷ sau khi khách trả tiền. |
 | AD5 | Trả hàng | Duyệt hoặc từ chối (kèm lý do); xác nhận đã nhận hàng (chọn món nào nhập lại kho); ghi nhận đã hoàn tiền với số tiền thực hoàn. |
@@ -139,3 +142,16 @@ flowchart LR
   - Quá hạn trả hàng.
   - File sai định dạng hoặc quá dung lượng.
 - **Hậu điều kiện:** số tiền hoàn bị trừ khỏi doanh thu vào ngày hoàn tiền.
+
+### UC14 – Hỏi chatbot
+
+- **Tác nhân:** khách vãng lai, khách hàng (tra đơn cần đăng nhập).
+- **Kích hoạt:** bấm nút chat (góc dưới bên phải), gõ câu hỏi tự do hoặc bấm câu gợi ý.
+- **Cách bot hiểu câu** (`ChatbotService`, không dùng AI, không tốn phí):
+  1. Bỏ dấu, chữ thường rồi so khớp từ khoá theo thứ tự ưu tiên: đơn hàng → đổi trả → thanh toán → phí ship → hotline.
+  2. Không khớp thì coi là tìm sản phẩm. Bot tách từ câu: khoảng giá ("dưới 800k", "từ 1 đến 2 triệu", "1tr5", "tầm 500k"), độ tuổi ("bé 6 tuổi" → sản phẩm từ 6 tuổi trở xuống), danh mục, thương hiệu, cách sắp xếp ("rẻ nhất", "bán chạy"). Phần chữ còn lại dùng để tìm theo tên.
+  3. Từ khoá không khớp tên nào thì nới dần (bỏ danh mục, rồi bỏ từ khoá) và nói rõ là đã nới.
+  4. Vẫn không hiểu thì xin lỗi, gợi ý câu hỏi và đưa số hotline. Bot không bịa câu trả lời.
+- **Kết quả:** tối đa 4 thẻ sản phẩm kèm link "Xem tất cả" sang trang danh sách đã lọc sẵn; hoặc 3 đơn gần nhất / đơn theo mã (chỉ đơn của chính khách); hoặc nội dung chính sách lấy từ cấu hình (`RETURN_DAYS`, `SHIPPING_FEE`, hotline ở Cài đặt).
+- **Câu nối tiếp:** "còn cái nào rẻ hơn / xịn hơn không?" dùng lại bộ lọc của lần trước (`context`).
+- **Ràng buộc:** tối đa 20 tin mỗi phút; lịch sử chat chỉ giữ trong phiên trình duyệt và xoá khi đổi tài khoản.

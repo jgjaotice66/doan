@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use App\Support\ProductContent;
 use Database\Seeders\Concerns\TravelsInTime;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -188,8 +189,7 @@ class CatalogSeeder extends Seeder
             'name' => $name,
             'slug' => Str::slug($name),
             'sku' => sprintf('TS-%04d', $index),
-            'description' => "{$name} chính hãng {$brand->name}, hàng mới nguyên hộp.\n\n".self::DESCRIPTIONS[$category->slug]
-                ."\n\nToy Store nhập hàng trực tiếp, đóng gói chống sốc và hỗ trợ đổi trả trong ".config('shop.return_days').' ngày nếu sản phẩm lỗi.',
+            'description' => $this->description($name, $brand->name, $category, $minAge),
             'price' => $price,
             'sale_price' => $salePrice,
             'min_age' => $minAge,
@@ -211,5 +211,34 @@ class CatalogSeeder extends Seeder
                 'note' => 'Nhập kho ban đầu',
             ]);
         }
+    }
+
+    /**
+     * Mô tả HTML như admin soạn bằng trình soạn thảo: đoạn giới thiệu, ảnh minh hoạ (ảnh giữ chỗ placehold.co),
+     * bảng thông tin dạng danh sách và cam kết — đủ dài để trang chi tiết hiện nút "Xem thêm".
+     */
+    private function description(string $name, string $brand, Category $category, int $minAge): string
+    {
+        $returnDays = config('shop.return_days');
+        $image = 'https://placehold.co/1200x600/1a1a2e/f5b83d?text='.urlencode(Str::limit($name, 28, '').' - chi tiet');
+
+        return ProductContent::normalize(
+            '<p><strong>'.e($name).'</strong> chính hãng '.e($brand).', hàng mới nguyên hộp.</p>'
+            .'<p>'.e(self::DESCRIPTIONS[$category->slug]).'</p>'
+            .'<p><img src="'.e($image).'" alt="'.e($name).'"></p>'
+            .'<h3>Thông tin sản phẩm</h3>'
+            .'<ul>'
+            .'<li>Thương hiệu: '.e($brand).'</li>'
+            .'<li>Danh mục: '.e($category->name).'</li>'
+            .'<li>Độ tuổi phù hợp: '.($minAge > 0 ? "từ {$minAge} tuổi" : 'mọi lứa tuổi').'</li>'
+            .'<li>Tình trạng: mới 100%, nguyên seal</li>'
+            .'</ul>'
+            .'<h3>Cam kết của Toy Store</h3>'
+            .'<ul>'
+            .'<li>Nhập hàng trực tiếp từ nhà phân phối, cam kết chính hãng.</li>'
+            .'<li>Đóng gói chống sốc nhiều lớp, hộp không móp méo.</li>'
+            .'<li>Đổi trả trong '.$returnDays.' ngày nếu sản phẩm lỗi do nhà sản xuất.</li>'
+            .'</ul>'
+        ) ?? '';
     }
 }

@@ -21,6 +21,7 @@ const isFilterActive = (filter, params) =>
  *     searchPlaceholder="Mã đơn, tên, SĐT…"
  *     filters={[{ name: 'status', placeholder: 'Trạng thái', options: [{ value: 'pending', label: 'Chờ xác nhận' }] }]}
  *     toolbar={<Button type="primary">Thêm</Button>}
+ *     banner={(meta) => <Alert … />}           // tuỳ chọn: thông báo đầu bảng, đọc từ meta của API
  *   />
  *
  * fetchFn nhận { page, per_page?, q?, ...filters } — đúng tên query param của API.
@@ -37,6 +38,7 @@ export default function AdminTable({
   filters = [],
   toolbar,
   renderCard,
+  banner,
   ...tableProps
 }) {
   const { params, setParams } = useTableParams()
@@ -89,6 +91,7 @@ export default function AdminTable({
 
   return (
     <Card styles={{ body: { padding: 0 } }}>
+      {banner && meta && banner(meta)}
       {hasToolbar && (
         // Điện thoại: xếp dọc — hàng tìm kiếm + nút Bộ lọc, rồi bộ lọc (nếu mở), rồi nút hành động (toolbar).
         <Flex wrap gap={12} justify="space-between" vertical={isMobile} style={{ padding: isMobile ? 12 : 16 }}>

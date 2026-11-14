@@ -7,6 +7,7 @@ import { Link, useSearchParams } from 'react-router'
 import { adminInventoryApi } from '../../api/admin/inventory'
 import AdminTable from '../../components/admin/AdminTable'
 import StockAdjustModal from '../../components/admin/StockAdjustModal'
+import StockStatus from '../../components/admin/StockStatus'
 import { getErrorMessage } from '../../api/client'
 import {
   inventoryKeys,
@@ -51,13 +52,7 @@ function LowStockAlert() {
 }
 
 function StockCell({ product }) {
-  if (product.stock === 0) return <Tag color="red">Hết hàng</Tag>
-  return (
-    <Typography.Text strong style={{ fontSize: 16 }} type={product.low_stock ? 'danger' : undefined}>
-      {product.stock}
-      {product.low_stock && <Typography.Text type="danger"> · sắp hết</Typography.Text>}
-    </Typography.Text>
-  )
+  return <StockStatus product={product} large />
 }
 
 /**

@@ -20,11 +20,12 @@ const TOOLBAR = [
 const FORMATS = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'blockquote', 'align', 'link', 'image']
 
 /**
- * Trình soạn thảo bài viết (Quill) cho antd Form: <Form.Item name="content"><RichTextEditor /></Form.Item>.
+ * Trình soạn thảo (Quill) cho antd Form: <Form.Item name="content"><RichTextEditor /></Form.Item>.
  * value/onChange = chuỗi HTML. Ảnh (nút ảnh, kéo-thả, dán) được tải lên server rồi chèn bằng URL,
  * không nhét base64 vào nội dung.
+ * uploadImage(file) → Promise<url>: mặc định là ảnh bài viết; mô tả sản phẩm truyền API riêng.
  */
-export default function RichTextEditor({ value, onChange, id, placeholder, status }) {
+export default function RichTextEditor({ value, onChange, id, placeholder, status, uploadImage = adminPostsApi.uploadImage, minHeight }) {
   const { message } = App.useApp()
   const { token } = theme.useToken()
   // modules phải giữ nguyên giữa các lần render, nếu không Quill bị dựng lại và mất con trỏ
@@ -47,7 +48,7 @@ export default function RichTextEditor({ value, onChange, id, placeholder, statu
             }
             const hide = notify.loading(`Đang tải "${file.name}"…`, 0)
             try {
-              const url = await adminPostsApi.uploadImage(file)
+              const url = await uploadImage(file)
               quill.insertEmbed(index, 'image', url, 'user')
               index += 1
               quill.setSelection(index, 0, 'silent')
@@ -60,7 +61,7 @@ export default function RichTextEditor({ value, onChange, id, placeholder, statu
         },
       },
     }),
-    [message],
+    [message, uploadImage],
   )
 
   return (
@@ -77,6 +78,7 @@ export default function RichTextEditor({ value, onChange, id, placeholder, statu
         '--rte-icon': token.colorTextSecondary,
         '--rte-active': token.colorPrimary,
         '--rte-popup-bg': token.colorBgElevated,
+        ...(minHeight && { '--rte-min-height': minHeight }),
       }}
     >
       <ReactQuill

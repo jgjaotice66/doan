@@ -50,6 +50,13 @@ class PostManageTest extends TestCase
 
     // ---------- Chống XSS ----------
 
+    public function test_editor_non_breaking_spaces_become_normal_spaces(): void
+    {
+        $id = $this->create(['content' => '<p>Gundam&nbsp;mùa&nbsp;mới</p>'])->assertCreated()->json('data.id');
+
+        $this->assertSame('<p>Gundam mùa mới</p>', Post::findOrFail($id)->content);
+    }
+
     public function test_script_and_dangerous_attributes_are_removed_from_content(): void
     {
         $html = '<h2>Tiêu đề</h2>'

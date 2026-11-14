@@ -1,16 +1,14 @@
-# React + Vite
+# Toy Store – Frontend (React 19 + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Một ứng dụng React gồm cửa hàng (Tailwind CSS 4, hệ màu "Mecha Gold") và trang quản trị `/admin` (Ant Design 6).
 
-Currently, two official plugins are available:
+- Cài đặt, chạy, tài khoản demo: xem [README chính](../README.md).
+- Thiết kế giao diện: [docs/ui.md](../docs/ui.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Lệnh hay dùng:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev     # chạy tại http://localhost:5173 (cần backend ở :8000, cấu hình VITE_API_URL trong .env)
+npm run lint    # kiểm tra ESLint
+npm run build   # build bản production vào dist/
+```

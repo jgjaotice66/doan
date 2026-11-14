@@ -1,5 +1,7 @@
 # Kết quả kiểm thử toàn luồng (task 40)
 
+> **Bản lưu của task 40 (10/11/2026).** Kết quả mới nhất và đầy đủ (gồm các tính năng bổ sung) ở [`docs/testing.md`](../docs/testing.md).
+
 Ngày chạy: 10/11/2026 · Môi trường: `php artisan serve` (:8000) + `npm run dev` (:5173), DB dev sau `php artisan app:reset-demo`.
 
 ## 1. Kiểm thử tự động

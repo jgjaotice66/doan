@@ -27,7 +27,7 @@ class ProductFactory extends Factory
             'name' => $name,
             'slug' => Str::slug($name).'-'.Str::lower(Str::random(4)),
             'sku' => 'SKU-'.fake()->unique()->numerify('#####'),
-            'description' => fake()->paragraphs(2, true),
+            'description' => '<p>'.implode('</p><p>', fake()->paragraphs(2)).'</p>',
             'price' => fake()->numberBetween(10, 500) * 10000,
             'sale_price' => null,
             'stock' => fake()->numberBetween(10, 100),

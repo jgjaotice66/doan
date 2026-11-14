@@ -16,9 +16,11 @@ flowchart LR
     B -- "thẻ img" --> QR
 ```
 
+Toàn bộ chạy trên máy cục bộ, không gọi dịch vụ trả phí nào (chatbot cũng tự xử lý trong Laravel). Dịch vụ ngoài duy nhất là ảnh QR của VietQR, trình duyệt tải trực tiếp.
+
 - Controller chỉ nhận request và trả response.
 - Kiểm tra dữ liệu nằm ở FormRequest.
-- Nghiệp vụ có nhiều bước nằm trong Service: `OrderService`, `StockService`, `ReturnService`, `CartService`, `DashboardService`.
+- Nghiệp vụ có nhiều bước nằm trong Service: `OrderService`, `StockService`, `ReturnService`, `CartService`, `DashboardService`, `ChatbotService`.
 - Mọi thao tác đổi tồn kho, tiền hoặc trạng thái chạy trong `DB::transaction` và khoá dòng (`lockForUpdate`) trước khi đọc trạng thái mới nhất.
 
 ## 2. Luồng đặt hàng
@@ -161,3 +163,74 @@ Mã nguồn: `app/Services/DashboardService.php`.
   4. ngưỡng chung ở **Admin → Cài đặt**; nếu chưa lưu thì dùng `LOW_STOCK_THRESHOLD` trong `.env` (mặc định 5).
 
   Sản phẩm có `0 < stock ≤ ngưỡng` là sắp hết; `stock = 0` là hết hàng.
+
+## 8. Chatbot hỗ trợ khách
+
+Chatbot trả lời theo kịch bản, **không dùng AI**: không tốn phí, không cần khoá API, không cần mạng ngoài, và chỉ trả lời bằng dữ liệu thật trong database nên không bịa giá hay tồn kho.
+
+### Luồng một tin nhắn
+
+```mermaid
+sequenceDiagram
+    actor K as Khách
+    participant FE as React (ChatPanel)
+    participant API as ChatController
+    participant S as ChatbotService
+    participant M as ChatMessage
+    participant DB as MySQL
+
+    K->>FE: Gõ "có con gundam nào dưới 800k không"
+    FE->>API: POST /chat { message, context } (kèm token nếu đã đăng nhập)
+    API->>API: ChatRequest kiểm tra (≤ 500 ký tự, context hợp lệ), giới hạn 20 tin/phút
+    API->>S: reply(message, context, user)
+    S->>M: Chuẩn hoá: bỏ dấu, chữ thường
+    S->>S: Dò từ khoá theo thứ tự ưu tiên (đơn hàng → đổi trả → thanh toán → ship → hotline)
+    S->>M: Tách giá "dưới 800k" → price_max = 800000; danh mục "gundam"; sắp xếp "rẻ"
+    S->>DB: Sản phẩm đang bán + ProductFilter (cùng bộ lọc với trang danh sách)
+    DB-->>S: Kết quả (tối đa 4)
+    S-->>FE: { intent: products, text, products, link "Xem tất cả", context, suggestions }
+    FE-->>K: Bong bóng trả lời + thẻ sản phẩm + câu gợi ý
+    Note over FE: Lưu context; câu sau "còn cái nào rẻ hơn không?" gửi lại context
+```
+
+### Cách chọn câu trả lời
+
+```mermaid
+flowchart TD
+    A[Tin nhắn] --> B[Chuẩn hoá: bỏ dấu, chữ thường]
+    B --> C{Có từ khoá đơn hàng<br/>hoặc mã đơn TS…?}
+    C -- có --> C1{Đã đăng nhập?}
+    C1 -- chưa --> C2[Mời đăng nhập]
+    C1 -- rồi --> C3[Đơn theo mã / 3 đơn gần nhất<br/>chỉ đơn của chính khách]
+    C -- không --> D{Đổi trả / thanh toán /<br/>phí ship / hotline?}
+    D -- có --> D1[Trả lời chính sách<br/>lấy từ cấu hình thật]
+    D -- không --> E[Tách giá, độ tuổi, danh mục,<br/>thương hiệu, sắp xếp; phần chữ còn lại = tên]
+    E --> F{Có điều kiện hoặc<br/>giống câu hỏi xem hàng?}
+    F -- có --> G[Tìm sản phẩm]
+    G --> H{Có kết quả?}
+    H -- có --> H1[Tối đa 4 thẻ + link trang danh sách đã lọc]
+    H -- không --> I[Nới dần: bỏ danh mục, rồi bỏ từ khoá<br/>và nói rõ đã nới]
+    F -- không --> J{Chào / cảm ơn?}
+    J -- có --> J1[Chào lại, giới thiệu khả năng]
+    J -- không --> K[Không hiểu: xin lỗi,<br/>gợi ý câu hỏi + số hotline]
+```
+
+### Bộ hiểu câu (`app/Support/ChatMessage.php`)
+
+| Khách gõ | Bot hiểu |
+|---|---|
+| "dưới 800k", "không quá 800.000đ" | giá ≤ 800.000 |
+| "trên 500k", "2 triệu trở lên" | giá ≥ … |
+| "từ 1 đến 2 triệu" | 1.000.000 – 2.000.000 (số đầu mượn đơn vị của số sau) |
+| "tầm 1 triệu", "khoảng 1tr" | 800.000 – 1.200.000 (±20%) |
+| "1tr5", "1.5 triệu", "2 củ" | 1.500.000, 1.500.000, 2.000.000 |
+| "bé 6 tuổi" | sản phẩm có độ tuổi tối thiểu ≤ 6 |
+| "gunpla", "mô hình xe", "board game"… | danh mục (theo tên, slug và tên gọi khác) |
+| "bandai", "good smile"… | thương hiệu |
+| "rẻ nhất", "đắt nhất", "bán chạy", "mới nhất" | cách sắp xếp |
+| phần chữ còn lại, VD "nendoroid miku" | tìm theo tên: phải có đủ các từ, không cần liền nhau |
+
+- **Câu nối tiếp:** bot trả về `context` (bộ lọc vừa dùng, giá rẻ nhất / đắt nhất đã hiện). "Còn cái nào rẻ hơn không?" giữ nguyên bộ lọc và đặt giá tối đa thấp hơn món rẻ nhất vừa hiện; "xịn hơn" thì ngược lại.
+- **An toàn:** tra đơn chỉ trong đơn của tài khoản đang gửi token. Đoán mã đơn của người khác chỉ nhận câu "không thấy đơn". Sản phẩm ẩn hoặc đã xoá không bao giờ hiện.
+- **Lịch sử chat** chỉ nằm trong `sessionStorage` của trình duyệt, không lưu database, và tự xoá khi đăng nhập hoặc đăng xuất.
+- **Giới hạn:** bot không suy luận hay so sánh ("nên mua RG hay MG?"). Những câu đó bot nhận là chưa hiểu và chuyển sang hotline. Nếu sau này cần, có thể nối thêm mô hình AI (VD Ollama chạy trên máy) ở bước "không hiểu" mà không phải sửa các bước trước.

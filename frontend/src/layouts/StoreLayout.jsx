@@ -52,7 +52,7 @@ function SearchBox() {
   }
 
   return (
-    <form onSubmit={onSubmit} role="search" className="relative order-last w-full lg:order-none lg:min-w-56 lg:max-w-md lg:flex-1">
+    <form onSubmit={onSubmit} role="search" className="header-popover relative order-last w-full lg:order-none lg:min-w-56 lg:max-w-md lg:flex-1">
       <label htmlFor="site-search" className="sr-only">
         Tìm sản phẩm
       </label>
@@ -217,6 +217,7 @@ function MobileMenu() {
         open={open}
         onClose={close}
         title="Menu"
+        className="header-popover"
         footer={
           token ? (
             <button
@@ -285,8 +286,8 @@ export default function StoreLayout() {
         Bỏ qua đến nội dung chính
       </a>
 
-      {/* Nền header khác thân trang ở cả 2 chế độ (token --color-header) + bóng nhẹ để tách lớp khi cuộn */}
-      <header className="sticky top-0 z-30 border-b border-line bg-header/95 shadow-[0_6px_20px_-12px_rgb(0_0_0/0.35)] backdrop-blur">
+      {/* Nền header khác thân trang ở cả 2 chế độ (token --color-header; sáng = đỏ cam, xem .store-header ở index.css) */}
+      <header className="store-header sticky top-0 z-30 border-b border-line bg-header/95 shadow-[0_6px_20px_-12px_rgb(0_0_0/0.35)] backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
           <div className="flex items-center gap-1">
             <MobileMenu />
